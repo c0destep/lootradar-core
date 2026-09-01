@@ -109,4 +109,27 @@ readonly class GameDeal
             historicalLow: $this->historicalLow,
         );
     }
+
+    /**
+     * Cópia com preços e moeda convertidos pelo estágio de moeda do pipeline.
+     */
+    public function withPricing(
+        float $originalPrice,
+        float $currentPrice,
+        string $currency,
+        ?float $historicalLow,
+    ): self {
+        return new self(
+            title: $this->title,
+            storeName: $this->storeName,
+            originalPrice: $originalPrice,
+            currentPrice: $currentPrice,
+            checkoutUrl: $this->checkoutUrl,
+            approvalRating: $this->approvalRating,
+            isFree: $this->isFree,
+            currency: $currency,
+            expiresAt: $this->expiresAt,
+            historicalLow: $historicalLow,
+        );
+    }
 }

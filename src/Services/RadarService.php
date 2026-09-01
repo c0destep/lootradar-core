@@ -31,7 +31,12 @@ class RadarService
         private readonly CacheInterface $cache,
         private readonly UrlSanitizer $urlSanitizer = new UrlSanitizer(),
         private readonly ShovelwareFilter $shovelwareFilter = new ShovelwareFilter(),
+        private readonly ?CurrencyConverter $currencyConverter = null,
+        private readonly ?string $targetCurrency = null,
     ) {
+        if ($this->targetCurrency !== null && $this->currencyConverter === null) {
+            throw new \InvalidArgumentException('Uma moeda-alvo requer um CurrencyConverter.');
+        }
     }
 
     public function registerAdapter(StoreAdapterInterface $adapter): void
@@ -106,9 +111,10 @@ class RadarService
         }
 
         // Pipeline componível com o operador pipe do PHP 8.5:
-        // coletar |> filtrar shovelware |> higienizar URLs |> serializar.
+        // coletar |> filtrar shovelware |> converter moeda |> higienizar URLs |> serializar.
         $payload = $this->gather($fetcher)
                 |> $this->shovelwareFilter->filter(...)
+                |> $this->convertCurrency(...)
                 |> $this->sanitizeUrls(...)
                 |> $this->serialize(...);
 
@@ -162,6 +168,23 @@ class RadarService
         }
 
         return $safe;
+    }
+
+    /**
+     * @param list<GameDeal> $deals
+     *
+     * @return list<GameDeal>
+     */
+    private function convertCurrency(array $deals): array
+    {
+        if ($this->currencyConverter === null || $this->targetCurrency === null) {
+            return $deals;
+        }
+
+        return array_map(
+            fn(GameDeal $deal): GameDeal => $this->currencyConverter->convertDeal($deal, $this->targetCurrency),
+            $deals,
+        );
     }
 
     /**
