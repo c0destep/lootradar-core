@@ -8,6 +8,14 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use LootRadar\Adapters\EpicGamesAdapter;
 
+it('verifica a saúde da API pelo contrato ClientInterface', function () {
+    $client = new Client(['handler' => HandlerStack::create(new MockHandler([
+        new Response(200),
+    ]))]);
+
+    expect(new EpicGamesAdapter($client)->verifyApiHealth())->toBeTrue();
+});
+
 it('converte somente jogos gratuitos da fixture da Epic', function () {
     $fixture = file_get_contents(__DIR__ . '/fixtures/epic-free-games.json');
     expect($fixture)->not->toBeFalse();

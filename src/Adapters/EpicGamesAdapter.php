@@ -30,7 +30,7 @@ final class EpicGamesAdapter implements StoreAdapterInterface
     #[NoDiscard('verifique o status da API antes de prosseguir com a coleta')]
     public function verifyApiHealth(): bool
     {
-        $response = $this->httpClient->get(self::ENDPOINT);
+        $response = $this->httpClient->request('GET', self::ENDPOINT);
         return $response->getStatusCode() === 200;
     }
 
