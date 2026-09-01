@@ -1,0 +1,20 @@
+[
+  {
+    "timestamp": "2026-01-10T10:30:00+00:00",
+    "shop": {"id": 61, "name": "Steam"},
+    "deal": {
+      "price": {"amount": 14.99, "amountInt": 1499, "currency": "BRL"},
+      "regular": {"amount": 59.99, "amountInt": 5999, "currency": "BRL"},
+      "cut": 75
+    }
+  },
+  {
+    "timestamp": "not-a-date",
+    "shop": {"id": 35, "name": "GOG"},
+    "deal": {
+      "price": {"amount": 7.49, "currency": "BRL"},
+      "regular": {"amount": 29.99, "currency": "BRL"},
+      "cut": 75
+    }
+  }
+]

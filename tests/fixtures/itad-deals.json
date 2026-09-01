@@ -1,0 +1,42 @@
+[
+  {
+    "id": "018d937f-012f-73f8-ab2c-898516969e6a",
+    "slug": "hades",
+    "title": "Hades",
+    "type": "game",
+    "mature": false,
+    "deal": {
+      "shop": {"id": 61, "name": "Steam"},
+      "price": {"amount": 14.99, "amountInt": 1499, "currency": "BRL"},
+      "regular": {"amount": 59.99, "amountInt": 5999, "currency": "BRL"},
+      "cut": 75,
+      "historyLow": {"amount": 14.99, "amountInt": 1499, "currency": "BRL"},
+      "expiry": "2026-09-08T14:00:00+00:00",
+      "url": "https://itad.link/hades/"
+    }
+  },
+  {
+    "id": "018d937f-012f-73f8-ab2c-898516969e6b",
+    "slug": "celeste",
+    "title": "Celeste",
+    "type": "game",
+    "mature": false,
+    "deal": {
+      "shop": {"id": 35, "name": "GOG"},
+      "price": {"amount": 7.49, "amountInt": 749, "currency": "BRL"},
+      "regular": {"amount": 29.99, "amountInt": 2999, "currency": "BRL"},
+      "cut": 75,
+      "historyLow": {"amount": 4.99, "amountInt": 499, "currency": "BRL"},
+      "expiry": null,
+      "url": "https://itad.link/celeste/"
+    }
+  },
+  {
+    "title": "Malformed",
+    "deal": {
+      "shop": {"id": 61, "name": "Steam"},
+      "price": {"amount": 1.0, "currency": "BRL"},
+      "regular": {"amount": 10.0, "currency": "BRL"}
+    }
+  }
+]
