@@ -31,19 +31,20 @@ Princípios inegociáveis:
 
 ## 1. Estado atual (o que já existe)
 
-Base do Core operacional e validada ponta a ponta (Fase 1 parcial).
+Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 
 | Item | Caminho | Situação |
 |------|---------|----------|
 | Pacote / autoload | `composer.json` (`lootradar/lootradar`, PSR-4 `LootRadar\` → `src/`) | ✅ |
-| DTO imutável | `src/DTO/GameDeal.php` (`readonly class` + `toArray()`) | ✅ |
-| Contrato de loja | `src/Contracts/StoreAdapterInterface.php` | ✅ |
-| Adapter Epic | `src/Adapters/EpicGamesAdapter.php` (pipe `\|>`, `#[\NoDiscard]`) | ✅ jogos grátis |
+| DTOs imutáveis | `src/DTO/GameDeal.php`, `Money.php`, `PriceHistory.php`, `Theme.php` | ✅ |
+| Contratos | `src/Contracts/{StoreAdapter,Cache,PriceHistoryProvider,ExchangeRateProvider}Interface.php` | ✅ |
+| Adapters de lojas | `src/Adapters/{EpicGames,Itad,Steam,Gog}Adapter.php` | ✅ promoções; ITAD também expõe histórico |
 | Orquestrador + cache | `src/Services/RadarService.php`, `src/Contracts/CacheInterface.php`, `src/Cache/*` | ✅ abstração JSON/SQLite; CLI compõe `JsonCache` |
+| Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter` | ✅ URL segura, filtro de score e conversão com cache |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
-| Testes | `tests/` (Pest, 18 casos / 38 asserções) | ✅ cache, Epic, filtro, URL e temas cobertos |
+| Testes | `tests/` (Pest, 32 casos / 95 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ⚠️ execução bloqueada no ambiente pelo servidor TCP interno do PHPStan |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
@@ -66,7 +67,7 @@ de URI** (`Uri\Rfc3986\Uri`, `Uri\WhatWg\Url`) — base para a higienização de
 | Operador Pipe `\|>` | pipelines dos adapters e do `RadarService` | `decode → normalizar → converter → filtrar → sanitizar → tokens` |
 | `#[\NoDiscard]` | métodos de saúde/erro (`verifyApiHealth`, cache, auth) | força consumo do retorno **em runtime + PHPStan** |
 | `array_first()` / `array_last()` / `array_find()` | ordenação/seleção de ofertas | seleção concisa de destaques |
-| Extensão URI (`Uri\WhatWg\Url`) | `UrlSanitizer` (a construir) | normalizar/higienizar checkout e remover parâmetros suspeitos |
+| Extensão URI (`Uri\WhatWg\Url`) | `UrlSanitizer` | normalizar/higienizar checkout e remover parâmetros suspeitos |
 | `readonly class` | `GameDeal` e futuros DTOs | imutabilidade total |
 
 > **Correção de premissa:** `LootRadar.md` afirma que `#[\NoDiscard]` garante checagem "em tempo
@@ -107,7 +108,7 @@ Decisões:
 | PHPStan **Level 8+** já (Plano Fase 4) vs. Level 5 entregue | **REFINADA** | Ratchet incremental: **5 (hoje) → 6 → 8/max**. Subir de nível exige endurecer o `mixed` dos parsers. Meta de longo prazo mantida. |
 | Desktop via **Electron + PHP** | **DESCARTADA** em favor de **NativePHP** | Electron+PHP é pesado e duplica runtime. NativePHP entrega `.exe`/`.app` com o próprio PHP embarcado. |
 | Prime Gaming como fonte de 1ª classe | **REBAIXADA** | Sem API pública (ver §3). |
-| `ThemeManager` hardcoded via `match` | **GAP a corrigir** | `LootRadar.md` pede temas por **arquivos JSON** (`config/themes/*.json`). Migrar para um loader. `cyberpunk.json` já existe e deve ser a fonte de verdade. |
+| `ThemeManager` hardcoded via `match` | **CONCLUÍDA** | Temas são carregados de arquivos JSON em `config/themes/*.json`; o tema `default` permanece como fallback seguro. |
 | Tokens de borda de caixa no Termwind (`border-solid/double/cor`) | **LIMITAÇÃO conhecida** | Termwind só renderiza `border-t` em `<hr>`, não bordas de `<div>`. Tokens `border` ficam no tema como dado para Web/Desktop; a CLI usa `<hr/>` como divisória. |
 
 ---
@@ -118,9 +119,9 @@ Decisões:
 lootradar/                          (monorepo do ecossistema)
 ├── src/                            # CORE (pacote Packagist)
 │   ├── Contracts/                  # StoreAdapterInterface, CacheInterface, PriceHistoryProvider...
-│   ├── Adapters/                   # Epic ✅, Steam, GOG, ITAD
-│   ├── DTO/                        # GameDeal ✅, PriceHistory, Currency, Theme
-│   ├── Services/                   # RadarService ✅, ThemeManager ✅, CurrencyConverter, UrlSanitizer, ShovelwareFilter
+│   ├── Adapters/                   # Epic, Steam, GOG e ITAD ✅
+│   ├── DTO/                        # GameDeal, Money, PriceHistory e Theme ✅
+│   ├── Services/                   # RadarService, ThemeManager, CurrencyConverter, UrlSanitizer, ShovelwareFilter ✅
 │   ├── Cache/                      # JsonCache ✅(embutido hoje), SqliteCache
 │   ├── Pipeline/                   # estágios reutilizáveis do pipe |>
 │   └── Commands/                   # free ✅, deal
@@ -142,33 +143,33 @@ lootradar/                          (monorepo do ecossistema)
 
 Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 
-### Fase 1 — Core robusto (PHP 8.5+)   *(parcialmente feita)*
+### Fase 1 — Core robusto (PHP 8.5+)   *(concluída)*
 
 **1.1 Abstrações e contratos**
 - ✅ `StoreAdapterInterface`, `GameDeal`, `RadarService`, `ThemeManager`.
 - ✅ `CacheInterface`, `JsonCache` e `SqliteCache` extraídos do `RadarService`.
-- 🔧 `PriceHistoryProviderInterface` (para ITAD).
-- 🔧 DTOs novos: `PriceHistory`, `Money`/`Currency`, `Theme`.
+- ✅ `PriceHistoryProviderInterface` (ITAD).
+- ✅ DTOs `PriceHistory`, `Money` e `Theme`.
 
 **1.2 Adapters e pipeline**
-- ✅ `EpicGamesAdapter::fetchFreeGames()` com pipe `|>` e `#[\NoDiscard]`.
-- 🔧 `EpicGamesAdapter::fetchDeals()` (hoje retorna `[]`).
-- 🔧 `SteamAdapter`, `GogAdapter`, `ItadAdapter`.
-- 🔧 **Pipeline completo** como estágios componíveis:
-  `payload |> decode |> normalizar |> converterMoeda |> filtrarShovelware |> sanitizarUrl |> aplicarTokens`.
-- 🎯 Cada adapter tem fixture JSON e teste offline; pipeline coberto por testes.
+- ✅ `EpicGamesAdapter::fetchFreeGames()` e `fetchDeals()` com parser defensivo.
+- ✅ `SteamAdapter`, `GogAdapter` e `ItadAdapter`; o ITAD também fornece histórico por contrato dedicado.
+- ✅ **Pipeline completo** no Core: cada adapter decodifica/normaliza seu payload e o `RadarService`
+  compõe `coletar |> filtrarShovelware |> converterMoeda |> sanitizarUrl |> serializar`.
+  A aplicação de tokens pertence à camada de apresentação (CLI/Web), preservando o Core-first.
+- ✅ Cada adapter tem fixture JSON e teste offline; o pipeline, cache e conversão também são cobertos.
 
 **1.3 Serviços transversais**
 - ✅ `ShovelwareFilter` — oculta score < limiar (padrão 60%), configurável.
 - ✅ `UrlSanitizer` sobre `Uri\WhatWg\Url` — normaliza checkout, remove params suspeitos, valida esquema.
-- 🔧 `CurrencyConverter` — taxas via fonte configurável + cache; moeda de config explícita.
+- ✅ `CurrencyConverter` — taxas via fonte configurável + cache; moeda-alvo explícita.
 - ✅ `UrlSanitizer` com testes de injeção (esquemas `javascript:`, hosts falsos, etc.).
 
 **1.4 Cache**
 - ✅ Cache JSON e SQLite com expiração (TTL 12h), atrás de `CacheInterface`.
 - ✅ Compressão opcional gzip no `JsonCache`. **Sem criptografia** (ver §4).
 - ✅ CLI compõe `JsonCache` antes de construir o `RadarService`.
-- 🎯 Mesma suíte de testes passa para `JsonCache` e `SqliteCache` (Win/Linux/macOS).
+- ✅ Mesma suíte de testes passa para `JsonCache` e `SqliteCache` (Win/Linux/macOS).
 
 ### Fase 2 — Interfaces CLI e Web/PWA
 
@@ -194,8 +195,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 18 testes / 38 asserções.
-- 🔧 **Fixtures** JSON estáticos (Epic coberta; Steam/ITAD ainda pendentes) + testes de parser offline.
+- ✅ Pest configurado, 32 testes / 95 asserções.
+- ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
 - 🔧 (Web) testes de layout Playwright.
@@ -248,9 +249,9 @@ push em background virar requisito.
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Implementar `ItadAdapter`, histórico e o comando `deal --top=N`.
-2. Adicionar fixture/testes offline do ITAD e, depois, Steam/GOG.
-3. Adicionar as flags da CLI (`--currency`, `--min-score`, `--no-cache`).
-4. Acompanhar o primeiro workflow de CI no GitHub e corrigir eventuais diferenças de ambiente.
-5. Decidir o nome do pacote no Packagist (§1) antes da publicação.
+1. Implementar o comando `deal --top=N`, compondo o ITAD no entrypoint da CLI.
+2. Adicionar as flags da CLI (`--currency`, `--min-score`, `--no-cache`) sem vazar lógica de negócio para o comando.
+3. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan gradualmente de 5 para 6.
+4. Decidir o nome do pacote no Packagist (§1) antes da publicação.
+5. Iniciar a camada de exposição JSON e o PWA da Fase 2.2.
 ```
