@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LootRadar\Services;
 
+use LootRadar\DTO\Theme;
 use RuntimeException;
 
 final class ThemeManager
@@ -22,13 +23,18 @@ final class ThemeManager
      */
     public static function getStylesByTheme(string $themeName): array
     {
+        return self::getTheme($themeName)->styles;
+    }
+
+    public static function getTheme(string $themeName): Theme
+    {
         if ($themeName === 'default') {
-            return self::DEFAULT_STYLES;
+            return new Theme('default', 'Tema padrão do LootRadar.', self::DEFAULT_STYLES);
         }
 
         $path = self::THEME_DIRECTORY . '/' . strtolower($themeName) . '.json';
         if (!is_file($path)) {
-            return self::DEFAULT_STYLES;
+            return new Theme('default', 'Tema padrão do LootRadar.', self::DEFAULT_STYLES);
         }
 
         $contents = file_get_contents($path);
@@ -42,13 +48,21 @@ final class ThemeManager
             throw new RuntimeException("Tema inválido: {$themeName}", previous: $exception);
         }
 
-        $styles = is_array($decoded) && is_array($decoded['styles'] ?? null) ? $decoded['styles'] : [];
+        if (!is_array($decoded)) {
+            throw new RuntimeException("Tema inválido: {$themeName}");
+        }
 
-        return [
-            'bg' => self::style($styles, 'bg'),
-            'badge' => self::style($styles, 'badge'),
-            'border' => self::style($styles, 'border'),
-        ];
+        $styles = is_array($decoded['styles'] ?? null) ? $decoded['styles'] : [];
+
+        return new Theme(
+            name: is_string($decoded['name'] ?? null) ? $decoded['name'] : $themeName,
+            description: is_string($decoded['description'] ?? null) ? $decoded['description'] : null,
+            styles: [
+                'bg' => self::style($styles, 'bg'),
+                'badge' => self::style($styles, 'badge'),
+                'border' => self::style($styles, 'border'),
+            ],
+        );
     }
 
     /** @return list<string> */
