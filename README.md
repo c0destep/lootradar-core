@@ -18,7 +18,7 @@ uma CLI temática.
 Clone o repositório e instale as dependências:
 
 ```bash
-git clone <url-do-repositorio> lootradar-core
+git clone https://github.com/c0destep/lootradar-core.git
 cd lootradar-core
 composer install
 ```

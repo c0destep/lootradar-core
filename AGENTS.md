@@ -5,7 +5,7 @@
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
 - O estado validado em 2026-09-01 é: Pest verde (18 testes); PHPStan level 5 não concluiu por falha do servidor TCP interno do ambiente; a CLI inicializa e expõe o comando `free`.
-- O repositório local usa a branch `main`, possui o commit raiz do release e a tag anotada `v0.1.0`. O remoto GitHub ainda não foi criado porque a sessão do GitHub CLI precisa ser renovada.
+- O repositório usa a branch `main`, possui o commit raiz do release, a tag anotada `v0.1.0` e o remoto público https://github.com/c0destep/lootradar-core.
 
 ## Regras de continuidade
 

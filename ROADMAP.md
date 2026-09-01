@@ -203,7 +203,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 
 ### Fase 5 — CI/CD (GitHub Actions)
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
-- 🔧 Publicar o workflow no GitHub após renovar a autenticação do GitHub CLI.
+- ✅ Workflow publicado e executado com sucesso no GitHub Actions.
 - 🔧 `box.json` → compilar `.phar` em tags de versão.
 - 🔧 Builders desktop (NativePHP) anexando binários em Releases.
 - 🔧 **Cron** rodando o Core para gerar snapshots JSON do PWA (trilha estática).
@@ -212,6 +212,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 ### Fase 6 — Publicação
 - ✅ Preparação do release local `v0.1.0`: `.gitignore`, `LICENSE` MIT,
   `CHANGELOG.md`, README de instalação/uso, scripts Composer e lockfile sincronizado.
+- ✅ Repositório público: [c0destep/lootradar-core](https://github.com/c0destep/lootradar-core).
+- ✅ Release inicial publicada: [v0.1.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.1.0).
 - 🔧 **Packagist**: decidir nome (ver §1) e configurar webhook.
 - 🔧 Deploy do PWA (Vercel/Netlify/Pages) com HTTPS válido (requisito de PWA).
 - 🔧 README de alto nível: badges, GIFs da CLI e do mobile, instalação via Composer, seção Download.
@@ -249,6 +251,6 @@ push em background virar requisito.
 1. Implementar `ItadAdapter`, histórico e o comando `deal --top=N`.
 2. Adicionar fixture/testes offline do ITAD e, depois, Steam/GOG.
 3. Adicionar as flags da CLI (`--currency`, `--min-score`, `--no-cache`).
-4. Configurar repositório remoto, CI/CD e Packagist depois de renovar a autenticação do GitHub CLI.
+4. Acompanhar o primeiro workflow de CI no GitHub e corrigir eventuais diferenças de ambiente.
 5. Decidir o nome do pacote no Packagist (§1) antes da publicação.
 ```
