@@ -21,6 +21,13 @@
 10. Após cada commit, conferir `git status --short` para garantir que não restaram alterações acidentais. Nunca commitar `vendor/`, cache, credenciais, arquivos da IDE ou documentos ignorados.
 11. Usar mensagens no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:` ou `chore:`. O escopo é opcional e deve nomear o módulo quando ajudar, por exemplo `fix(cache): expira entradas inválidas`.
 
+## Práticas de PHP
+
+1. Para toda implementação, alteração ou revisão de PHP, consultar a skill `.agents/skills/php-best-practices/SKILL.md` e as regras específicas aplicáveis em `.agents/skills/php-best-practices/rules/`.
+2. Antes de sugerir recursos de linguagem, confirmar a versão exigida no `composer.json` e a versão do runtime com `php -v`. O projeto exige e usa PHP 8.5+; recursos mais recentes só podem ser adotados depois de atualizar esse requisito.
+3. Priorizar tipagem explícita, `declare(strict_types=1)`, PSR-12/PSR-4, SOLID, validação de entradas externas, consultas SQL preparadas e tratamento de exceções específico. Não introduzir `@` para suprimir erros.
+4. Em auditorias de código PHP, registrar achados no formato `arquivo:linha - [categoria] descrição`, usando as categorias da skill.
+
 ## Versionamento semântico e releases
 
 1. Toda versão pública segue **Semantic Versioning 2.0.0** e usa tags anotadas no formato `vMAJOR.MINOR.PATCH`.
