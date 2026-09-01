@@ -1,0 +1,34 @@
+{
+  "status": 1,
+  "specials": {
+    "id": "cat_specials",
+    "name": "Specials",
+    "items": [
+      {
+        "id": 1145360,
+        "name": "Hades",
+        "discounted": true,
+        "discount_percent": 60,
+        "original_price": 2499,
+        "final_price": 999,
+        "currency": "BRL"
+      },
+      {
+        "id": "570940",
+        "name": "Darkest Dungeon II",
+        "discounted": true,
+        "discount_percent": 100,
+        "original_price": 9999,
+        "final_price": 0,
+        "currency": "BRL"
+      },
+      {
+        "id": 42,
+        "name": "Broken entry",
+        "original_price": 1000,
+        "final_price": 1200,
+        "currency": "BRL"
+      }
+    ]
+  }
+}

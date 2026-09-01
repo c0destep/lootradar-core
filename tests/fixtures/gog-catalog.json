@@ -1,0 +1,38 @@
+{
+  "products": [
+    {
+      "id": 1207658924,
+      "title": "The Witcher 3: Wild Hunt",
+      "slug": "the_witcher_3_wild_hunt",
+      "price": {
+        "baseAmount": "129.99",
+        "finalAmount": "32.49",
+        "currency": "BRL",
+        "discountPercentage": 75,
+        "isDiscounted": true
+      }
+    },
+    {
+      "id": 1207660848,
+      "title": "GOG Giveaway",
+      "slug": "gog_giveaway",
+      "price": {
+        "baseAmount": 29.99,
+        "finalAmount": 0,
+        "currency": "BRL",
+        "discountPercentage": 100,
+        "isDiscounted": true
+      }
+    },
+    {
+      "id": 99,
+      "title": "Invalid price",
+      "slug": "invalid_price",
+      "price": {
+        "baseAmount": "not-a-price",
+        "finalAmount": 0,
+        "currency": "BRL"
+      }
+    }
+  ]
+}
