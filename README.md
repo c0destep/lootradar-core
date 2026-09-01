@@ -3,8 +3,8 @@
 **v0.1.0** — núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
 jogos gratuitos e promoções de lojas digitais.
 
-Nesta primeira versão estável, o Core consulta os jogos grátis da Epic Games,
-mantém cache local JSON ou SQLite, sanitiza URLs de checkout e disponibiliza
+Nesta primeira versão estável, o Core consulta os jogos gratuitos da Epic Games,
+mantém um cache local em JSON ou SQLite, sanitiza URLs de checkout e disponibiliza
 uma CLI temática.
 
 ## Requisitos
@@ -52,19 +52,19 @@ foreach ($radar->getFreeGames() as $game) {
 }
 ```
 
-Os dois backends de cache implementam o mesmo contrato:
+As duas implementações de cache seguem o mesmo contrato:
 
 - `JsonCache`: simples, portátil e padrão para CLI.
 - `SqliteCache`: indicado para futuras consultas de histórico e wishlist.
 
 ## O que está incluído no v0.1.0
 
-- Adapter defensivo da Epic Games para jogos gratuitos.
+- Adaptador defensivo da Epic Games para jogos gratuitos.
 - `GameDeal` imutável e `StoreAdapterInterface`.
 - `RadarService` resiliente: falhas de uma loja não derrubam as outras.
 - Filtro configurável de shovelware e sanitização de URLs.
 - Cache com TTL, compressão gzip opcional e SQLite.
-- CLI `free` com temas default, Cyberpunk e Dracula.
+- CLI `free` com os temas padrão, Cyberpunk e Dracula.
 
 ITAD, Steam, GOG, histórico de preços e o comando `deal` pertencem às próximas
 versões. Veja o [ROADMAP.md](ROADMAP.md).
@@ -83,11 +83,9 @@ em alguns ambientes isolados essa etapa pode falhar antes da análise.
 ## Documentação
 
 - [Roadmap de desenvolvimento](ROADMAP.md)
-- [Especificação funcional e técnica](LootRadar.md)
-- [Plano de desenvolvimento](Plano%20de%20Desenvolvimento.md)
-- [Especificação original do Core](lootradar-specs.md)
-- [Changelog](CHANGELOG.md)
+- [Histórico de alterações](CHANGELOG.md)
+- [Licença MIT](LICENSE)
 
 ## Licença
 
-Distribuído sob a [MIT License](LICENSE).
+Distribuído sob a Licença MIT.
