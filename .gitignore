@@ -1,0 +1,33 @@
+# Dependências PHP
+/vendor/
+
+# Cache e artefatos de análise/teste
+/.phpunit.cache/
+/.phpstan.cache/
+/var/
+/storage/
+*.lrcache.json
+*.lrcache.json.gz
+*.sqlite
+*.sqlite3
+
+# Ambiente e credenciais
+.env
+.env.*
+!.env.example
+
+# Documentos de planejamento locais
+/LootRadar.md
+/lootradar-specs.md
+/Plano de Desenvolvimento.md
+
+# IDEs e ferramentas locais
+/.idea/
+/.vscode/
+/.claude/
+/.codex/
+/.agents/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

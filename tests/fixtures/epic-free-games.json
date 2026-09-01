@@ -1,0 +1,21 @@
+{
+    "data": {
+        "Catalog": {
+            "searchStore": {
+                "elements": [
+                    {
+                        "title": "Control",
+                        "price": {"totalPrice": {"discountPrice": 0, "originalPrice": 5999}},
+                        "catalogNs": {"mappings": [{"pageSlug": "control"}]}
+                    },
+                    {
+                        "title": "Paid Game",
+                        "price": {"totalPrice": {"discountPrice": 2999, "originalPrice": 5999}},
+                        "catalogNs": {"mappings": [{"pageSlug": "paid-game"}]}
+                    },
+                    {"title": "Malformed", "price": {"totalPrice": {"discountPrice": 0}}}
+                ]
+            }
+        }
+    }
+}

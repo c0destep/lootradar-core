@@ -1,0 +1,52 @@
+{
+  "name": "lootradar/lootradar",
+  "description": "Motor agnóstico de busca e monitoramento de jogos gratuitos e promoções.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "games",
+    "deals",
+    "epic-games",
+    "free-games",
+    "cli"
+  ],
+  "autoload": {
+    "psr-4": {
+      "LootRadar\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "LootRadar\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": ">=8.5",
+    "ext-zlib": "*",
+    "ext-pdo": "*",
+    "guzzlehttp/guzzle": "^7",
+    "nunomaduro/termwind": "^2",
+    "symfony/console": "^7"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3",
+    "phpstan/phpstan": "^2"
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "scripts": {
+    "lint": [
+      "find src tests -name '*.php' -print0 | xargs -0 -n1 php -l",
+      "php -l bin/lootradar"
+    ],
+    "test": "vendor/bin/pest",
+    "analyse": "vendor/bin/phpstan analyse src --level=5"
+  },
+  "bin": [
+    "bin/lootradar"
+  ]
+}

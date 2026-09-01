@@ -1,0 +1,9 @@
+{
+    "name": "cyberpunk",
+    "description": "Tema neon de alto contraste inspirado em estética cyberpunk.",
+    "styles": {
+        "bg": "bg-slate-900 text-yellow-400",
+        "badge": "bg-cyan-400 text-black font-bold px-2",
+        "border": "border-double border-purple-500"
+    }
+}

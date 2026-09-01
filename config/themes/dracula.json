@@ -1,0 +1,9 @@
+{
+    "name": "dracula",
+    "description": "Tema escuro inspirado na paleta Dracula.",
+    "styles": {
+        "bg": "bg-purple-950 text-purple-100",
+        "badge": "bg-pink-400 text-black font-bold px-2",
+        "border": "border-solid border-purple-400"
+    }
+}
