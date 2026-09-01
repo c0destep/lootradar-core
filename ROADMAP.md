@@ -202,7 +202,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Cobertura dos parsers e do pipeline; CI verde nas 3 camadas.
 
 ### Fase 5 — CI/CD (GitHub Actions)
-- 🔧 Workflow em push/PR: matriz PHP 8.5 → PHPStan + Pest.
+- ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
+- 🔧 Publicar o workflow no GitHub após renovar a autenticação do GitHub CLI.
 - 🔧 `box.json` → compilar `.phar` em tags de versão.
 - 🔧 Builders desktop (NativePHP) anexando binários em Releases.
 - 🔧 **Cron** rodando o Core para gerar snapshots JSON do PWA (trilha estática).
