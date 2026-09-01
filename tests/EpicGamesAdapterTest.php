@@ -23,3 +23,17 @@ it('converte somente jogos gratuitos da fixture da Epic', function () {
         ->and($games[0]->originalPrice)->toBe(59.99)
         ->and($games[0]->checkoutUrl)->toBe('https://store.epicgames.com/p/control');
 });
+
+it('converte descontos da Epic sem confundir preço cheio com promoção', function () {
+    $client = new Client(['handler' => HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], file_get_contents(__DIR__ . '/fixtures/epic-free-games.json')),
+    ]))]);
+
+    $deals = new EpicGamesAdapter($client)->fetchDeals();
+
+    expect($deals)->toHaveCount(2)
+        ->and($deals[0]->isFree)->toBeTrue()
+        ->and($deals[1]->title)->toBe('Paid Game')
+        ->and($deals[1]->getDiscountPercentage())->toBe(50)
+        ->and($deals[1]->currency)->toBe('BRL');
+});

@@ -5,12 +5,12 @@
                 "elements": [
                     {
                         "title": "Control",
-                        "price": {"totalPrice": {"discountPrice": 0, "originalPrice": 5999}},
+                        "price": {"totalPrice": {"discountPrice": 0, "originalPrice": 5999, "currencyCode": "BRL"}},
                         "catalogNs": {"mappings": [{"pageSlug": "control"}]}
                     },
                     {
                         "title": "Paid Game",
-                        "price": {"totalPrice": {"discountPrice": 2999, "originalPrice": 5999}},
+                        "price": {"totalPrice": {"discountPrice": 2999, "originalPrice": 5999, "currencyCode": "BRL"}},
                         "catalogNs": {"mappings": [{"pageSlug": "paid-game"}]}
                     },
                     {"title": "Malformed", "price": {"totalPrice": {"discountPrice": 0}}}
