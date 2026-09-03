@@ -86,10 +86,17 @@ try {
             count($history),
         ));
     }
-} catch (Throwable $exception) {
+} catch (LogicException | InvalidArgumentException $exception) {
     fwrite(STDERR, sprintf(
         "Falha no teste manual do ITAD: %s\n",
         sanitizeTerminalText($exception->getMessage()),
+    ));
+    exit(1);
+} catch (Throwable $exception) {
+    fwrite(STDERR, sprintf(
+        "A consulta ao ITAD falhou (%s, código %d). A credencial não foi exibida.\n",
+        $exception::class,
+        $exception->getCode(),
     ));
     exit(1);
 }
