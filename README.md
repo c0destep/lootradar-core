@@ -105,6 +105,33 @@ O país passado ao adapter define a região dos preços; ele não define o idiom
 interface. O futuro suporte a múltiplos idiomas usará uma configuração de locale
 independente.
 
+### Limite de requisições do ITAD
+
+Cada instância de `ItadAdapter` limita, por padrão, o próprio processo a 950
+requisições em uma janela deslizante de cinco minutos. Aplicações com vários processos
+devem compartilhar o limitador SQLite:
+
+```php
+use GuzzleHttp\Client;
+use LootRadar\Adapters\ItadAdapter;
+use LootRadar\Services\SqliteSlidingWindowRateLimiter;
+
+$limiter = new SqliteSlidingWindowRateLimiter(
+    __DIR__ . '/var/itad-rate-limit.sqlite',
+);
+
+$itad = ItadAdapter::fromEnvironment(
+    new Client(),
+    country: 'BR',
+    rateLimiter: $limiter,
+);
+```
+
+O arquivo SQLite reserva cada chamada em uma transação atômica, inclusive consultas de
+histórico. Se a API responder com `HTTP 429`, o adapter respeita `Retry-After` e bloqueia
+novas chamadas durante o período informado, sem fazer tentativas automáticas. O cache de
+promoções, com TTL padrão de 12 horas, continua reduzindo as consultas repetidas.
+
 ## Documentação
 
 - [Roadmap de desenvolvimento](ROADMAP.md)

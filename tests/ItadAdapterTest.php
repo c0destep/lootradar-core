@@ -8,6 +8,8 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use LootRadar\Adapters\ItadAdapter;
+use LootRadar\Exceptions\RateLimitExceededException;
+use LootRadar\Services\SqliteSlidingWindowRateLimiter;
 
 function itadFixture(string $name): string
 {
@@ -76,6 +78,43 @@ it('carrega a chave de API do ambiente', function () {
     } finally {
         restoreItadApiKey($originalApiKey);
     }
+});
+
+it('respeita retry-after quando o ITAD devolve limite excedido', function () {
+    $client = new Client(['handler' => HandlerStack::create(new MockHandler([
+        new Response(429, ['Retry-After' => '42']),
+    ]))]);
+
+    $exception = null;
+    try {
+        new ItadAdapter($client, 'test-api-key')->fetchDeals();
+    } catch (RateLimitExceededException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->toBeInstanceOf(RateLimitExceededException::class)
+        ->and($exception?->retryAfterSeconds)->toBe(42);
+});
+
+it('aplica a mesma quota às ofertas e ao histórico do ITAD', function () {
+    $requests = [];
+    $handler = HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], itadFixture('itad-deals.json')),
+    ]));
+    $handler->push(Middleware::history($requests));
+
+    $limiter = new SqliteSlidingWindowRateLimiter(':memory:', maxRequests: 1);
+    $adapter = new ItadAdapter(
+        new Client(['handler' => $handler]),
+        'test-api-key',
+        rateLimiter: $limiter,
+    );
+
+    $adapter->fetchDeals();
+
+    expect(fn() => $adapter->fetchPriceHistory('game-id'))
+        ->toThrow(RateLimitExceededException::class)
+        ->and($requests)->toHaveCount(1);
 });
 
 function restoreItadApiKey(string|false $value): void

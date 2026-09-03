@@ -5,6 +5,23 @@ Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Unreleased]
+
+### Added
+
+- Limitadores de requisições em janela deslizante para o ITAD, com proteção local
+  em memória e coordenação atômica entre processos por SQLite.
+- Tratamento de `HTTP 429` e `Retry-After`, sem repetição automática da chamada.
+
+### Changed
+
+- A configuração local do ITAD passou a reservar o `.env` somente para a chave da
+  API; a região comercial continua sendo informada ao adapter, separadamente do locale.
+
+### Removed
+
+- Smoke test manual do ITAD, seu comando Composer e a dependência exclusiva de ambiente.
+
 ## [0.2.0] - 2026-09-03
 
 ### Added

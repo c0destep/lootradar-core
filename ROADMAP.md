@@ -37,14 +37,14 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 |------|---------|----------|
 | Pacote / autoload | `composer.json` (`lootradar/lootradar`, PSR-4 `LootRadar\` → `src/`) | ✅ |
 | DTOs imutáveis | `src/DTO/GameDeal.php`, `Money.php`, `PriceHistory.php`, `Theme.php` | ✅ |
-| Contratos | `src/Contracts/{StoreAdapter,Cache,PriceHistoryProvider,ExchangeRateProvider}Interface.php` | ✅ |
+| Contratos | `src/Contracts/{StoreAdapter,Cache,PriceHistoryProvider,ExchangeRateProvider,RateLimiter}Interface.php` | ✅ |
 | Adapters de lojas | `src/Adapters/{EpicGames,Itad,Steam,Gog}Adapter.php` | ✅ promoções; ITAD também expõe histórico |
 | Orquestrador + cache | `src/Services/RadarService.php`, `src/Contracts/CacheInterface.php`, `src/Cache/*` | ✅ abstração JSON/SQLite; CLI compõe `JsonCache` |
-| Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter` | ✅ URL segura, filtro de score e conversão com cache |
+| Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
-| Testes | `tests/` (Pest, 34 casos / 97 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
+| Testes | `tests/` (Pest, 40 casos / 110 asserções) | ✅ cache, domínio, moeda, URL, temas, quota e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -106,6 +106,7 @@ Decisões:
 | **GitHub Pages** servindo o backend PHP | **CORRIGIDA** | Pages é estático — não roda PHP. Trilha gratuita: o Core roda em **CI agendado (cron)**, gera **snapshots JSON versionados** e o PWA (estático) os consome. Backend PHP vivo é alternativa para quem tiver host. |
 | Wishlist por **scraping de HTML** do perfil Steam | **REFINADA** | Usar o endpoint **JSON** `wishlistdata` da Steam; respeitar rate limit e ToS; tratar como fonte **frágil** com fallback silencioso. |
 | **Smart Conversion** de moeda por fuso horário | **REFINADA** | Fuso ≠ moeda. Moeda vem de **config explícita do usuário** ou do **pricing regional** das APIs. Fuso serve só para exibir "termina em X". |
+| `country` do ITAD como idioma | **REFINADA** | `country` seleciona a região comercial dos preços. Idioma pertence a uma configuração independente de `locale`; os endpoints de promoções e histórico usados no ITAD não recebem locale. |
 | PHPStan **Level 8+** já (Plano Fase 4) vs. Level 5 entregue | **REFINADA** | Ratchet incremental: **5 (hoje) → 6 → 8/max**. Subir de nível exige endurecer o `mixed` dos parsers. Meta de longo prazo mantida. |
 | Desktop via **Electron + PHP** | **DESCARTADA** em favor de **NativePHP** | Electron+PHP é pesado e duplica runtime. NativePHP entrega `.exe`/`.app` com o próprio PHP embarcado. |
 | Prime Gaming como fonte de 1ª classe | **REBAIXADA** | Sem API pública (ver §3). |
@@ -165,12 +166,16 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ `UrlSanitizer` sobre `Uri\WhatWg\Url` — normaliza checkout, remove params suspeitos, valida esquema.
 - ✅ `CurrencyConverter` — taxas via fonte configurável + cache; moeda-alvo explícita.
 - ✅ `UrlSanitizer` com testes de injeção (esquemas `javascript:`, hosts falsos, etc.).
+- ✅ Quota do ITAD — janela deslizante local por padrão, SQLite compartilhado entre processos
+  e suspensão conforme `Retry-After`, sem repetição automática de chamadas.
 
 **1.4 Cache**
 - ✅ Cache JSON e SQLite com expiração (TTL 12h), atrás de `CacheInterface`.
 - ✅ Compressão opcional gzip no `JsonCache`. **Sem criptografia** (ver §4).
 - ✅ CLI compõe `JsonCache` antes de construir o `RadarService`.
 - ✅ Mesma suíte de testes passa para `JsonCache` e `SqliteCache` (Win/Linux/macOS).
+- 🔧 Incluir região, locale, moeda e composição de adapters na chave do cache quando
+  essas opções globais forem conectadas à CLI e à PWA.
 
 ### Fase 2 — Interfaces CLI e Web/PWA
 
@@ -178,7 +183,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Comando `free` + temas.
 - 🔧 Comando `deal --top=N` (tabela dos maiores descontos; usa ITAD).
 - ✅ `ThemeManager` carregando `config/themes/*.json`; temas default/cyberpunk/dracula disponíveis.
-- 🔧 Flags globais: `--currency`, `--min-score`, `--no-cache`.
+- 🔧 Flags globais: `--currency`, `--country`, `--locale`, `--min-score`, `--no-cache`;
+  região de preços e idioma devem permanecer configurações independentes.
 - 🎯 `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
 
 **2.2 Web / PWA**
@@ -196,7 +202,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 34 testes / 97 asserções.
+- ✅ Pest configurado, 40 testes / 110 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
