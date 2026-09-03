@@ -36,6 +36,7 @@
 4. Criar a tag com `git tag -a vX.Y.Z -m "LootRadar Core vX.Y.Z"`. Depois de publicada, uma tag de release é imutável: não usar `-f`, não reescrever histórico publicado e não fazer push forçado na `main`.
 5. Publicar somente commits já presentes na `main`; cada Pull Request precisa ter CI verde e revisão antes do merge.
 6. Para o release inicial, `v0.1.0` representa API ainda em evolução. A partir de `v1.0.0`, qualquer quebra de contrato público exige incremento de `MAJOR`.
+7. Toda nova release deve ser distribuída com a aplicação CLI funcional. Antes de criar a tag, confirmar que `composer.json` continua expondo `bin/lootradar`, que `bin/lootradar --version` corresponde à versão da tag e que os comandos disponíveis refletem os recursos públicos incluídos no release.
 
 ## Ordem de execução recomendada
 

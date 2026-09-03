@@ -259,6 +259,8 @@ push em background virar requisito.
 3. `vendor/bin/pest` verde, com fixtures cobrindo cada parser.
 4. Todo adapter novo implementa `StoreAdapterInterface` + tem fixture + teste offline.
 5. Todo link exibido passa por `UrlSanitizer`.
+6. Toda release inclui a aplicação CLI funcional: `composer.json` expõe `bin/lootradar`,
+   a versão exibida corresponde à tag e os comandos representam os recursos públicos entregues.
 
 ---
 
