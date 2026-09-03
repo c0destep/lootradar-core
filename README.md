@@ -23,6 +23,16 @@ cd lootradar-core
 composer install
 ```
 
+Execute a CLI sem argumentos ou use `help` para consultar os comandos, as fontes,
+os temas, as opções globais e exemplos de uso:
+
+```bash
+./bin/lootradar
+./bin/lootradar help
+./bin/lootradar help free
+./bin/lootradar help deal
+```
+
 Liste os jogos gratuitos disponíveis nas fontes públicas:
 
 ```bash
@@ -83,6 +93,7 @@ As duas implementações de cache seguem o mesmo contrato:
 - CLI `free` com os temas padrão, Cyberpunk e Dracula.
 - CLI `deal --top=N` com dados do ITAD e os mesmos temas do comando `free`.
 - Opções globais de moeda, país, locale, score mínimo e uso do cache.
+- Ajuda integrada com fontes, temas disponíveis, requisitos, opções e exemplos.
 - Workflow de CI com lint, testes e análise estática.
 
 A Fase 2.1 da CLI está concluída. Veja as próximas etapas no [ROADMAP.md](ROADMAP.md).

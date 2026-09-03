@@ -21,6 +21,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
   em memória e coordenação atômica entre processos por SQLite.
 - Tratamento de `HTTP 429` e `Retry-After`, sem repetição automática da chamada.
 - Ponto de composição testável da CLI para Epic Games, Steam e GOG.
+- Ajuda integrada que apresenta comandos, fontes, temas, requisitos, opções e
+  exemplos ao executar a CLI sem argumentos, `help` ou `--help`.
 
 ### Changed
 
@@ -34,6 +36,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - A CLI passou a informar a versão `0.2.0`, consultar todas as fontes públicas de
   jogos gratuitos e exibir falhas isoladas sem interromper a coleta.
 - O `RadarService` deixou de armazenar coletas que tiveram falhas em alguma fonte.
+- As ajudas de `free` e `deal` agora detalham suas fontes, opções específicas,
+  temas disponíveis e exemplos de uso.
 
 ### Removed
 
