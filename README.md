@@ -1,11 +1,11 @@
 # LootRadar Core
 
-**v0.1.0** — núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
+**v0.2.0** — núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
 jogos gratuitos e promoções de lojas digitais.
 
-Nesta primeira versão estável, o Core consulta os jogos gratuitos da Epic Games,
-mantém um cache local em JSON ou SQLite, sanitiza URLs de checkout e disponibiliza
-uma CLI temática.
+Nesta versão, o Core consulta jogos gratuitos e promoções da Epic Games, ITAD,
+Steam e GOG, mantém um cache local em JSON ou SQLite, oferece histórico de preços
+e conversão de moeda, sanitiza URLs de checkout e disponibiliza uma CLI temática.
 
 ## Requisitos
 
@@ -55,19 +55,21 @@ foreach ($radar->getFreeGames() as $game) {
 As duas implementações de cache seguem o mesmo contrato:
 
 - `JsonCache`: simples, portátil e padrão para CLI.
-- `SqliteCache`: indicado para futuras consultas de histórico e wishlist.
+- `SqliteCache`: indicado para consultas de histórico e futuras integrações de wishlist.
 
-## O que está incluído no v0.1.0
+## O que está incluído no v0.2.0
 
-- Adaptador defensivo da Epic Games para jogos gratuitos.
-- `GameDeal` imutável e `StoreAdapterInterface`.
+- Adapters defensivos da Epic Games, ITAD, Steam e GOG, com testes offline.
+- `GameDeal`, `Money`, `PriceHistory` e `Theme` como DTOs imutáveis.
+- Contratos para adapters de lojas, histórico de preços e taxas de câmbio.
 - `RadarService` resiliente: falhas de uma loja não derrubam as outras.
-- Filtro configurável de shovelware e sanitização de URLs.
+- Pipeline de coleta, filtro, conversão de moeda e sanitização de URLs.
 - Cache com TTL, compressão gzip opcional e SQLite.
 - CLI `free` com os temas padrão, Cyberpunk e Dracula.
+- Workflow de CI com lint, testes e análise estática.
 
-ITAD, Steam, GOG, histórico de preços e o comando `deal` pertencem às próximas
-versões. Veja o [ROADMAP.md](ROADMAP.md).
+O comando `deal` e as flags globais de moeda, score mínimo e desativação do cache
+continuam previstos para as próximas versões. Veja o [ROADMAP.md](ROADMAP.md).
 
 ## Desenvolvimento
 

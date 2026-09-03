@@ -5,6 +5,24 @@ Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.2.0] - 2026-09-03
+
+### Added
+
+- Adapters defensivos para ITAD, Steam e GOG, com fixtures e testes offline.
+- Consulta de deals da Epic Games e do ITAD, incluindo histórico de preços.
+- Contratos e DTOs para histórico de preços, dinheiro, taxas de câmbio e temas.
+- Pipeline de conversão de moeda com fonte de taxas configurável e cache.
+- Workflow do GitHub Actions com gates de Composer, lint, Pest e PHPStan.
+
+### Changed
+
+- `GameDeal` passou a carregar informações de moeda, desconto e histórico de preços.
+- O `RadarService` passou a compor coleta, filtro, conversão de moeda, sanitização
+  de URLs e serialização em um pipeline único.
+- A cobertura offline passou a abranger todos os adapters e os serviços de domínio,
+  totalizando 33 testes e 96 asserções.
+
 ## [0.1.0] - 2026-09-01
 
 ### Added

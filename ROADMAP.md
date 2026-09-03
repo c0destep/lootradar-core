@@ -6,7 +6,7 @@
 > Sempre que uma ideia dos documentos originais for inconsistente, ela é marcada como
 > **DESCARTADA** ou **REFINADA** com a devida justificativa.
 
-Última sincronização: 2026-09-01
+Última sincronização: 2026-09-03
 
 ---
 
@@ -215,6 +215,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   `CHANGELOG.md`, README de instalação/uso, scripts Composer e lockfile sincronizado.
 - ✅ Repositório público: [c0destep/lootradar-core](https://github.com/c0destep/lootradar-core).
 - ✅ Release inicial publicada: [v0.1.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.1.0).
+- ✅ Preparação do release local `v0.2.0`: changelog, README e roadmap sincronizados
+  com as alterações acumuladas desde `v0.1.0`.
 - 🔧 **Packagist**: decidir nome (ver §1) e configurar webhook.
 - 🔧 Deploy do PWA (Vercel/Netlify/Pages) com HTTPS válido (requisito de PWA).
 - 🔧 README de alto nível: badges, GIFs da CLI e do mobile, instalação via Composer, seção Download.

@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "better-portuguese": {
+      "source": "rafaelquintanilha/skills",
+      "sourceType": "github",
+      "skillPath": "skills/better-portuguese/SKILL.md",
+      "computedHash": "7c416f291aebbc7af947cf1a398e0db9dd4ca22da6441d5a2ec5a07db739abd3"
+    },
+    "orchestrate": {
+      "source": "rafaelquintanilha/skills",
+      "sourceType": "github",
+      "skillPath": "skills/orchestrate/SKILL.md",
+      "computedHash": "8955ac61d024033bb22046f04291b2ce4b639d7d525c42ffac993df98b29a83b"
+    },
     "php-best-practices": {
       "source": "asyrafhussin/agent-skills",
       "sourceType": "github",
