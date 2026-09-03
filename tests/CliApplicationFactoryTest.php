@@ -99,7 +99,7 @@ it('renderiza os maiores descontos do ITAD em todos os temas', function (string 
     $application = ApplicationFactory::create(
         new Client(['handler' => $handler]),
         new SqliteCache(':memory:'),
-        itadApiKey: 'test-api-key',
+        itadApiKey: 'cli-test-api-key',
     );
 
     $tester = new CommandTester($application->find('deal'));
@@ -135,7 +135,7 @@ it('converte a moeda solicitada pelo comando deal', function () {
             new Response(200, ['Content-Type' => 'application/json'], cliFixture('itad-deals.json')),
         ]))]),
         new SqliteCache(':memory:'),
-        itadApiKey: 'test-api-key',
+        itadApiKey: 'cli-test-api-key',
         exchangeRateProvider: $provider,
     );
 
@@ -160,7 +160,7 @@ it('não reutiliza cache do ITAD entre limites diferentes', function () {
     $application = ApplicationFactory::create(
         new Client(['handler' => $handler]),
         new SqliteCache(':memory:'),
-        itadApiKey: 'test-api-key',
+        itadApiKey: 'cli-test-api-key',
     );
     $tester = new CommandTester($application->find('deal'));
 
@@ -188,7 +188,7 @@ it('rejeita limites e opções globais inválidos', function (array $input, stri
     $application = ApplicationFactory::create(
         new Client(['handler' => HandlerStack::create(new MockHandler([]))]),
         new SqliteCache(':memory:'),
-        itadApiKey: 'test-api-key',
+        itadApiKey: 'cli-test-api-key',
     );
     $tester = new CommandTester($application->find('deal'));
 
