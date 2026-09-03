@@ -78,7 +78,7 @@ final class ApplicationFactory
             'locale',
             null,
             InputOption::VALUE_REQUIRED,
-            'Idioma da interface e das fontes compatíveis no formato ll-RR.',
+            'Locale usado pelas fontes compatíveis, no formato ll-RR.',
             'en-US',
         ));
         $definition->addOption(new InputOption(
