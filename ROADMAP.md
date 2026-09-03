@@ -43,7 +43,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free` e `deal` | `src/Commands/{FreeGames,Deal}Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos e maiores descontos |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.2.0; composição por comando, ajuda completa e opções globais validadas |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.3.0; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 79 casos / 313 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
@@ -235,6 +235,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Release inicial publicada: [v0.1.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.1.0).
 - ✅ Preparação do release local `v0.2.0`: changelog, README e roadmap sincronizados
   com as alterações acumuladas desde `v0.1.0`.
+- ✅ Preparação do release `v0.3.0`: Fase 2.1 completa, credencial local carregada
+  automaticamente e ajuda da CLI revisada.
 - 🔧 **Packagist**: decidir nome (ver §1) e configurar webhook.
 - 🔧 Deploy do PWA (Vercel/Netlify/Pages) com HTTPS válido (requisito de PWA).
 - 🔧 README de alto nível: badges, GIFs da CLI e do mobile, instalação via Composer, seção Download.

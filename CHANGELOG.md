@@ -7,6 +7,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-03
+
 ### Added
 
 - Comando `deal --top=N`, com os maiores descontos do ITAD e indicação de menor
@@ -33,7 +35,7 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
   endpoint real `/deals/v2`.
 - A configuração local do ITAD passou a reservar o `.env` somente para a chave da
   API; a região comercial continua sendo informada ao adapter, separadamente do locale.
-- A CLI passou a informar a versão `0.2.0`, consultar todas as fontes públicas de
+- A CLI passou a informar a versão `0.3.0`, consultar todas as fontes públicas de
   jogos gratuitos e exibir falhas isoladas sem interromper a coleta.
 - O `RadarService` deixou de armazenar coletas que tiveram falhas em alguma fonte.
 - As ajudas de `free` e `deal` agora detalham suas fontes, opções específicas,
