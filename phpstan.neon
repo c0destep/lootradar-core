@@ -3,3 +3,5 @@ parameters:
     paths:
         - src
     treatPhpDocTypesAsCertain: false
+    parallel:
+        maximumNumberOfProcesses: 1

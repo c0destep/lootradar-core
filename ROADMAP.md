@@ -45,7 +45,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
 | Testes | `tests/` (Pest, 33 casos / 96 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
-| Análise estática | `phpstan.neon` (level 5) | ⚠️ execução bloqueada no ambiente pelo servidor TCP interno do PHPStan |
+| Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
 **Verificado no ambiente:** PHP 8.5.10, Composer 2.10. Recursos nativos disponíveis e testados:
@@ -198,6 +198,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Pest configurado, 33 testes / 96 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
+- ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
 - 🔧 (Web) testes de layout Playwright.
 - 🎯 Cobertura dos parsers e do pipeline; CI verde nas 3 camadas.
