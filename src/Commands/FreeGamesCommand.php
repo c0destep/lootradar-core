@@ -19,7 +19,7 @@ use function Termwind\renderUsing;
 
 #[AsCommand(
     name: 'free',
-    description: 'Lista todos os jogos gratuitos da semana nas lojas digitais.'
+    description: 'Lista jogos gratuitos da Epic Games, Steam e GOG.'
 )]
 class FreeGamesCommand extends Command
 {
@@ -30,13 +30,21 @@ class FreeGamesCommand extends Command
 
     protected function configure(): void
     {
+        $themes = implode(', ', ThemeManager::availableThemes());
+
         $this->addOption(
             'theme',
             't',
             InputOption::VALUE_OPTIONAL,
-            'Define o tema visual (default, cyberpunk, dracula)',
+            "Define o tema visual ({$themes}).",
             'default'
-        );
+        )->setHelp(<<<'HELP'
+            Consulta jogos gratuitos na Epic Games, Steam e GOG. Uma fonte indisponível não interrompe as demais.
+
+            Exemplos:
+              ./bin/lootradar free --country=BR --locale=pt-BR
+              ./bin/lootradar free --theme=dracula --no-cache
+            HELP);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

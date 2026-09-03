@@ -40,12 +40,18 @@ final class ApplicationFactory
             $itadApiKey = self::itadApiKeyFromEnvironment();
         }
 
-        $application = new Application('LootRadar', self::VERSION);
+        $application = new LootRadarApplication(self::VERSION);
         self::addGlobalOptions($application);
 
         $radarFactory = new CliRadarFactory($client, $cache, $itadApiKey, $exchangeRateProvider);
         $application->addCommand(new FreeGamesCommand($radarFactory));
         $application->addCommand(new DealCommand($radarFactory));
+        $application->get('help')
+            ->setDescription('Exibe a ajuda geral ou detalha um comando.')
+            ->setHelp(LootRadarApplication::capabilitiesHelp());
+        $application->get('list')
+            ->setDescription('Lista os comandos e apresenta os recursos disponíveis.')
+            ->setHelp(LootRadarApplication::capabilitiesHelp());
 
         return $application;
     }
@@ -64,34 +70,34 @@ final class ApplicationFactory
             'currency',
             null,
             InputOption::VALUE_REQUIRED,
-            'Converte os preços para uma moeda ISO 4217 (ex.: BRL).',
+            'Moeda-alvo dos preços, em ISO 4217 (ex.: BRL); sem esta opção, mantém a moeda da fonte.',
         ));
         $definition->addOption(new InputOption(
             'country',
             null,
             InputOption::VALUE_REQUIRED,
-            'Região comercial ISO 3166-1 alpha-2.',
+            'Região comercial dos preços, em ISO 3166-1 alpha-2 (ex.: BR).',
             'US',
         ));
         $definition->addOption(new InputOption(
             'locale',
             null,
             InputOption::VALUE_REQUIRED,
-            'Locale usado pelas fontes compatíveis, no formato ll-RR.',
+            'Idioma e localidade das fontes compatíveis (ex.: pt-BR); não altera a região comercial.',
             'en-US',
         ));
         $definition->addOption(new InputOption(
             'min-score',
             null,
             InputOption::VALUE_REQUIRED,
-            'Score mínimo aceito, entre 0 e 100.',
+            'Score mínimo entre 0 e 100; ofertas sem avaliação são mantidas.',
             '60',
         ));
         $definition->addOption(new InputOption(
             'no-cache',
             null,
             InputOption::VALUE_NONE,
-            'Ignora o cache de ofertas nesta execução.',
+            'Não lê nem grava o cache de ofertas nesta execução.',
         ));
     }
 

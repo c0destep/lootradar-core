@@ -20,7 +20,7 @@ use function Termwind\renderUsing;
 
 #[AsCommand(
     name: 'deal',
-    description: 'Lista as maiores promoções disponíveis pelo IsThereAnyDeal.'
+    description: 'Lista os maiores descontos do ITAD; requer ITAD_API_KEY.'
 )]
 final class DealCommand extends Command
 {
@@ -31,6 +31,8 @@ final class DealCommand extends Command
 
     protected function configure(): void
     {
+        $themes = implode(', ', ThemeManager::availableThemes());
+
         $this->addOption(
             'top',
             null,
@@ -42,9 +44,16 @@ final class DealCommand extends Command
             'theme',
             't',
             InputOption::VALUE_OPTIONAL,
-            'Define o tema visual (default, cyberpunk, dracula).',
+            "Define o tema visual ({$themes}).",
             'default',
-        );
+        )->setHelp(<<<'HELP'
+            Consulta as maiores promoções no IsThereAnyDeal e informa o menor preço histórico quando disponível.
+            Este comando requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
+
+            Exemplos:
+              ./bin/lootradar deal --top=5 --country=BR
+              ./bin/lootradar deal --top=20 --currency=BRL --theme=cyberpunk --no-cache
+            HELP);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Response;
 use LootRadar\Cache\SqliteCache;
 use LootRadar\Cli\ApplicationFactory;
 use LootRadar\Contracts\ExchangeRateProviderInterface;
+use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Console\Tester\CommandTester;
 
 function cliFixture(string $name): string
@@ -35,6 +36,64 @@ it('expõe a versão pública e os comandos disponíveis', function () {
         ->and($application->getDefinition()->hasOption('min-score'))->toBeTrue()
         ->and($application->getDefinition()->hasOption('no-cache'))->toBeTrue();
 });
+
+it('apresenta recursos, temas e exemplos na ajuda geral', function (array $input) {
+    $application = ApplicationFactory::create(
+        new Client(['handler' => HandlerStack::create(new MockHandler([]))]),
+        new SqliteCache(':memory:'),
+    );
+    $application->setAutoExit(false);
+    $tester = new ApplicationTester($application);
+
+    expect($tester->run($input, ['decorated' => false]))->toBe(0)
+        ->and($tester->getDisplay())->toContain('Recursos principais:')
+        ->and($tester->getDisplay())->toContain('Epic Games, Steam e GOG')
+        ->and($tester->getDisplay())->toContain('IsThereAnyDeal')
+        ->and($tester->getDisplay())->toContain('Temas disponíveis: cyberpunk, default, dracula.')
+        ->and($tester->getDisplay())->toContain('--theme=<nome>')
+        ->and($tester->getDisplay())->toContain('--currency')
+        ->and($tester->getDisplay())->toContain('não altera a região comercial')
+        ->and($tester->getDisplay())->toContain('ofertas sem avaliação são mantidas')
+        ->and($tester->getDisplay())->toContain('--no-cache')
+        ->and($tester->getDisplay())->toContain('Não lê nem grava o cache')
+        ->and($tester->getDisplay())->toContain('ITAD_API_KEY');
+})->with([
+    'sem comando' => [[]],
+    'comando help' => [['command' => 'help']],
+    'opção help' => [['--help' => true]],
+]);
+
+it('detalha fontes, requisitos e exemplos na ajuda de cada comando', function (array $input, array $expected) {
+    $application = ApplicationFactory::create(
+        new Client(['handler' => HandlerStack::create(new MockHandler([]))]),
+        new SqliteCache(':memory:'),
+    );
+    $application->setAutoExit(false);
+    $tester = new ApplicationTester($application);
+
+    expect($tester->run($input, ['decorated' => false]))->toBe(0);
+
+    foreach ($expected as $text) {
+        expect($tester->getDisplay())->toContain($text);
+    }
+})->with([
+    'help free' => [
+        ['command' => 'help', 'command_name' => 'free'],
+        ['Epic Games, Steam e GOG', '--theme', '--country', '--locale', '--no-cache'],
+    ],
+    'free --help' => [
+        ['command' => 'free', '--help' => true],
+        ['Epic Games, Steam e GOG', '--theme', '--country', '--locale', '--no-cache'],
+    ],
+    'help deal' => [
+        ['command' => 'help', 'command_name' => 'deal'],
+        ['IsThereAnyDeal', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+    ],
+    'deal --help' => [
+        ['command' => 'deal', '--help' => true],
+        ['IsThereAnyDeal', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+    ],
+]);
 
 it('compõe todas as fontes públicas de jogos gratuitos', function () {
     $requests = [];
