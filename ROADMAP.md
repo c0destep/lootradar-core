@@ -46,7 +46,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
 | Testes | `tests/` (Pest, 34 casos / 97 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
-| Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git e smoke test manual disponível |
+| Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
 **Verificado no ambiente:** PHP 8.5.10, Composer 2.10. Recursos nativos disponíveis e testados:
@@ -200,7 +200,6 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
-- ✅ Smoke test manual do ITAD com credencial carregada de `.env` e sem exposição da chave.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
 - 🔧 (Web) testes de layout Playwright.
 - 🎯 Cobertura dos parsers e do pipeline; CI verde nas 3 camadas.

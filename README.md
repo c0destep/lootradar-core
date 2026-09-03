@@ -79,7 +79,7 @@ composer test
 composer analyse
 ```
 
-### Credenciais locais e teste manual do ITAD
+### Credencial local do ITAD
 
 Crie o arquivo local de ambiente a partir do modelo versionado:
 
@@ -88,17 +88,22 @@ cp .env.example .env
 ```
 
 Preencha `ITAD_API_KEY` em `.env`. O arquivo local é ignorado pelo Git e não deve
-ser versionado. `ITAD_COUNTRY` e `ITAD_LIMIT` controlam o país e a quantidade de
-promoções consultadas; `ITAD_GAME_ID` é opcional e habilita a consulta de histórico.
+ser versionado. O Core lê a chave do ambiente do processo por meio de
+`ItadAdapter::fromEnvironment()`; a aplicação que consumir a biblioteca deve carregar
+o arquivo durante sua inicialização.
 
-Execute o smoke test contra a API real:
+No shell, o arquivo pode ser carregado antes de executar um consumidor local:
 
-```bash
-composer test:itad-live
+```sh
+set -a
+. ./.env
+set +a
 ```
 
-Os testes executados por `composer test` continuam totalmente offline e não usam
-credenciais. O smoke test requer acesso à internet e consome a API do ITAD.
+Os testes executados por `composer test` são totalmente offline e não usam credenciais.
+O país passado ao adapter define a região dos preços; ele não define o idioma da
+interface. O futuro suporte a múltiplos idiomas usará uma configuração de locale
+independente.
 
 ## Documentação
 

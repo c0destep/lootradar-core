@@ -30,8 +30,7 @@
   },
   "require-dev": {
     "pestphp/pest": "^3",
-    "phpstan/phpstan": "^2",
-    "symfony/dotenv": "^7"
+    "phpstan/phpstan": "^2"
   },
   "config": {
     "sort-packages": true,
@@ -45,7 +44,6 @@
       "php -l bin/lootradar"
     ],
     "test": "vendor/bin/pest",
-    "test:itad-live": "php tests/manual/itad-smoke.php",
     "analyse": "vendor/bin/phpstan analyse src --level=5 --debug --memory-limit=512M"
   },
   "bin": [
