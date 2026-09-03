@@ -3,36 +3,26 @@
 
 declare(strict_types=1);
 
-use GuzzleHttp\Client;
-use LootRadar\Adapters\EpicGamesAdapter;
-use LootRadar\Cache\JsonCache;
-use LootRadar\Commands\FreeGamesCommand;
-use LootRadar\Services\RadarService;
-use Symfony\Component\Console\Application;
+use LootRadar\Cli\ApplicationFactory;
 
 // Resolve o autoloader tanto em uso standalone quanto como dependência.
 $autoloaders = [
-        __DIR__ . '/../vendor/autoload.php',
-        __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
 ];
 
+$autoloaded = false;
 foreach ($autoloaders as $autoloader) {
-    if (file_exists($autoloader)) {
+    if (is_file($autoloader)) {
         require $autoloader;
+        $autoloaded = true;
         break;
     }
 }
 
-// Diretório de cache (criado sob demanda).
-$cachePath = sys_get_temp_dir() . '/lootradar';
-if (!is_dir($cachePath)) {
-    mkdir($cachePath, 0775, true);
+if (!$autoloaded) {
+    fwrite(STDERR, "Não foi possível localizar o autoloader do Composer. Execute composer install.\n");
+    exit(1);
 }
 
-$radar = new RadarService(new JsonCache($cachePath));
-$radar->registerAdapter(new EpicGamesAdapter(new Client()));
-
-$application = new Application('LootRadar', '0.1.0');
-$application->add(new FreeGamesCommand($radar));
-
-$application->run();
+exit(ApplicationFactory::create()->run());

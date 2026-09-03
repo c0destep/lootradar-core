@@ -23,7 +23,7 @@ cd lootradar-core
 composer install
 ```
 
-Liste os jogos grátis da Epic:
+Liste os jogos gratuitos disponíveis nas fontes públicas:
 
 ```bash
 ./bin/lootradar free
@@ -31,8 +31,9 @@ Liste os jogos grátis da Epic:
 ./bin/lootradar free --theme=dracula
 ```
 
-O comando consulta o endpoint público da Epic na primeira execução e reutiliza
-o cache temporário nas próximas doze horas.
+Na primeira execução, o comando consulta Epic Games, Steam e GOG. As execuções
+seguintes reutilizam o cache temporário por até doze horas. Se uma fonte estiver
+indisponível, a CLI informa a falha e continua consultando as demais.
 
 ### Uso como biblioteca
 

@@ -43,8 +43,8 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
-| Entrypoint CLI | `bin/lootradar` | ✅ executável |
-| Testes | `tests/` (Pest, 42 casos / 117 asserções) | ✅ cache, domínio, moeda, URL, temas, quota e todos os adapters cobertos offline |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.2.0; compõe Epic Games, Steam e GOG com cache versionado |
+| Testes | `tests/` (Pest, 50 casos / 152 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -124,6 +124,7 @@ lootradar/                          (monorepo do ecossistema)
 │   ├── Adapters/                   # Epic, Steam, GOG e ITAD ✅
 │   ├── DTO/                        # GameDeal, Money, PriceHistory e Theme ✅
 │   ├── Services/                   # RadarService, ThemeManager, CurrencyConverter, UrlSanitizer, ShovelwareFilter ✅
+│   ├── Cli/                        # ponto de composição testável da aplicação CLI ✅
 │   ├── Cache/                      # JsonCache ✅(embutido hoje), SqliteCache
 │   ├── Pipeline/                   # estágios reutilizáveis do pipe |>
 │   └── Commands/                   # free ✅, deal
@@ -174,13 +175,16 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Compressão opcional gzip no `JsonCache`. **Sem criptografia** (ver §4).
 - ✅ CLI compõe `JsonCache` antes de construir o `RadarService`.
 - ✅ Mesma suíte de testes passa para `JsonCache` e `SqliteCache` (Win/Linux/macOS).
+- ✅ Coletas com falha não são armazenadas; uma indisponibilidade temporária pode ser
+  consultada novamente na execução seguinte.
 - 🔧 Incluir região, locale, moeda e composição de adapters na chave do cache quando
   essas opções globais forem conectadas à CLI e à PWA.
 
 ### Fase 2 — Interfaces CLI e Web/PWA
 
 **2.1 CLI (Termwind)**   *(base feita)*
-- ✅ Comando `free` + temas.
+- ✅ Comando `free` + temas + fontes públicas da Epic Games, Steam e GOG; falhas isoladas
+  são informadas sem interromper as demais consultas.
 - 🔧 Comando `deal --top=N` (tabela dos maiores descontos; usa ITAD).
 - ✅ `ThemeManager` carregando `config/themes/*.json`; temas default/cyberpunk/dracula disponíveis.
 - 🔧 Flags globais: `--currency`, `--country`, `--locale`, `--min-score`, `--no-cache`;
@@ -202,7 +206,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 42 testes / 117 asserções.
+- ✅ Pest configurado, 50 testes / 152 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.

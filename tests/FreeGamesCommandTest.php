@@ -41,3 +41,28 @@ it('trata dados externos como texto ao renderizar a CLI', function () {
         ->and($rendered)->toContain('<b>Oferta externa</b>')
         ->and($rendered)->toContain("Steam'><div>injetado</div>");
 });
+
+it('informa falhas isoladas das fontes', function () {
+    $adapter = new class implements StoreAdapterInterface {
+        public function fetchFreeGames(): array
+        {
+            throw new RuntimeException('serviço temporariamente indisponível');
+        }
+
+        public function fetchDeals(): array
+        {
+            return [];
+        }
+    };
+
+    $radar = new RadarService(new SqliteCache(':memory:'));
+    $radar->registerAdapter($adapter);
+
+    $output = new BufferedOutput();
+    $exitCode = new FreeGamesCommand($radar)->run(new ArrayInput([]), $output);
+    $rendered = $output->fetch();
+
+    expect($exitCode)->toBe(0)
+        ->and($rendered)->toContain('Fontes indisponíveis nesta consulta:')
+        ->and($rendered)->toContain('serviço temporariamente indisponível');
+});

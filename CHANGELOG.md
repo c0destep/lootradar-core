@@ -12,11 +12,15 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Limitadores de requisições em janela deslizante para o ITAD, com proteção local
   em memória e coordenação atômica entre processos por SQLite.
 - Tratamento de `HTTP 429` e `Retry-After`, sem repetição automática da chamada.
+- Ponto de composição testável da CLI para Epic Games, Steam e GOG.
 
 ### Changed
 
 - A configuração local do ITAD passou a reservar o `.env` somente para a chave da
   API; a região comercial continua sendo informada ao adapter, separadamente do locale.
+- A CLI passou a informar a versão `0.2.0`, consultar todas as fontes públicas de
+  jogos gratuitos e exibir falhas isoladas sem interromper a coleta.
+- O `RadarService` deixou de armazenar coletas que tiveram falhas em alguma fonte.
 
 ### Removed
 
@@ -26,6 +30,7 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 - Exceções de quota do ITAD descartam a requisição HTTP original para que a chave da API
   não permaneça acessível pela cadeia de exceções.
+- Dados externos são escapados antes de entrar no markup renderizado pelo Termwind.
 
 ## [0.2.0] - 2026-09-03
 

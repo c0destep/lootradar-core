@@ -63,6 +63,18 @@ class FreeGamesCommand extends Command
             $items = "<li class='text-gray-500'>Nenhum jogo gratuito encontrado no momento.</li>";
         }
 
+        $failureItems = array_reduce(
+            $this->radarService->getFailures(),
+            static fn(string $carry, string $failure): string => $carry
+                . '<li>' . self::escape($failure) . '</li>',
+            '',
+        );
+        $failures = $failureItems === '' ? '' : "
+            <div class='mt-1 text-yellow-400'>
+                <span class='font-bold'>Fontes indisponíveis nesta consulta:</span>
+                <ul>{$failureItems}</ul>
+            </div>";
+
         // Obs.: o Termwind não renderiza bordas de caixa (border-solid/double/cor)
         // em <div>; o token {$styles['border']} fica disponível no ThemeManager
         // para outras camadas de UI. Aqui a separação visual usa <hr/>.
@@ -77,6 +89,7 @@ class FreeGamesCommand extends Command
                     <ul>
                         {$items}
                     </ul>
+                    {$failures}
                 </div>
             "
             );
