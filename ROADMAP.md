@@ -44,8 +44,9 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
-| Testes | `tests/` (Pest, 33 casos / 96 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
+| Testes | `tests/` (Pest, 34 casos / 97 asserções) | ✅ cache, domínio, moeda, URL, temas e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
+| Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git e smoke test manual disponível |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
 **Verificado no ambiente:** PHP 8.5.10, Composer 2.10. Recursos nativos disponíveis e testados:
@@ -195,10 +196,11 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 33 testes / 96 asserções.
+- ✅ Pest configurado, 34 testes / 97 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
+- ✅ Smoke test manual do ITAD com credencial carregada de `.env` e sem exposição da chave.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
 - 🔧 (Web) testes de layout Playwright.
 - 🎯 Cobertura dos parsers e do pipeline; CI verde nas 3 camadas.

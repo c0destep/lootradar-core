@@ -54,7 +54,31 @@ it('converte histórico de preços do ITAD e descarta entradas inválidas', func
 });
 
 it('exige uma chave de API do ambiente', function () {
-    putenv('ITAD_API_KEY');
+    $originalApiKey = getenv('ITAD_API_KEY');
 
-    expect(fn() => ItadAdapter::fromEnvironment(new Client()))->toThrow(LogicException::class);
+    try {
+        putenv('ITAD_API_KEY');
+
+        expect(fn() => ItadAdapter::fromEnvironment(new Client()))->toThrow(LogicException::class);
+    } finally {
+        restoreItadApiKey($originalApiKey);
+    }
 });
+
+it('carrega a chave de API do ambiente', function () {
+    $originalApiKey = getenv('ITAD_API_KEY');
+
+    try {
+        putenv('ITAD_API_KEY=environment-test-api-key');
+
+        expect(ItadAdapter::fromEnvironment(new Client()))
+            ->toBeInstanceOf(ItadAdapter::class);
+    } finally {
+        restoreItadApiKey($originalApiKey);
+    }
+});
+
+function restoreItadApiKey(string|false $value): void
+{
+    putenv($value === false ? 'ITAD_API_KEY' : 'ITAD_API_KEY=' . $value);
+}

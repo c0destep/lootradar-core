@@ -79,8 +79,26 @@ composer test
 composer analyse
 ```
 
-`composer analyse` depende de o PHPStan conseguir abrir seu servidor local;
-em alguns ambientes isolados essa etapa pode falhar antes da análise.
+### Credenciais locais e teste manual do ITAD
+
+Crie o arquivo local de ambiente a partir do modelo versionado:
+
+```bash
+cp .env.example .env
+```
+
+Preencha `ITAD_API_KEY` em `.env`. O arquivo local é ignorado pelo Git e não deve
+ser versionado. `ITAD_COUNTRY` e `ITAD_LIMIT` controlam o país e a quantidade de
+promoções consultadas; `ITAD_GAME_ID` é opcional e habilita a consulta de histórico.
+
+Execute o smoke test contra a API real:
+
+```bash
+composer test:itad-live
+```
+
+Os testes executados por `composer test` continuam totalmente offline e não usam
+credenciais. O smoke test requer acesso à internet e consome a API do ITAD.
 
 ## Documentação
 

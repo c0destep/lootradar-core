@@ -26,7 +26,8 @@
     "ext-pdo": "*",
     "guzzlehttp/guzzle": "^7",
     "nunomaduro/termwind": "^2",
-    "symfony/console": "^7"
+    "symfony/console": "^7",
+    "symfony/dotenv": "^7"
   },
   "require-dev": {
     "pestphp/pest": "^3",
@@ -44,6 +45,7 @@
       "php -l bin/lootradar"
     ],
     "test": "vendor/bin/pest",
+    "test:itad-live": "php tests/manual/itad-smoke.php",
     "analyse": "vendor/bin/phpstan analyse src --level=5 --debug --memory-limit=512M"
   },
   "bin": [
