@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use function Termwind\render;
+use function Termwind\renderUsing;
 
 #[AsCommand(
     name: 'free',
@@ -31,7 +32,7 @@ class FreeGamesCommand extends Command
             'theme',
             't',
             InputOption::VALUE_OPTIONAL,
-            'Define o tema visual (default, cyberpunk)',
+            'Define o tema visual (default, cyberpunk, dracula)',
             'default'
         );
     }
@@ -45,13 +46,14 @@ class FreeGamesCommand extends Command
         $games = $this->radarService->getFreeGames();
 
         $items = array_reduce($games, function (string $carry, array $game) use ($styles): string {
-            $title = (string)($game['title'] ?? 'Desconhecido');
-            $store = (string)($game['storeName'] ?? '');
-            $url = (string)($game['checkoutUrl'] ?? '');
+            $badgeStyles = self::escape((string)$styles['badge']);
+            $title = self::escape((string)($game['title'] ?? 'Desconhecido'));
+            $store = self::escape((string)($game['storeName'] ?? ''));
+            $url = self::escape((string)($game['checkoutUrl'] ?? ''));
 
             return $carry . "
                 <li class='mb-1'>
-                    <span class='{$styles['badge']}'>FREE</span>
+                    <span class='{$badgeStyles}'>GRÁTIS</span>
                     <b>{$title}</b> ({$store})
                     <br/><span class='text-gray-500'>Resgate em: {$url}</span>
                 </li>";
@@ -64,18 +66,29 @@ class FreeGamesCommand extends Command
         // Obs.: o Termwind não renderiza bordas de caixa (border-solid/double/cor)
         // em <div>; o token {$styles['border']} fica disponível no ThemeManager
         // para outras camadas de UI. Aqui a separação visual usa <hr/>.
-        render(
+        $backgroundStyles = self::escape((string)$styles['bg']);
+        renderUsing($output);
+        try {
+            render(
+                "
+                <div class='p-2 {$backgroundStyles}'>
+                    <span class='font-bold'>LOOTRADAR — JOGOS GRATUITOS</span>
+                    <hr class='my-1'/>
+                    <ul>
+                        {$items}
+                    </ul>
+                </div>
             "
-            <div class='p-2 {$styles['bg']}'>
-                <span class='font-bold'>LOOTRADAR - CENTRAL DE JOGOS GRATUITOS</span>
-                <hr class='my-1'/>
-                <ul>
-                    {$items}
-                </ul>
-            </div>
-        "
-        );
+            );
+        } finally {
+            renderUsing(null);
+        }
 
         return Command::SUCCESS;
+    }
+
+    private static function escape(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }
