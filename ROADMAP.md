@@ -40,11 +40,11 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Contratos | `src/Contracts/{StoreAdapter,Cache,PriceHistoryProvider,ExchangeRateProvider,RateLimiter}Interface.php` | ✅ |
 | Adapters de lojas | `src/Adapters/{EpicGames,Itad,Steam,Gog}Adapter.php` | ✅ promoções; ITAD também expõe histórico |
 | Orquestrador + cache | `src/Services/RadarService.php`, `src/Contracts/CacheInterface.php`, `src/Cache/*` | ✅ abstração JSON/SQLite; CLI compõe `JsonCache` |
-| Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
+| Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
-| Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.2.0; compõe Epic Games, Steam e GOG com cache versionado |
-| Testes | `tests/` (Pest, 50 casos / 152 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todos os adapters cobertos offline |
+| Comandos `free` e `deal` | `src/Commands/{FreeGames,Deal}Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos e maiores descontos |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.2.0; composição por comando e opções globais validadas |
+| Testes | `tests/` (Pest, 70 casos / 246 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -127,7 +127,7 @@ lootradar/                          (monorepo do ecossistema)
 │   ├── Cli/                        # ponto de composição testável da aplicação CLI ✅
 │   ├── Cache/                      # JsonCache ✅(embutido hoje), SqliteCache
 │   ├── Pipeline/                   # estágios reutilizáveis do pipe |>
-│   └── Commands/                   # free ✅, deal
+│   └── Commands/                   # free e deal ✅
 ├── config/themes/                  # dracula.json, cyberpunk.json ✅, rgb-gamer.json
 ├── tests/                          # unit + fixtures (JSON estáticos das APIs)
 ├── bin/lootradar                   # CLI ✅
@@ -177,19 +177,21 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Mesma suíte de testes passa para `JsonCache` e `SqliteCache` (Win/Linux/macOS).
 - ✅ Coletas com falha não são armazenadas; uma indisponibilidade temporária pode ser
   consultada novamente na execução seguinte.
-- 🔧 Incluir região, locale, moeda e composição de adapters na chave do cache quando
-  essas opções globais forem conectadas à CLI e à PWA.
+- ✅ Chaves de coleta incluem região, locale, moeda, score mínimo, composição dos adapters
+  e limite da fonte; `--no-cache` ignora leitura e escrita.
 
 ### Fase 2 — Interfaces CLI e Web/PWA
 
-**2.1 CLI (Termwind)**   *(base feita)*
+**2.1 CLI (Termwind)**   *(concluída)*
 - ✅ Comando `free` + temas + fontes públicas da Epic Games, Steam e GOG; falhas isoladas
   são informadas sem interromper as demais consultas.
-- 🔧 Comando `deal --top=N` (tabela dos maiores descontos; usa ITAD).
+- ✅ Comando `deal --top=N` com tabela dos maiores descontos fornecidos pelo ITAD.
 - ✅ `ThemeManager` carregando `config/themes/*.json`; temas default/cyberpunk/dracula disponíveis.
-- 🔧 Flags globais: `--currency`, `--country`, `--locale`, `--min-score`, `--no-cache`;
-  região de preços e idioma devem permanecer configurações independentes.
-- 🎯 `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
+- ✅ Flags globais `--currency`, `--country`, `--locale`, `--min-score` e `--no-cache`;
+  a região comercial e o locale permanecem configurações independentes.
+- ✅ Conversão monetária da CLI usa a API pública Frankfurter v2, com cache das taxas e
+  implementação injetável para testes offline.
+- ✅ `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
 
 **2.2 Web / PWA**
 - 🔧 Camada de exposição JSON do Core (endpoints ou **snapshots** gerados por CI — ver §7.2).
@@ -206,7 +208,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 50 testes / 152 asserções.
+- ✅ Pest configurado, 70 testes / 246 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
@@ -265,9 +267,7 @@ push em background virar requisito.
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Implementar o comando `deal --top=N`, compondo o ITAD no entrypoint da CLI.
-2. Adicionar as flags da CLI (`--currency`, `--min-score`, `--no-cache`) sem vazar lógica de negócio para o comando.
-3. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan gradualmente de 5 para 6.
-4. Decidir o nome do pacote no Packagist (§1) antes da publicação.
-5. Iniciar a camada de exposição JSON e o PWA da Fase 2.2.
+1. Iniciar a camada de exposição JSON e o PWA da Fase 2.2.
+2. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan gradualmente de 5 para 6.
+3. Decidir o nome do pacote no Packagist (§1) antes da publicação.
 ```

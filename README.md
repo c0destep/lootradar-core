@@ -1,6 +1,6 @@
 # LootRadar Core
 
-**v0.2.0** — núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
+Núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
 jogos gratuitos e promoções de lojas digitais.
 
 Nesta versão, o Core consulta jogos gratuitos e promoções da Epic Games, ITAD,
@@ -31,6 +31,21 @@ Liste os jogos gratuitos disponíveis nas fontes públicas:
 ./bin/lootradar free --theme=dracula
 ```
 
+Liste os maiores descontos do ITAD depois de exportar a chave da API:
+
+```bash
+export ITAD_API_KEY='sua-chave'
+./bin/lootradar deal --top=5 --country=BR --locale=pt-BR
+./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
+```
+
+Os dois comandos aceitam as opções globais `--currency`, `--country`, `--locale`,
+`--min-score` e `--no-cache`. O país define a região comercial dos preços, enquanto
+o locale configura o idioma das fontes compatíveis. A opção `--currency` converte os
+valores pela [API pública Frankfurter v2](https://frankfurter.dev/); `--min-score`
+filtra apenas as ofertas cuja fonte informa uma avaliação, e `--no-cache` força uma
+nova coleta sem ler ou gravar o resultado.
+
 Na primeira execução, o comando consulta Epic Games, Steam e GOG. As execuções
 seguintes reutilizam o cache temporário por até doze horas. Se uma fonte estiver
 indisponível, a CLI informa a falha e continua consultando as demais.
@@ -58,7 +73,7 @@ As duas implementações de cache seguem o mesmo contrato:
 - `JsonCache`: simples, portátil e padrão para CLI.
 - `SqliteCache`: indicado para consultas de histórico e futuras integrações de wishlist.
 
-## O que está incluído no v0.2.0
+## Recursos disponíveis
 
 - Adapters defensivos da Epic Games, ITAD, Steam e GOG, com testes offline.
 - `GameDeal`, `Money`, `PriceHistory` e `Theme` como DTOs imutáveis.
@@ -67,10 +82,11 @@ As duas implementações de cache seguem o mesmo contrato:
 - Pipeline de coleta, filtro, conversão de moeda e sanitização de URLs.
 - Cache com TTL, compressão gzip opcional e SQLite.
 - CLI `free` com os temas padrão, Cyberpunk e Dracula.
+- CLI `deal --top=N` com dados do ITAD e os mesmos temas do comando `free`.
+- Opções globais de moeda, país, locale, score mínimo e uso do cache.
 - Workflow de CI com lint, testes e análise estática.
 
-O comando `deal` e as flags globais de moeda, score mínimo e desativação do cache
-continuam previstos para as próximas versões. Veja o [ROADMAP.md](ROADMAP.md).
+A Fase 2.1 da CLI está concluída. Veja as próximas etapas no [ROADMAP.md](ROADMAP.md).
 
 ## Desenvolvimento
 
@@ -90,8 +106,9 @@ cp .env.example .env
 
 Preencha `ITAD_API_KEY` em `.env`. O arquivo local é ignorado pelo Git e não deve
 ser versionado. O Core lê a chave do ambiente do processo por meio de
-`ItadAdapter::fromEnvironment()`; a aplicação que consumir a biblioteca deve carregar
-o arquivo durante sua inicialização.
+`ItadAdapter::fromEnvironment()`, e a CLI usa essa variável ao executar `deal`.
+O entrypoint não carrega arquivos `.env`; exporte a variável no shell antes de chamar
+o comando.
 
 No shell, o arquivo pode ser carregado antes de executar um consumidor local:
 
