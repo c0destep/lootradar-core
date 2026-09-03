@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LootRadar\Services;
 
+use JsonException;
 use LootRadar\Contracts\CacheInterface;
 use LootRadar\Contracts\StoreAdapterInterface;
 use LootRadar\DTO\GameDeal;
@@ -33,6 +34,8 @@ class RadarService
         private readonly ShovelwareFilter $shovelwareFilter = new ShovelwareFilter(),
         private readonly ?CurrencyConverter $currencyConverter = null,
         private readonly ?string $targetCurrency = null,
+        /** @var array<string, int|string> */
+        private readonly array $cacheContext = [],
     ) {
         if ($this->targetCurrency !== null && $this->currencyConverter === null) {
             throw new \InvalidArgumentException('Uma moeda-alvo requer um CurrencyConverter.');
@@ -104,9 +107,10 @@ class RadarService
     private function collect(string $cacheKey, callable $fetcher, bool $bypassCache): array
     {
         $this->failures = [];
+        $scopedCacheKey = $this->scopedCacheKey($cacheKey);
 
         if (!$bypassCache) {
-            $cached = $this->cache->get($cacheKey);
+            $cached = $this->cache->get($scopedCacheKey);
             if ($cached !== null) {
                 return $this->narrowToRows($cached);
             }
@@ -124,11 +128,35 @@ class RadarService
         $this->failures = [...$collection['failures'], ...$sanitization['failures']];
         $payload = $sanitization['deals'] |> $this->serialize(...);
 
-        if ($this->failures === []) {
-            $this->cache->put($cacheKey, $payload);
+        if (!$bypassCache && $this->failures === []) {
+            $this->cache->put($scopedCacheKey, $payload);
         }
 
         return $payload;
+    }
+
+    /**
+     * Separa entradas por configuração regional, filtros e composição exata
+     * das fontes para impedir que uma consulta reutilize dados incompatíveis.
+     *
+     * @throws JsonException
+     */
+    private function scopedCacheKey(string $baseKey): string
+    {
+        $adapterClasses = array_map(
+            static fn(StoreAdapterInterface $adapter): string => $adapter::class,
+            $this->adapters,
+        );
+        $scope = json_encode(
+            [
+                'schema' => 1,
+                'context' => $this->cacheContext,
+                'adapters' => $adapterClasses,
+            ],
+            JSON_THROW_ON_ERROR,
+        );
+
+        return $baseKey . ':' . substr(hash('sha256', $scope), 0, 20);
     }
 
     /**

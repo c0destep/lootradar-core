@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace LootRadar\Commands;
 
-use LootRadar\Services\RadarService;
+use InvalidArgumentException;
+use LootRadar\Cli\CliOptions;
+use LootRadar\Cli\CliRadarFactoryInterface;
 use LootRadar\Services\ThemeManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,7 +23,7 @@ use function Termwind\renderUsing;
 )]
 class FreeGamesCommand extends Command
 {
-    public function __construct(private RadarService $radarService)
+    public function __construct(private readonly CliRadarFactoryInterface $radarFactory)
     {
         parent::__construct();
     }
@@ -39,11 +41,20 @@ class FreeGamesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        try {
+            $options = CliOptions::fromInput($input);
+        } catch (InvalidArgumentException $exception) {
+            $output->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
+
+            return Command::INVALID;
+        }
+
         $themeOption = $input->getOption('theme');
         $theme = is_string($themeOption) ? $themeOption : 'default';
         $styles = ThemeManager::getStylesByTheme($theme);
 
-        $games = $this->radarService->getFreeGames();
+        $radarService = $this->radarFactory->createFreeRadar($options);
+        $games = $radarService->getFreeGames($options->bypassCache);
 
         $items = array_reduce($games, function (string $carry, array $game) use ($styles): string {
             $badgeStyles = self::escape((string)$styles['badge']);
@@ -64,7 +75,7 @@ class FreeGamesCommand extends Command
         }
 
         $failureItems = array_reduce(
-            $this->radarService->getFailures(),
+            $radarService->getFailures(),
             static fn(string $carry, string $failure): string => $carry
                 . '<li>' . self::escape($failure) . '</li>',
             '',

@@ -15,3 +15,7 @@ it('remove avaliações abaixo do limiar e mantém ofertas sem nota por padrão'
         ->and($filter->accepts($bad))->toBeFalse()
         ->and($filter->accepts($unrated))->toBeTrue();
 });
+
+it('rejeita score mínimo fora do intervalo válido', function (int $minimum) {
+    expect(fn() => new ShovelwareFilter($minimum))->toThrow(InvalidArgumentException::class);
+})->with([-1, 101]);

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use LootRadar\Cache\SqliteCache;
+use LootRadar\Cli\CliOptions;
+use LootRadar\Cli\CliRadarFactoryInterface;
 use LootRadar\Commands\FreeGamesCommand;
 use LootRadar\Contracts\StoreAdapterInterface;
 use LootRadar\DTO\GameDeal;
@@ -32,9 +34,14 @@ it('trata dados externos como texto ao renderizar a CLI', function () {
 
     $radar = new RadarService(new SqliteCache(':memory:'));
     $radar->registerAdapter($adapter);
+    $factory = new class($radar) implements CliRadarFactoryInterface {
+        public function __construct(private readonly RadarService $radar) {}
+        public function createFreeRadar(CliOptions $options): RadarService { return $this->radar; }
+        public function createDealRadar(CliOptions $options, int $limit): RadarService { return $this->radar; }
+    };
 
     $output = new BufferedOutput();
-    $exitCode = new FreeGamesCommand($radar)->run(new ArrayInput([]), $output);
+    $exitCode = new FreeGamesCommand($factory)->run(new ArrayInput([]), $output);
     $rendered = $output->fetch();
 
     expect($exitCode)->toBe(0)
@@ -57,9 +64,14 @@ it('informa falhas isoladas das fontes', function () {
 
     $radar = new RadarService(new SqliteCache(':memory:'));
     $radar->registerAdapter($adapter);
+    $factory = new class($radar) implements CliRadarFactoryInterface {
+        public function __construct(private readonly RadarService $radar) {}
+        public function createFreeRadar(CliOptions $options): RadarService { return $this->radar; }
+        public function createDealRadar(CliOptions $options, int $limit): RadarService { return $this->radar; }
+    };
 
     $output = new BufferedOutput();
-    $exitCode = new FreeGamesCommand($radar)->run(new ArrayInput([]), $output);
+    $exitCode = new FreeGamesCommand($factory)->run(new ArrayInput([]), $output);
     $rendered = $output->fetch();
 
     expect($exitCode)->toBe(0)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LootRadar\Services;
 
+use InvalidArgumentException;
 use LootRadar\DTO\GameDeal;
 
 /**
@@ -20,6 +21,9 @@ final class ShovelwareFilter
         private readonly int $minimumRating = 60,
         private readonly bool $keepUnrated = true,
     ) {
+        if ($this->minimumRating < 0 || $this->minimumRating > 100) {
+            throw new InvalidArgumentException('O score mínimo deve estar entre 0 e 100.');
+        }
     }
 
     /**
