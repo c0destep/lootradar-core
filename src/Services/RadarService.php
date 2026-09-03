@@ -103,6 +103,8 @@ class RadarService
      */
     private function collect(string $cacheKey, callable $fetcher, bool $bypassCache): array
     {
+        $this->failures = [];
+
         if (!$bypassCache) {
             $cached = $this->cache->get($cacheKey);
             if ($cached !== null) {
@@ -110,15 +112,21 @@ class RadarService
             }
         }
 
+        $collection = $this->gather($fetcher);
+        $this->failures = $collection['failures'];
+
         // Pipeline componível com o operador pipe do PHP 8.5:
         // coletar |> filtrar shovelware |> converter moeda |> higienizar URLs |> serializar.
-        $payload = $this->gather($fetcher)
+        $preparedDeals = $collection['deals']
                 |> $this->shovelwareFilter->filter(...)
-                |> $this->convertCurrency(...)
-                |> $this->sanitizeUrls(...)
-                |> $this->serialize(...);
+                |> $this->convertCurrency(...);
+        $sanitization = $this->sanitizeUrls($preparedDeals);
+        $this->failures = [...$collection['failures'], ...$sanitization['failures']];
+        $payload = $sanitization['deals'] |> $this->serialize(...);
 
-        $this->cache->put($cacheKey, $payload);
+        if ($this->failures === []) {
+            $this->cache->put($cacheKey, $payload);
+        }
 
         return $payload;
     }
@@ -126,23 +134,22 @@ class RadarService
     /**
      * @param callable(StoreAdapterInterface): array<int, GameDeal> $fetcher
      *
-     * @return list<GameDeal>
+     * @return array{deals: list<GameDeal>, failures: list<string>}
      */
     private function gather(callable $fetcher): array
     {
-        $this->failures = [];
-
         $collected = [];
+        $failures = [];
         foreach ($this->adapters as $adapter) {
             try {
                 $collected = [...$collected, ...$fetcher($adapter)];
             } catch (Throwable $exception) {
                 // Resiliência: registra e segue para o próximo adapter.
-                $this->failures[] = $adapter::class . ': ' . $exception->getMessage();
+                $failures[] = $adapter::class . ': ' . $exception->getMessage();
             }
         }
 
-        return $collected;
+        return ['deals' => $collected, 'failures' => $failures];
     }
 
     /**
@@ -152,22 +159,23 @@ class RadarService
      *
      * @param list<GameDeal> $deals
      *
-     * @return list<GameDeal>
+     * @return array{deals: list<GameDeal>, failures: list<string>}
      */
     private function sanitizeUrls(array $deals): array
     {
         $safe = [];
+        $failures = [];
         foreach ($deals as $deal) {
             $sanitized = $this->urlSanitizer->sanitize($deal->checkoutUrl);
             if ($sanitized === null) {
-                $this->failures[] = "URL rejeitada para '{$deal->title}': {$deal->checkoutUrl}";
+                $failures[] = "URL rejeitada para '{$deal->title}': {$deal->checkoutUrl}";
                 continue;
             }
 
             $safe[] = $sanitized === $deal->checkoutUrl ? $deal : $deal->withCheckoutUrl($sanitized);
         }
 
-        return $safe;
+        return ['deals' => $safe, 'failures' => $failures];
     }
 
     /**

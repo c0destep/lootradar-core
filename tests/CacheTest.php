@@ -55,3 +55,66 @@ it('integra o RadarService com qualquer implementação de cache', function (cal
         ->and($radar->getFreeGames())->toHaveCount(1)
         ->and($adapter->calls)->toBe(1);
 })->with('cache implementations');
+
+it('não armazena uma coleta quando alguma fonte falha', function (callable $factory) {
+    $cache = $factory();
+    $adapter = new class implements StoreAdapterInterface {
+        public int $calls = 0;
+
+        public function fetchDeals(): array
+        {
+            return [];
+        }
+
+        public function fetchFreeGames(): array
+        {
+            $this->calls++;
+
+            throw new RuntimeException('fonte indisponível');
+        }
+    };
+    $radar = new RadarService($cache);
+    $radar->registerAdapter($adapter);
+
+    expect($radar->getFreeGames())->toBe([])
+        ->and($radar->getFreeGames())->toBe([])
+        ->and($adapter->calls)->toBe(2)
+        ->and($cache->has(RadarService::CACHE_KEY_FREE_GAMES))->toBeFalse();
+})->with('cache implementations');
+
+it('não armazena uma coleta quando uma URL externa é rejeitada', function (callable $factory) {
+    $cache = $factory();
+    $adapter = new class implements StoreAdapterInterface {
+        public int $calls = 0;
+
+        public function fetchDeals(): array
+        {
+            return [];
+        }
+
+        public function fetchFreeGames(): array
+        {
+            $this->calls++;
+
+            return [
+                new GameDeal(
+                    'Link inseguro',
+                    'Fonte externa',
+                    10.0,
+                    0.0,
+                    'javascript:alert(1)',
+                    100,
+                    true,
+                ),
+            ];
+        }
+    };
+    $radar = new RadarService($cache);
+    $radar->registerAdapter($adapter);
+
+    expect($radar->getFreeGames())->toBe([])
+        ->and($radar->getFailures())->toHaveCount(1)
+        ->and($radar->getFreeGames())->toBe([])
+        ->and($adapter->calls)->toBe(2)
+        ->and($cache->has(RadarService::CACHE_KEY_FREE_GAMES))->toBeFalse();
+})->with('cache implementations');
