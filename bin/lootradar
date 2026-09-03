@@ -4,6 +4,8 @@
 declare(strict_types=1);
 
 use LootRadar\Cli\ApplicationFactory;
+use LootRadar\Cli\EnvironmentLoader;
+use Symfony\Component\Dotenv\Exception\ExceptionInterface as DotenvExceptionInterface;
 
 // Resolve o autoloader tanto em uso standalone quanto como dependência.
 $autoloaders = [
@@ -22,6 +24,13 @@ foreach ($autoloaders as $autoloader) {
 
 if (!$autoloaded) {
     fwrite(STDERR, "Não foi possível localizar o autoloader do Composer. Execute composer install.\n");
+    exit(1);
+}
+
+try {
+    EnvironmentLoader::load(dirname(__DIR__));
+} catch (DotenvExceptionInterface) {
+    fwrite(STDERR, "Não foi possível carregar o arquivo .env. Verifique sua sintaxe.\n");
     exit(1);
 }
 

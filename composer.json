@@ -22,12 +22,13 @@
   },
   "require": {
     "php": ">=8.5",
-    "ext-zlib": "*",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
+    "ext-zlib": "*",
     "guzzlehttp/guzzle": "^7",
     "nunomaduro/termwind": "^2",
-    "symfony/console": "^7"
+    "symfony/console": "^7",
+    "symfony/dotenv": "^7"
   },
   "require-dev": {
     "pestphp/pest": "^3",

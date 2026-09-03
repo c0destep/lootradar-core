@@ -37,8 +37,7 @@ final class ApplicationFactory
             sys_get_temp_dir() . '/lootradar/' . self::VERSION,
         );
         if ($itadApiKey === null) {
-            $environmentApiKey = getenv('ITAD_API_KEY');
-            $itadApiKey = is_string($environmentApiKey) ? $environmentApiKey : null;
+            $itadApiKey = self::itadApiKeyFromEnvironment();
         }
 
         $application = new Application('LootRadar', self::VERSION);
@@ -94,5 +93,23 @@ final class ApplicationFactory
             InputOption::VALUE_NONE,
             'Ignora o cache de ofertas nesta execução.',
         ));
+    }
+
+    private static function itadApiKeyFromEnvironment(): ?string
+    {
+        $processValue = getenv('ITAD_API_KEY');
+        $candidates = [
+            $processValue,
+            $_SERVER['ITAD_API_KEY'] ?? null,
+            $_ENV['ITAD_API_KEY'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }
