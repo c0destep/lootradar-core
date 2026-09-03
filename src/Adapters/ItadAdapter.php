@@ -21,7 +21,6 @@ use LootRadar\DTO\PriceHistory;
 use LootRadar\Exceptions\RateLimitExceededException;
 use LootRadar\Services\InMemorySlidingWindowRateLimiter;
 use Psr\Http\Message\ResponseInterface;
-use Throwable;
 
 /**
  * Fonte oficial de promoções e histórico de preços do IsThereAnyDeal.
@@ -41,6 +40,8 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
     private const string DEALS_ENDPOINT = self::API_BASE_URL . '/deals/v2';
 
     private const string HISTORY_ENDPOINT = self::API_BASE_URL . '/games/history/v2';
+
+    private static ?RateLimiterInterface $defaultRateLimiter = null;
 
     private readonly RateLimiterInterface $rateLimiter;
 
@@ -63,7 +64,8 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
             throw new InvalidArgumentException('O limite do ITAD deve estar entre 1 e 200.');
         }
 
-        $this->rateLimiter = $rateLimiter ?? new InMemorySlidingWindowRateLimiter();
+        $this->rateLimiter = $rateLimiter
+            ?? (self::$defaultRateLimiter ??= new InMemorySlidingWindowRateLimiter());
     }
 
     public static function fromEnvironment(
@@ -178,7 +180,7 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
                 throw $exception;
             }
 
-            throw $this->rateLimitException($limiterKey, $response, $exception);
+            throw $this->rateLimitException($limiterKey, $response);
         }
 
         if ($response->getStatusCode() === 429) {
@@ -191,19 +193,20 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
     private function rateLimitException(
         string $limiterKey,
         ResponseInterface $response,
-        ?Throwable $previous = null,
     ): RateLimitExceededException {
         $retryAfter = $this->retryAfterSeconds($response->getHeaderLine('Retry-After'));
         $this->rateLimiter->suspend($limiterKey, $retryAfter);
 
-        return new RateLimitExceededException($retryAfter, $previous);
+        // Não preserve RequestException como causa: ela retém a requisição e,
+        // portanto, o cabeçalho privado ITAD-API-Key.
+        return new RateLimitExceededException($retryAfter);
     }
 
     private function retryAfterSeconds(string $value): int
     {
         $value = trim($value);
         if (preg_match('/^\d+$/', $value) === 1) {
-            return max(1, (int)$value);
+            return max(0, (int)$value);
         }
 
         $retryAt = $value === '' ? false : strtotime($value);
@@ -211,7 +214,7 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
             return self::DEFAULT_RETRY_AFTER_SECONDS;
         }
 
-        return max(1, $retryAt - time());
+        return max(0, $retryAt - time());
     }
 
     /**

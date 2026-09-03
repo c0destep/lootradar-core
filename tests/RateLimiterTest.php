@@ -75,26 +75,36 @@ it('compartilha a janela SQLite entre instâncias', function () {
 
 it('compartilha suspensões informadas pelo provedor', function () {
     $now = 2_000.0;
-    $limiter = new SqliteSlidingWindowRateLimiter(
-        ':memory:',
-        clock: static function () use (&$now): float {
-            return $now;
-        },
-    );
+    $databasePath = sys_get_temp_dir() . '/lootradar-rate-block-' . bin2hex(random_bytes(8)) . '.sqlite';
+    $clock = static function () use (&$now): float {
+        return $now;
+    };
 
-    $limiter->suspend('itad:test-key', 42);
-
-    $exception = null;
     try {
-        $limiter->consume('itad:test-key');
-    } catch (RateLimitExceededException $caught) {
-        $exception = $caught;
+        $writer = new SqliteSlidingWindowRateLimiter($databasePath, clock: $clock);
+        $reader = new SqliteSlidingWindowRateLimiter($databasePath, clock: $clock);
+        $writer->suspend('itad:test-key', 42);
+
+        $exception = null;
+        try {
+            $reader->consume('itad:test-key');
+        } catch (RateLimitExceededException $caught) {
+            $exception = $caught;
+        }
+
+        expect($exception)->toBeInstanceOf(RateLimitExceededException::class)
+            ->and($exception?->retryAfterSeconds)->toBe(42);
+
+        $now += 42;
+
+        expect(fn() => $reader->consume('itad:test-key'))->not->toThrow(RateLimitExceededException::class);
+    } finally {
+        unset($writer, $reader);
+
+        foreach ([$databasePath, $databasePath . '-journal', $databasePath . '-shm', $databasePath . '-wal'] as $path) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
     }
-
-    expect($exception)->toBeInstanceOf(RateLimitExceededException::class)
-        ->and($exception?->retryAfterSeconds)->toBe(42);
-
-    $now += 42;
-
-    expect(fn() => $limiter->consume('itad:test-key'))->not->toThrow(RateLimitExceededException::class);
 });

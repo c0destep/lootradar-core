@@ -9,6 +9,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use LootRadar\Adapters\ItadAdapter;
 use LootRadar\Exceptions\RateLimitExceededException;
+use LootRadar\Services\InMemorySlidingWindowRateLimiter;
 use LootRadar\Services\SqliteSlidingWindowRateLimiter;
 
 function itadFixture(string $name): string
@@ -93,7 +94,30 @@ it('respeita retry-after quando o ITAD devolve limite excedido', function () {
     }
 
     expect($exception)->toBeInstanceOf(RateLimitExceededException::class)
-        ->and($exception?->retryAfterSeconds)->toBe(42);
+        ->and($exception?->retryAfterSeconds)->toBe(42)
+        ->and($exception?->getPrevious())->toBeNull();
+});
+
+it('aceita retry-after zero sem prolongar a suspensão', function () {
+    $client = new Client([
+        'handler' => HandlerStack::create(new MockHandler([
+            new Response(429, ['Retry-After' => '0']),
+            new Response(200, ['Content-Type' => 'application/json'], itadFixture('itad-deals.json')),
+        ])),
+        'http_errors' => false,
+    ]);
+    $adapter = new ItadAdapter($client, 'retry-zero-api-key');
+
+    $exception = null;
+    try {
+        $adapter->fetchDeals();
+    } catch (RateLimitExceededException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->toBeInstanceOf(RateLimitExceededException::class)
+        ->and($exception?->retryAfterSeconds)->toBe(0)
+        ->and($adapter->fetchDeals())->toHaveCount(2);
 });
 
 it('aplica a mesma quota às ofertas e ao histórico do ITAD', function () {
@@ -115,6 +139,32 @@ it('aplica a mesma quota às ofertas e ao histórico do ITAD', function () {
     expect(fn() => $adapter->fetchPriceHistory('game-id'))
         ->toThrow(RateLimitExceededException::class)
         ->and($requests)->toHaveCount(1);
+});
+
+it('compartilha a proteção padrão entre instâncias do adapter', function () {
+    $defaultLimiter = new ReflectionProperty(ItadAdapter::class, 'defaultRateLimiter');
+    $originalLimiter = $defaultLimiter->getValue();
+    $defaultLimiter->setValue(null, new InMemorySlidingWindowRateLimiter(maxRequests: 1));
+
+    try {
+        $first = new ItadAdapter(
+            new Client(['handler' => HandlerStack::create(new MockHandler([
+                new Response(200, ['Content-Type' => 'application/json'], itadFixture('itad-deals.json')),
+            ]))]),
+            'shared-default-api-key',
+        );
+        $second = new ItadAdapter(
+            new Client(['handler' => HandlerStack::create(new MockHandler([]))]),
+            'shared-default-api-key',
+        );
+
+        $first->fetchDeals();
+
+        expect(fn() => $second->fetchDeals())
+            ->toThrow(RateLimitExceededException::class);
+    } finally {
+        $defaultLimiter->setValue(null, $originalLimiter);
+    }
 });
 
 function restoreItadApiKey(string|false $value): void

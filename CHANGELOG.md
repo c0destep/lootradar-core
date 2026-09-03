@@ -22,6 +22,11 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 - Smoke test manual do ITAD, seu comando Composer e a dependência exclusiva de ambiente.
 
+### Security
+
+- Exceções de quota do ITAD descartam a requisição HTTP original para que a chave da API
+  não permaneça acessível pela cadeia de exceções.
+
 ## [0.2.0] - 2026-09-03
 
 ### Added

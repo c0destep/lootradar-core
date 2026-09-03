@@ -44,7 +44,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comando `free` | `src/Commands/FreeGamesCommand.php` (Symfony Console + Termwind) | ✅ |
 | Entrypoint CLI | `bin/lootradar` | ✅ executável |
-| Testes | `tests/` (Pest, 40 casos / 110 asserções) | ✅ cache, domínio, moeda, URL, temas, quota e todos os adapters cobertos offline |
+| Testes | `tests/` (Pest, 42 casos / 117 asserções) | ✅ cache, domínio, moeda, URL, temas, quota e todos os adapters cobertos offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -202,7 +202,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 40 testes / 110 asserções.
+- ✅ Pest configurado, 42 testes / 117 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.

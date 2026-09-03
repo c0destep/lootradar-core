@@ -11,7 +11,7 @@ e conversão de moeda, sanitiza URLs de checkout e disponibiliza uma CLI temáti
 
 - PHP 8.5 ou superior
 - Composer 2
-- Extensões `pdo` e `zlib`
+- Extensões `pdo`, `pdo_sqlite` e `zlib`
 
 ## Instalação e uso
 
@@ -107,7 +107,7 @@ independente.
 
 ### Limite de requisições do ITAD
 
-Cada instância de `ItadAdapter` limita, por padrão, o próprio processo a 950
+Cada processo limita, por padrão, todas as suas instâncias de `ItadAdapter` a 950
 requisições em uma janela deslizante de cinco minutos. Aplicações com vários processos
 devem compartilhar o limitador SQLite:
 

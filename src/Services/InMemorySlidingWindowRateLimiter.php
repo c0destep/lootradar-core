@@ -78,8 +78,11 @@ final class InMemorySlidingWindowRateLimiter implements RateLimiterInterface
     public function suspend(string $key, int $retryAfterSeconds): void
     {
         $this->validateKey($key);
-        if ($retryAfterSeconds < 1) {
-            throw new InvalidArgumentException('O período de suspensão deve ser positivo.');
+        if ($retryAfterSeconds < 0) {
+            throw new InvalidArgumentException('O período de suspensão não pode ser negativo.');
+        }
+        if ($retryAfterSeconds === 0) {
+            return;
         }
 
         $blockedUntil = ($this->clock)() + $retryAfterSeconds;

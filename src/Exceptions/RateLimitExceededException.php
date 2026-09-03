@@ -13,6 +13,12 @@ final class RateLimitExceededException extends RuntimeException
         public readonly int $retryAfterSeconds,
         ?Throwable $previous = null,
     ) {
+        if ($this->retryAfterSeconds === 0) {
+            parent::__construct('A cota de requisições foi atingida. Tente novamente agora.', previous: $previous);
+
+            return;
+        }
+
         $unit = $this->retryAfterSeconds === 1 ? 'segundo' : 'segundos';
 
         parent::__construct(
