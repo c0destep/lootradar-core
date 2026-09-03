@@ -228,6 +228,12 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
             return [];
         }
 
+        // O endpoint /deals/v2 envolve os registros em {list: [...]}; o
+        // histórico continua devolvendo a lista diretamente.
+        if (array_key_exists('list', $decoded)) {
+            $decoded = is_array($decoded['list']) ? $decoded['list'] : [];
+        }
+
         $rows = [];
         foreach ($decoded as $entry) {
             if (is_array($entry)) {

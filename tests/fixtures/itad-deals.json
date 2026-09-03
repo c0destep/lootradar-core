@@ -1,4 +1,7 @@
-[
+{
+  "nextOffset": 2,
+  "hasMore": true,
+  "list": [
   {
     "id": "018d937f-012f-73f8-ab2c-898516969e6a",
     "slug": "hades",
@@ -39,4 +42,5 @@
       "regular": {"amount": 10.0, "currency": "BRL"}
     }
   }
-]
+  ]
+}
