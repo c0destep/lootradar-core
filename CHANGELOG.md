@@ -15,6 +15,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
   para os comandos da CLI.
 - Fonte pública Frankfurter v2 para converter moedas na CLI, com fixture e testes
   offline.
+- Carregamento automático do arquivo `.env` pela CLI com o componente Dotenv do
+  Symfony, sem substituir variáveis já definidas no processo.
 - Limitadores de requisições em janela deslizante para o ITAD, com proteção local
   em memória e coordenação atômica entre processos por SQLite.
 - Tratamento de `HTTP 429` e `Retry-After`, sem repetição automática da chamada.
@@ -25,6 +27,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - As chaves de cache agora separam região, locale, moeda, score mínimo, composição
   dos adapters e limite da fonte; `--no-cache` ignora leitura e escrita da coleta.
 - Os comandos `free` e `deal` renderizam nos temas padrão, Cyberpunk e Dracula.
+- O parser de ofertas do ITAD passou a reconhecer o envelope `list` devolvido pelo
+  endpoint real `/deals/v2`.
 - A configuração local do ITAD passou a reservar o `.env` somente para a chave da
   API; a região comercial continua sendo informada ao adapter, separadamente do locale.
 - A CLI passou a informar a versão `0.2.0`, consultar todas as fontes públicas de

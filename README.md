@@ -31,10 +31,9 @@ Liste os jogos gratuitos disponíveis nas fontes públicas:
 ./bin/lootradar free --theme=dracula
 ```
 
-Liste os maiores descontos do ITAD depois de exportar a chave da API:
+Liste os maiores descontos do ITAD depois de preencher `ITAD_API_KEY` no arquivo `.env`:
 
 ```bash
-export ITAD_API_KEY='sua-chave'
 ./bin/lootradar deal --top=5 --country=BR --locale=pt-BR
 ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
 ```
@@ -105,12 +104,12 @@ cp .env.example .env
 ```
 
 Preencha `ITAD_API_KEY` em `.env`. O arquivo local é ignorado pelo Git e não deve
-ser versionado. O Core lê a chave do ambiente do processo por meio de
-`ItadAdapter::fromEnvironment()`, e a CLI usa essa variável ao executar `deal`.
-O entrypoint não carrega arquivos `.env`; exporte a variável no shell antes de chamar
-o comando.
+ser versionado. A CLI carrega esse arquivo automaticamente antes de executar os
+comandos. Quando `ITAD_API_KEY` também estiver definida no ambiente do processo, o
+valor exportado terá prioridade sobre a configuração local.
 
-No shell, o arquivo pode ser carregado antes de executar um consumidor local:
+O Core também permite que outra aplicação leia a variável do processo por meio de
+`ItadAdapter::fromEnvironment()`. Nesse caso, o arquivo pode ser carregado pelo shell:
 
 ```sh
 set -a

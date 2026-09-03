@@ -44,9 +44,9 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free` e `deal` | `src/Commands/{FreeGames,Deal}Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos e maiores descontos |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ versão 0.2.0; composição por comando e opções globais validadas |
-| Testes | `tests/` (Pest, 70 casos / 246 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 72 casos / 253 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
-| Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; carregamento delegado à aplicação consumidora |
+| Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
 **Verificado no ambiente:** PHP 8.5.10, Composer 2.10. Recursos nativos disponíveis e testados:
@@ -191,6 +191,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   a região comercial e o locale permanecem configurações independentes.
 - ✅ Conversão monetária da CLI usa a API pública Frankfurter v2, com cache das taxas e
   implementação injetável para testes offline.
+- ✅ O entrypoint carrega `.env` automaticamente e preserva a prioridade de
+  `ITAD_API_KEY` quando a variável já está definida no processo.
 - ✅ `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
 
 **2.2 Web / PWA**
@@ -208,7 +210,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 70 testes / 246 asserções.
+- ✅ Pest configurado, 72 testes / 253 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
