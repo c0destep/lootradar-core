@@ -4,8 +4,21 @@
 
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
-- O estado validado em 2026-09-01 é: Pest verde (18 testes); PHPStan level 5 não concluiu por falha do servidor TCP interno do ambiente; a CLI inicializa e expõe o comando `free`.
-- O repositório usa a branch `main`, possui o commit raiz do release, a tag anotada `v0.1.0` e o remoto público https://github.com/c0destep/lootradar-core.
+- O estado validado em 2026-09-04 é: lint verde; Pest com 84 testes e 348 asserções; PHPStan level 5 verde; CLI `0.3.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
+- O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.3.0` e o remoto público https://github.com/c0destep/lootradar-core.
+- A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`; os dois consumidores ainda serão criados em repositórios independentes.
+
+## Arquitetura do ecossistema
+
+1. `lootradar-core` é a fonte canônica das regras de negócio, integrações, DTOs, cache, CLI e do contrato de snapshot. Este repositório continua publicando o pacote Composer e a aplicação CLI.
+2. `lootradar-web` será um consumidor independente. A PWA instalará uma versão explícita do Core em seu workflow, executará `lootradar snapshot` e consumirá somente o JSON com `schemaVersion` declarado.
+3. `lootradar-desktop` será um consumidor independente em NativePHP. A aplicação declarará o Core no `composer.json` com uma faixa de versão compatível.
+4. Cada repositório terá CI, versionamento e publicação próprios. Não existe uma tag global para o ecossistema: o Core publica o pacote e o `.phar`, a Web publica a PWA e o Desktop publica seus executáveis.
+5. Mudanças incompatíveis no snapshot criam uma nova versão do schema. O repositório Web deve conservar fixtures das versões aceitas e validar o contrato antes do deploy.
+6. Atualizações do Core nos consumidores devem ocorrer por Pull Request acompanhado do CI do repositório afetado. Automação de dependências não autoriza merge sem validação.
+7. A CLI permanece no Core porque valida o uso isolado da biblioteca, integra as releases existentes e produz o snapshot consumido pela PWA.
+8. Não criar antecipadamente um pacote de componentes visuais. Essa extração só se justifica quando houver duplicação concreta entre Web e Desktop.
+9. Dependências Node, artefatos do NativePHP e toolchains dos sistemas operacionais pertencem aos repositórios consumidores e não devem ser incorporados ao Core.
 
 ## Regras de continuidade
 
@@ -28,7 +41,7 @@
 3. Priorizar tipagem explícita, `declare(strict_types=1)`, PSR-12/PSR-4, SOLID, validação de entradas externas, consultas SQL preparadas e tratamento de exceções específico. Não introduzir `@` para suprimir erros.
 4. Em auditorias de código PHP, registrar achados no formato `arquivo:linha - [categoria] descrição`, usando as categorias da skill.
 
-## Versionamento semântico e releases
+## Versionamento semântico e releases do Core
 
 1. Toda versão pública segue **Semantic Versioning 2.0.0** e usa tags anotadas no formato `vMAJOR.MINOR.PATCH`.
 2. Incrementar `MAJOR` para mudanças incompatíveis na API pública; `MINOR` para funcionalidades retrocompatíveis; e `PATCH` para correções retrocompatíveis, documentação ou manutenção sem mudança de API.
@@ -40,10 +53,11 @@
 
 ## Ordem de execução recomendada
 
-1. Implementar `ItadAdapter`, contrato/DTO de histórico e o comando `deal --top=N`.
-2. Adicionar fixture/testes offline do ITAD e, depois, Steam/GOG.
-3. Atualizar flags da CLI (`--currency`, `--min-score`, `--no-cache`) e então sincronizar o roadmap.
-4. Só depois avançar para PWA, CI/CD e decisão final do nome Packagist.
+1. Criar o repositório `lootradar-web` e implementar a PWA mobile-first sobre o contrato JSON do comando `snapshot`.
+2. Decidir o nome definitivo do pacote no Packagist antes de configurar a dependência do futuro repositório `lootradar-desktop`.
+3. Configurar no repositório Web o cron que instala uma versão explícita do Core, gera o snapshot e publica a PWA estática.
+4. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
+5. Criar `lootradar-desktop` somente após estabilizar o contrato consumido pelas interfaces.
 
 ## Comandos de qualidade
 

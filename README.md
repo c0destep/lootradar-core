@@ -7,6 +7,39 @@ Nesta versão, o Core consulta jogos gratuitos e promoções da Epic Games, ITAD
 Steam e GOG, mantém um cache local em JSON ou SQLite, oferece histórico de preços
 e conversão de moeda, sanitiza URLs de checkout e disponibiliza uma CLI temática.
 
+Este repositório é a fonte canônica das regras de negócio e dos contratos do LootRadar.
+As interfaces Web/PWA e Desktop serão desenvolvidas como consumidores independentes,
+sem transferir lógica de negócio para as camadas de apresentação.
+
+## Ecossistema e arquitetura
+
+A arquitetura-alvo distribui o projeto entre três repositórios, cada um com CI,
+versionamento e publicação próprios:
+
+| Repositório | Responsabilidade | Forma de consumir o Core | Publicação |
+|-------------|------------------|--------------------------|------------|
+| `lootradar-core` | Biblioteca PHP, adapters, DTOs, serviços, cache, CLI e snapshot | Fonte canônica | Packagist, `.phar` e GitHub Release |
+| `lootradar-web` | PWA, Service Worker, temas, acessibilidade e notificações Web | Snapshot JSON versionado | Pages, Vercel ou Netlify |
+| `lootradar-desktop` | Aplicação NativePHP, System Tray e integrações do sistema operacional | Dependência Composer | Binários para Windows, macOS e Linux |
+
+Os repositórios `lootradar-web` e `lootradar-desktop` ainda serão criados. Não haverá
+uma tag única para todo o ecossistema: cada aplicação poderá evoluir e ser publicada sem
+exigir uma nova versão das demais.
+
+Essa separação mantém dependências Node, artefatos do NativePHP e toolchains dos sistemas
+operacionais fora do pacote PHP. Um pacote de componentes visuais compartilhados só será
+extraído quando houver duplicação concreta entre as interfaces Web e Desktop.
+
+A PWA instalará uma versão explícita do Core no workflow agendado, executará o comando
+`snapshot` e publicará o JSON junto da interface estática. O campo `schemaVersion` identifica
+o contrato consumido; mudanças incompatíveis criam uma nova versão, e a PWA mantém fixtures
+das versões aceitas para os testes anteriores ao deploy.
+
+A aplicação Desktop declarará o Core no `composer.json` com uma faixa de versão compatível.
+As atualizações dessa dependência ocorrerão por Pull Request e só poderão ser integradas após
+o CI do consumidor. A CLI continuará neste repositório porque valida o uso isolado da
+biblioteca, integra as releases existentes e gera o snapshot usado pela PWA.
+
 ## Requisitos
 
 - PHP 8.5 ou superior
@@ -48,14 +81,24 @@ Liste os maiores descontos do ITAD depois de preencher `ITAD_API_KEY` no arquivo
 ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
 ```
 
-Os dois comandos aceitam as opções globais `--currency`, `--country`, `--locale`,
+Gere o snapshot JSON versionado que servirá de contrato para a PWA:
+
+```bash
+./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > lootradar.json
+```
+
+O snapshot contém o contexto da consulta, a integridade das fontes, os jogos gratuitos e
+as maiores promoções. As URLs já são higienizadas pelo Core antes da serialização. Esse
+comando também requer `ITAD_API_KEY` no arquivo `.env` ou no ambiente do processo.
+
+Os três comandos aceitam as opções globais `--currency`, `--country`, `--locale`,
 `--min-score` e `--no-cache`. O país define a região comercial dos preços, enquanto
 o locale configura o idioma das fontes compatíveis. A opção `--currency` converte os
 valores pela [API pública Frankfurter v2](https://frankfurter.dev/); `--min-score`
 filtra apenas as ofertas cuja fonte informa uma avaliação, e `--no-cache` força uma
 nova coleta sem ler ou gravar o resultado.
 
-Na primeira execução, o comando consulta Epic Games, Steam e GOG. As execuções
+Na primeira execução, o comando `free` consulta Epic Games, Steam e GOG. As execuções
 seguintes reutilizam o cache temporário por até doze horas. Se uma fonte estiver
 indisponível, a CLI informa a falha e continua consultando as demais.
 
@@ -96,7 +139,8 @@ As duas implementações de cache seguem o mesmo contrato:
 - Ajuda integrada com fontes, temas disponíveis, requisitos, opções e exemplos.
 - Workflow de CI com lint, testes e análise estática.
 
-A Fase 2.1 da CLI está concluída. Veja as próximas etapas no [ROADMAP.md](ROADMAP.md).
+A Fase 2.1 da CLI está concluída. A PWA e a aplicação Desktop seguirão o modelo de
+repositórios independentes descrito no [ROADMAP.md](ROADMAP.md#5-arquitetura-alvo-do-ecossistema).
 
 ## Desenvolvimento
 

@@ -103,7 +103,7 @@ Decisões:
 | Cache JSON **criptografado** (Plano 1.3) | **DESCARTADA** | São dados **públicos** de promoções. Criptografia só adiciona custo/complexidade sem ganho de segurança. Manter, no máximo, **compressão** opcional (gzip). |
 | `#[\NoDiscard]` em "tempo de compilação" | **REFINADA** | PHP não compila; enforcement é runtime + PHPStan. Mantém-se o uso, corrige-se a narrativa. |
 | Push **background** "GTA grátis nas próximas 2h" em PWA hospedado de graça | **REFINADA** | Notificação **local/foreground** (Notification API) é trivial. Push **em background** exige Service Worker + servidor Web Push + VAPID. No caminho 100% estático não há como enviar push do servidor. Ver §7.2 para as duas trilhas. |
-| **GitHub Pages** servindo o backend PHP | **CORRIGIDA** | Pages é estático — não roda PHP. Trilha gratuita: o Core roda em **CI agendado (cron)**, gera **snapshots JSON versionados** e o PWA (estático) os consome. Backend PHP vivo é alternativa para quem tiver host. |
+| **GitHub Pages** servindo o backend PHP | **CORRIGIDA** | Pages é estático — não roda PHP. Trilha gratuita: o workflow da PWA executa o Core em **CI agendado (cron)**, gera **snapshots JSON versionados** e publica os arquivos estáticos. Backend PHP vivo é alternativa para quem tiver host. |
 | Wishlist por **scraping de HTML** do perfil Steam | **REFINADA** | Usar o endpoint **JSON** `wishlistdata` da Steam; respeitar rate limit e ToS; tratar como fonte **frágil** com fallback silencioso. |
 | **Smart Conversion** de moeda por fuso horário | **REFINADA** | Fuso ≠ moeda. Moeda vem de **config explícita do usuário** ou do **pricing regional** das APIs. Fuso serve só para exibir "termina em X". |
 | `country` do ITAD como idioma | **REFINADA** | `country` seleciona a região comercial dos preços. Idioma pertence a uma configuração independente de `locale`; os endpoints de promoções e histórico usados no ITAD não recebem locale. |
@@ -115,30 +115,69 @@ Decisões:
 
 ---
 
-## 5. Arquitetura-alvo de pastas
+## 5. Arquitetura-alvo do ecossistema
+
+**Decisão registrada em 2026-09-04:** o ecossistema será dividido em três repositórios.
+Web/PWA e Desktop serão consumidores independentes do Core, com ciclos próprios de
+desenvolvimento, validação e publicação.
 
 ```text
-lootradar/                          (monorepo do ecossistema)
-├── src/                            # CORE (pacote Packagist)
-│   ├── Contracts/                  # StoreAdapterInterface, CacheInterface, PriceHistoryProvider...
-│   ├── Adapters/                   # Epic, Steam, GOG e ITAD ✅
-│   ├── DTO/                        # GameDeal, Money, PriceHistory e Theme ✅
-│   ├── Services/                   # RadarService, ThemeManager, CurrencyConverter, UrlSanitizer, ShovelwareFilter ✅
-│   ├── Cli/                        # ponto de composição testável da aplicação CLI ✅
-│   ├── Cache/                      # JsonCache ✅(embutido hoje), SqliteCache
-│   ├── Pipeline/                   # estágios reutilizáveis do pipe |>
-│   └── Commands/                   # free, deal e snapshot ✅
-├── config/themes/                  # dracula.json, cyberpunk.json ✅, rgb-gamer.json
-├── tests/                          # unit + fixtures (JSON estáticos das APIs)
-├── bin/lootradar                   # CLI ✅
-├── apps/
-│   ├── web/                        # PWA (frontend estático + Tailwind) — Fase 2.2
-│   └── desktop/                    # NativePHP — Fase 3
-├── .github/workflows/              # CI/CD — Fase 5
-├── box.json                        # build .phar — Fase 5.2
-├── phpstan.neon ✅  phpunit.xml ✅
-└── ROADMAP.md (este)  README.md ✅
+c0destep/
+├── lootradar-core/                 # biblioteca PHP, CLI e contrato de snapshot
+│   ├── src/                        # contratos, adapters, DTOs e serviços
+│   ├── config/themes/              # tokens compartilháveis de apresentação
+│   ├── tests/                      # Pest + fixtures offline das fontes
+│   ├── bin/lootradar               # CLI e geração de snapshot JSON
+│   └── .github/workflows/          # qualidade e release do pacote/.phar
+├── lootradar-web/                  # PWA estática e publicação dos snapshots
+│   ├── src/                        # interface mobile-first
+│   ├── public/                     # manifest, Service Worker e dados publicados
+│   ├── tests/                      # contrato JSON, Playwright e Lighthouse
+│   └── .github/workflows/          # cron do snapshot e deploy da PWA
+└── lootradar-desktop/              # aplicação NativePHP
+    ├── composer.json               # dependência versionada do Core
+    ├── tests/                      # integração e comportamento da aplicação
+    └── .github/workflows/          # builders e releases dos executáveis
 ```
+
+### 5.1 Responsabilidades e distribuição
+
+| Repositório | Responsabilidade | Consumo do Core | Publicação |
+|-------------|------------------|-----------------|------------|
+| `lootradar-core` | Regras de negócio, integrações, DTOs, cache, CLI e snapshot | Fonte canônica | Packagist, `.phar` e GitHub Release |
+| `lootradar-web` | PWA, Service Worker, temas, acessibilidade e notificações Web | Snapshot JSON com schema versionado | Pages, Vercel ou Netlify |
+| `lootradar-desktop` | Interface NativePHP, System Tray e integrações do sistema operacional | Pacote Composer com faixa de versão explícita | Binários para Windows, macOS e Linux |
+
+A separação preserva o foco do pacote PHP e impede que dependências de frontend,
+artefatos do NativePHP e toolchains dos sistemas operacionais determinem o ciclo de release do
+Core. Cada consumidor pode evoluir e ser publicado sem exigir uma nova versão dos demais.
+
+O custo principal dessa escolha está na coordenação de mudanças de contrato. As seguintes
+regras reduzem esse risco:
+
+1. O snapshot mantém um `schemaVersion` explícito. Mudanças incompatíveis criam uma nova versão
+   do schema, sem alterar silenciosamente o formato existente.
+2. O repositório Web conserva fixtures das versões aceitas e executa testes de contrato antes do
+   deploy.
+3. O workflow da PWA instala uma versão explícita do Core, executa `lootradar snapshot` e publica
+   o resultado com a interface.
+4. O Desktop declara o Core no `composer.json` com uma faixa compatível e atualiza essa dependência
+   por Pull Request acompanhado dos testes da aplicação.
+5. Atualizações de dependência podem ser automatizadas, mas o merge continua condicionado ao CI
+   do consumidor.
+6. Componentes visuais compartilhados só formarão um pacote próprio quando surgir duplicação
+   concreta entre Web e Desktop.
+
+### 5.2 Versionamento e compatibilidade
+
+- O Core segue Semantic Versioning para a API PHP, a CLI e o contrato de snapshot.
+- O Desktop possui Semantic Versioning próprio e registra a versão compatível do Core.
+- A PWA possui seu próprio histórico de releases e deploys; a compatibilidade depende da versão
+  declarada do schema JSON.
+- Não haverá uma tag única para todo o ecossistema. Cada repositório publica apenas os artefatos
+  sob sua responsabilidade.
+- A CLI permanece no Core nesta etapa, pois integra as releases existentes, valida o uso isolado
+  da biblioteca e produz o snapshot consumido pela PWA.
 
 ---
 
@@ -197,18 +236,23 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   requisitos, opções e exemplos; `help free` e `help deal` detalham cada comando.
 - ✅ `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
 
-**2.2 Web / PWA**
+**2.2 Web / PWA (`lootradar-web`)**
 - ✅ Camada de exposição JSON do Core: comando `snapshot` emite schema versionado com
   contexto, integridade das fontes, jogos gratuitos e maiores promoções; URLs já saem higienizadas.
-- 🔧 Persistir o snapshot por CI agendado para consumo estático (ver §7.2).
+- 🔧 Criar o repositório consumidor `lootradar-web` com CI e versionamento independentes.
+- 🔧 Instalar uma versão explícita do Core e persistir o snapshot por CI agendado para
+  consumo estático (ver §7.2).
 - 🔧 Frontend responsivo Tailwind, mobile-first.
 - 🔧 `manifest.json` + Service Worker (instalação + cache offline do layout).
 - 🔧 Temas via `data-theme` (cyberpunk, dracula, …) com CSS custom properties.
 - 🔧 Notificações **locais**; push em background só na trilha com backend (§7.2).
+- 🔧 Fixtures e testes de contrato para cada `schemaVersion` aceito pela PWA.
 - 🎯 PWA instalável, Lighthouse PWA ok, alterna tema instantaneamente.
 
-### Fase 3 — Desktop instalável (NativePHP)
-- 🔧 Empacotar Core + interface com **NativePHP** (`.exe`/`.app`/Linux).
+### Fase 3 — Desktop instalável (`lootradar-desktop`)
+- 🔧 Criar o repositório consumidor `lootradar-desktop` com CI e versionamento independentes.
+- 🔧 Consumir uma versão compatível do Core como dependência Composer.
+- 🔧 Empacotar a interface com **NativePHP** (`.exe`/`.app`/Linux).
 - 🔧 System Tray: roda minimizado, acorda para alertar promoção-relâmpago.
 - 🔧 Ajuste de `memory_limit` para consumo mínimo.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
@@ -219,47 +263,57 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
-- 🔧 (Web) testes de layout Playwright.
-- 🎯 Cobertura dos parsers e do pipeline; CI verde nas 3 camadas.
+- 🔧 No repositório Web, testes de contrato, layout Playwright e auditoria Lighthouse.
+- 🔧 No repositório Desktop, testes de integração com as versões aceitas do Core.
+- 🎯 Cobertura dos parsers e do pipeline; CI verde nos três repositórios.
 
 ### Fase 5 — CI/CD (GitHub Actions)
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
-- 🔧 `box.json` → compilar `.phar` em tags de versão.
-- 🔧 Builders desktop (NativePHP) anexando binários em Releases.
-- 🔧 **Cron** rodando o Core para gerar snapshots JSON do PWA (trilha estática).
-- 🎯 Tag `vX.Y.Z` gera `.phar` + binários + snapshots automaticamente.
+- 🔧 No Core, `box.json` → compilar `.phar` em tags de versão.
+- 🔧 No Web, **cron** instala o Core, gera os snapshots JSON e publica a PWA estática.
+- 🔧 No Desktop, builders do NativePHP anexam os binários à release correspondente.
+- 🎯 Cada repositório gera e publica seus próprios artefatos sem depender de uma tag global.
 
 ### Fase 6 — Publicação
 - ✅ Preparação do release local `v0.1.0`: `.gitignore`, `LICENSE` MIT,
   `CHANGELOG.md`, README de instalação/uso, scripts Composer e lockfile sincronizado.
 - ✅ Repositório público: [c0destep/lootradar-core](https://github.com/c0destep/lootradar-core).
 - ✅ Release inicial publicada: [v0.1.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.1.0).
-- ✅ Preparação do release local `v0.2.0`: changelog, README e roadmap sincronizados
-  com as alterações acumuladas desde `v0.1.0`.
-- ✅ Preparação do release `v0.3.0`: Fase 2.1 completa, credencial local carregada
-  automaticamente e ajuda da CLI revisada.
+- ✅ Release [v0.2.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.2.0)
+  publicada com a base do Core, adapters, histórico e conversão monetária.
+- ✅ Release [v0.3.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.3.0)
+  publicada com a Fase 2.1 completa, carregamento do `.env` e ajuda integrada da CLI.
 - 🔧 **Packagist**: decidir nome (ver §1) e configurar webhook.
-- 🔧 Deploy do PWA (Vercel/Netlify/Pages) com HTTPS válido (requisito de PWA).
+- 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
+- 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
+  Vercel, Netlify ou Pages.
+- 🔧 Releases dos executáveis a partir do repositório Desktop.
 - 🔧 README de alto nível: badges, GIFs da CLI e do mobile, instalação via Composer, seção Download.
-- 🎯 `composer require <nome>` funciona; PWA público; Release com binários.
+- 🎯 `composer require <nome>` funciona; PWA pública; releases do Desktop oferecem binários.
 
 ---
 
-## 7. Decisões de arquitetura em aberto
+## 7. Decisões de arquitetura
 
 ### 7.1 Cache: JSON vs SQLite
 JSON já atende o MVP. SQLite entra quando houver **histórico de preços** (consultas por período)
 e **wishlist matching** (joins). Ambos atrás de `CacheInterface` para troca sem impacto.
 
 ### 7.2 Distribuição do PWA — duas trilhas
-- **Trilha A (gratuita, estática):** Core roda em **CI agendado**, gera `data/*.json` versionado,
-  servido por Pages/Vercel. PWA consome arquivos estáticos. Sem servidor PHP, **sem push em background**.
+- **Trilha A (gratuita, estática):** o workflow do repositório Web executa o Core em
+  **CI agendado**, gera `data/*.json` versionado e publica a PWA em Pages/Vercel. Sem servidor
+  PHP, **sem push em background**.
 - **Trilha B (backend vivo):** API PHP hospedada expõe endpoints em tempo real e habilita
   **Web Push** (VAPID). Custa hospedagem.
 
 Recomendação: começar pela **Trilha A** (custo zero, prova de valor) e migrar para B se/quando o
 push em background virar requisito.
+
+### 7.3 Repositórios dos consumidores
+**DECIDIDA:** Web/PWA e Desktop ficam em repositórios independentes e consomem o Core pelos
+contratos adequados a cada plataforma. A PWA usa o snapshot JSON versionado; o Desktop usa o
+pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão registrados no §5.
 
 ---
 
@@ -275,7 +329,9 @@ push em background virar requisito.
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Criar o frontend PWA mobile-first consumindo o contrato JSON do comando `snapshot`.
-2. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan gradualmente de 5 para 6.
-3. Decidir o nome do pacote no Packagist (§1) antes da publicação.
-```
+1. Criar o repositório `lootradar-web` e implementar o frontend PWA mobile-first consumindo o
+   contrato JSON do comando `snapshot`.
+2. Decidir o nome do pacote no Packagist (§1) antes de configurar a dependência do futuro
+   repositório `lootradar-desktop`.
+3. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan
+   gradualmente de 5 para 6.
