@@ -6,8 +6,8 @@ namespace LootRadar\Commands;
 
 use InvalidArgumentException;
 use JsonException;
-use LootRadar\Cli\ApplicationFactory;
 use LogicException;
+use LootRadar\Cli\ApplicationFactory;
 use LootRadar\Cli\CliOptions;
 use LootRadar\Cli\CliRadarFactoryInterface;
 use LootRadar\Services\JsonSnapshotExporter;
@@ -42,7 +42,8 @@ final class SnapshotCommand extends Command
         )->setHelp(<<<'HELP'
             Gera em stdout um documento JSON versionado para consumo pelo PWA ou por outro cliente Web.
             O snapshot reúne jogos gratuitos, maiores promoções e o estado de integridade das fontes.
-            Este comando requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
+            A Steam e a GOG fornecem as promoções sem credencial. Quando ITAD_API_KEY está definida,
+            o snapshot inclui também as ofertas agregadas e os dados do ITAD sobre o menor preço histórico.
 
             Exemplo:
               ./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > data/lootradar.tmp.json

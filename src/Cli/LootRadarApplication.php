@@ -31,8 +31,8 @@ final class LootRadarApplication extends Application
             Encontre jogos gratuitos e promoções nas principais lojas digitais.
 
             Recursos principais:
-              free  Consulta jogos gratuitos na Epic Games, Steam e GOG.
-              deal  Consulta os maiores descontos no IsThereAnyDeal e informa o menor preço histórico.
+              free  Consulta jogos gratuitos na Epic Games, na Steam e na GOG.
+              deal  Consulta descontos na Steam e na GOG; o ITAD (IsThereAnyDeal) acrescenta ofertas e histórico quando configurado.
               snapshot  Exporta os dois conjuntos em JSON versionado para clientes Web.
 
             Temas disponíveis: {$themes}.
@@ -46,7 +46,7 @@ final class LootRadarApplication extends Application
               ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
               ./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > data/lootradar.json
 
-            O comando deal requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
+            ITAD_API_KEY é opcional e habilita ofertas agregadas e dados sobre o menor preço histórico nos comandos deal e snapshot.
             Use ./bin/lootradar help <comando> para consultar todas as opções de um comando.
             HELP;
     }

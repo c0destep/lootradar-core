@@ -82,7 +82,7 @@ Liste os jogos gratuitos disponíveis nas fontes públicas:
 ./bin/lootradar free --theme=dracula
 ```
 
-Liste os maiores descontos do ITAD depois de preencher `ITAD_API_KEY` no arquivo `.env`:
+Liste os maiores descontos da Steam e da GOG, sem exigir credenciais:
 
 ```bash
 ./bin/lootradar deal --top=5 --country=BR --locale=pt-BR
@@ -97,8 +97,9 @@ arquivo temporário, valide-o e só então substitua atomicamente o documento pu
 ```
 
 O snapshot contém o contexto da consulta, a integridade das fontes, os jogos gratuitos e
-as maiores promoções. As URLs já são higienizadas pelo Core antes da serialização. Esse
-comando também requer `ITAD_API_KEY` no arquivo `.env` ou no ambiente do processo. Erros são
+as maiores promoções. As URLs já são higienizadas pelo Core antes da serialização. A Steam e a GOG
+funcionam sem credenciais; quando `ITAD_API_KEY` está definida, o comando acrescenta ofertas
+agregadas e informação de menor preço histórico. Erros são
 enviados para `stderr`; um documento com `complete: false` continua sendo JSON válido, mas
 indica que ao menos uma fonte falhou e não deve substituir silenciosamente o último snapshot
 completo. O contrato formal está em
@@ -111,9 +112,11 @@ valores pela [API pública Frankfurter v2](https://frankfurter.dev/); `--min-sco
 filtra apenas as ofertas cuja fonte informa uma avaliação, e `--no-cache` força uma
 nova coleta sem ler ou gravar o resultado.
 
-Na primeira execução, o comando `free` consulta Epic Games, Steam e GOG. As execuções
-seguintes reutilizam o cache temporário por até doze horas. Se uma fonte estiver
-indisponível, a CLI informa a falha e continua consultando as demais.
+Na primeira execução, o comando `free` consulta Epic Games, Steam e GOG e mantém somente jogos
+que estejam gratuitos. O comando `deal` consulta diretamente as promoções da Steam e da GOG e usa
+o ITAD como fonte adicional quando a chave está configurada. As execuções seguintes reutilizam
+o cache temporário por até doze horas. Se uma fonte estiver indisponível, a CLI informa a falha
+e continua consultando as demais.
 
 ### Uso como biblioteca
 
@@ -147,7 +150,8 @@ As duas implementações de cache seguem o mesmo contrato:
 - Pipeline de coleta, filtro, conversão de moeda e sanitização de URLs.
 - Cache com TTL, compressão gzip opcional e SQLite.
 - CLI `free` com os temas padrão, Cyberpunk e Dracula.
-- CLI `deal --top=N` com dados do ITAD e os mesmos temas do comando `free`.
+- CLI `deal --top=N` com dados diretos da Steam e da GOG, enriquecidos pelo ITAD quando configurado,
+  e os mesmos temas do comando `free`.
 - Opções globais de moeda, país, locale, score mínimo e uso do cache.
 - Comando `snapshot`, Schema JSON v1 e versão do produtor para consumidores automatizados.
 - Ajuda integrada com fontes, temas disponíveis, requisitos, opções e exemplos.
@@ -183,10 +187,11 @@ Crie o arquivo local de ambiente a partir do modelo versionado:
 cp .env.example .env
 ```
 
-Preencha `ITAD_API_KEY` em `.env`. O arquivo local é ignorado pelo Git e não deve
-ser versionado. A CLI carrega esse arquivo automaticamente antes de executar os
-comandos. Quando `ITAD_API_KEY` também estiver definida no ambiente do processo, o
-valor exportado terá prioridade sobre a configuração local.
+Preencha `ITAD_API_KEY` em `.env` para habilitar ofertas agregadas e histórico no `deal` e no
+`snapshot`. A chave é opcional; sem ela, as consultas à Steam e à GOG continuam disponíveis. O arquivo local é
+ignorado pelo Git e não deve ser versionado. A CLI carrega esse arquivo automaticamente antes
+de executar os comandos. Quando `ITAD_API_KEY` também estiver definida no ambiente do processo,
+o valor exportado terá prioridade sobre a configuração local.
 
 O Core também permite que outra aplicação leia a variável do processo por meio de
 `ItadAdapter::fromEnvironment()`. Nesse caso, o arquivo pode ser carregado pelo shell:

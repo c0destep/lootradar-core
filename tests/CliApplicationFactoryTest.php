@@ -48,7 +48,7 @@ it('apresenta recursos, temas e exemplos na ajuda geral', function (array $input
 
     expect($tester->run($input, ['decorated' => false]))->toBe(0)
         ->and($tester->getDisplay())->toContain('Recursos principais:')
-        ->and($tester->getDisplay())->toContain('Epic Games, Steam e GOG')
+        ->and($tester->getDisplay())->toContain('Epic Games, na Steam e na GOG')
         ->and($tester->getDisplay())->toContain('IsThereAnyDeal')
         ->and($tester->getDisplay())->toContain('snapshot')
         ->and($tester->getDisplay())->toContain('Temas disponíveis: cyberpunk, default, dracula.')
@@ -81,19 +81,19 @@ it('detalha fontes, requisitos e exemplos na ajuda de cada comando', function (a
 })->with([
     'help free' => [
         ['command' => 'help', 'command_name' => 'free'],
-        ['Epic Games, Steam e GOG', '--theme', '--country', '--locale', '--no-cache'],
+        ['Epic Games, na Steam e na GOG', '--theme', '--country', '--locale', '--no-cache'],
     ],
     'free --help' => [
         ['command' => 'free', '--help' => true],
-        ['Epic Games, Steam e GOG', '--theme', '--country', '--locale', '--no-cache'],
+        ['Epic Games, na Steam e na GOG', '--theme', '--country', '--locale', '--no-cache'],
     ],
     'help deal' => [
         ['command' => 'help', 'command_name' => 'deal'],
-        ['IsThereAnyDeal', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
     ],
     'deal --help' => [
         ['command' => 'deal', '--help' => true],
-        ['IsThereAnyDeal', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
     ],
     'help snapshot' => [
         ['command' => 'help', 'command_name' => 'snapshot'],
@@ -159,9 +159,11 @@ it('aplica região e locale globais ao comando free em todos os temas', function
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('locale=pt-BR');
 })->with(['default', 'cyberpunk', 'dracula']);
 
-it('renderiza os maiores descontos do ITAD em todos os temas', function (string $theme) {
+it('renderiza descontos da Steam, da GOG e do ITAD em todos os temas', function (string $theme) {
     $requests = [];
     $handler = HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
         new Response(200, ['Content-Type' => 'application/json'], cliFixture('itad-deals.json')),
     ]));
     $handler->push(Middleware::history($requests));
@@ -173,7 +175,7 @@ it('renderiza os maiores descontos do ITAD em todos os temas', function (string 
 
     $tester = new CommandTester($application->find('deal'));
     $exitCode = $tester->execute([
-        '--top' => '1',
+        '--top' => '5',
         '--country' => 'BR',
         '--locale' => 'pt-BR',
         '--theme' => $theme,
@@ -183,11 +185,19 @@ it('renderiza os maiores descontos do ITAD em todos os temas', function (string 
     expect($exitCode)->toBe(0)
         ->and($display)->toContain('LOOTRADAR — MAIORES DESCONTOS')
         ->and($display)->toContain('Hades')
-        ->and($display)->not->toContain('Celeste')
+        ->and($display)->toContain('The Witcher 3: Wild Hunt')
+        ->and($display)->toContain('Steam')
+        ->and($display)->toContain('GOG')
         ->and($display)->toContain('75%')
         ->and($display)->toContain('MENOR PREÇO')
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('country=BR')
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('limit=1');
+        ->and($requests)->toHaveCount(3)
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('cc=BR')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('l=brazilian')
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('country=BR')
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('locale=pt-BR')
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('limit=5')
+        ->and($requests[2]['request']->getUri()->getQuery())->toContain('country=BR')
+        ->and($requests[2]['request']->getUri()->getQuery())->toContain('limit=5');
 })->with(['default', 'cyberpunk', 'dracula']);
 
 it('converte a moeda solicitada pelo comando deal', function () {
@@ -201,6 +211,8 @@ it('converte a moeda solicitada pelo comando deal', function () {
     };
     $application = ApplicationFactory::create(
         new Client(['handler' => HandlerStack::create(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+            new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
             new Response(200, ['Content-Type' => 'application/json'], cliFixture('itad-deals.json')),
         ]))]),
         new SqliteCache(':memory:'),
@@ -210,7 +222,7 @@ it('converte a moeda solicitada pelo comando deal', function () {
 
     $tester = new CommandTester($application->find('deal'));
     $exitCode = $tester->execute([
-        '--top' => '1',
+        '--top' => '5',
         '--country' => 'BR',
         '--currency' => 'usd',
     ]);
@@ -219,10 +231,14 @@ it('converte a moeda solicitada pelo comando deal', function () {
         ->and($tester->getDisplay())->toContain('3,00 USD');
 });
 
-it('não reutiliza cache do ITAD entre limites diferentes', function () {
+it('não reutiliza o cache de promoções entre limites diferentes', function () {
     $requests = [];
     $handler = HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
         new Response(200, ['Content-Type' => 'application/json'], cliFixture('itad-deals.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
         new Response(200, ['Content-Type' => 'application/json'], cliFixture('itad-deals.json')),
     ]));
     $handler->push(Middleware::history($requests));
@@ -235,22 +251,67 @@ it('não reutiliza cache do ITAD entre limites diferentes', function () {
 
     expect($tester->execute(['--top' => '1']))->toBe(0)
         ->and($tester->execute(['--top' => '2']))->toBe(0)
-        ->and($requests)->toHaveCount(2)
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('limit=1')
-        ->and($requests[1]['request']->getUri()->getQuery())->toContain('limit=2');
+        ->and($requests)->toHaveCount(6)
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('limit=1')
+        ->and($requests[2]['request']->getUri()->getQuery())->toContain('limit=1')
+        ->and($requests[4]['request']->getUri()->getQuery())->toContain('limit=2')
+        ->and($requests[5]['request']->getUri()->getQuery())->toContain('limit=2');
 });
 
-it('explica quando a chave do ITAD está ausente', function () {
+it('consulta promoções da Steam e da GOG sem exigir chave do ITAD', function () {
+    $requests = [];
+    $handler = HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
+    ]));
+    $handler->push(Middleware::history($requests));
     $application = ApplicationFactory::create(
-        new Client(['handler' => HandlerStack::create(new MockHandler([]))]),
+        new Client(['handler' => $handler]),
         new SqliteCache(':memory:'),
         itadApiKey: '',
     );
 
     $tester = new CommandTester($application->find('deal'));
 
-    expect($tester->execute(['--top' => '5']))->toBe(1)
-        ->and($tester->getDisplay())->toContain('Defina ITAD_API_KEY');
+    expect($tester->execute(['--top' => '200']))->toBe(0)
+        ->and($tester->getDisplay())->toContain('Hades')
+        ->and($tester->getDisplay())->toContain('The Witcher 3: Wild Hunt')
+        ->and($requests)->toHaveCount(2)
+        ->and($requests[0]['request']->getUri()->getHost())->toBe('store.steampowered.com')
+        ->and($requests[1]['request']->getUri()->getHost())->toBe('catalog.gog.com')
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('limit=100');
+});
+
+it('gera snapshot com promoções da Steam e da GOG sem chave do ITAD', function () {
+    $requests = [];
+    $handler = HandlerStack::create(new MockHandler([
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('epic-free-games.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+        new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
+    ]));
+    $handler->push(Middleware::history($requests));
+    $application = ApplicationFactory::create(
+        new Client(['handler' => $handler]),
+        new SqliteCache(':memory:'),
+        itadApiKey: '',
+    );
+
+    $tester = new CommandTester($application->find('snapshot'));
+    $exitCode = $tester->execute(['--top' => '5'], ['capture_stderr_separately' => true]);
+    $snapshot = json_decode($tester->getDisplay(), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($exitCode)->toBe(0)
+        ->and(array_column($snapshot['data']['freeGames'], 'title'))->toBe([
+            'Control',
+            'Darkest Dungeon II',
+            'GOG Giveaway',
+        ])
+        ->and(array_column($snapshot['data']['deals'], 'title'))->toContain('Hades')
+        ->and(array_column($snapshot['data']['deals'], 'title'))->toContain('The Witcher 3: Wild Hunt')
+        ->and($snapshot['complete'])->toBeTrue()
+        ->and($requests)->toHaveCount(5);
 });
 
 it('rejeita limites e opções globais inválidos', function (array $input, string $message) {

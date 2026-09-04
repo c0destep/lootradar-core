@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace LootRadar\Cli;
 
 use GuzzleHttp\ClientInterface;
-use LogicException;
 use LootRadar\Adapters\EpicGamesAdapter;
 use LootRadar\Adapters\GogAdapter;
 use LootRadar\Adapters\ItadAdapter;
@@ -50,18 +49,28 @@ final readonly class CliRadarFactory implements CliRadarFactoryInterface
 
     public function createDealRadar(CliOptions $options, int $limit): RadarService
     {
-        $apiKey = trim($this->itadApiKey ?? '');
-        if ($apiKey === '') {
-            throw new LogicException('Defina ITAD_API_KEY para usar o comando deal.');
-        }
-
         $radar = $this->createRadar($options, ['source_limit' => $limit]);
-        $radar->registerAdapter(new ItadAdapter(
+        $radar->registerAdapter(new SteamAdapter(
             $this->httpClient,
-            apiKey: $apiKey,
             country: $options->country,
-            limit: $limit,
+            language: self::steamLanguage($options->locale),
         ));
+        $radar->registerAdapter(new GogAdapter(
+            $this->httpClient,
+            country: $options->country,
+            locale: $options->locale,
+            limit: min($limit, 100),
+        ));
+
+        $apiKey = trim($this->itadApiKey ?? '');
+        if ($apiKey !== '') {
+            $radar->registerAdapter(new ItadAdapter(
+                $this->httpClient,
+                apiKey: $apiKey,
+                country: $options->country,
+                limit: $limit,
+            ));
+        }
 
         return $radar;
     }

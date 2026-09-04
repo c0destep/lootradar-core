@@ -42,9 +42,9 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Orquestrador + cache | `src/Services/RadarService.php`, `src/Contracts/CacheInterface.php`, `src/Cache/*` | ✅ abstração JSON/SQLite; CLI compõe `JsonCache` |
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
-| Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ consultas humanas e snapshot JSON versionado |
+| Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.0; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 85 casos / 359 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 86 casos / 417 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -83,14 +83,17 @@ de URI** (`Uri\Rfc3986\Uri`, `Uri\WhatWg\Url`) — base para a higienização de
 | Fonte | Acesso | Custo | Uso | Prioridade |
 |-------|--------|-------|-----|-----------|
 | **Epic Games** | endpoint público `freeGamesPromotions` | grátis | jogos grátis (já integrado) | ✅ feito |
-| **IsThereAnyDeal (ITAD)** | API oficial c/ chave | grátis (key) | **espinha dorsal** de deals agregados + histórico de menor preço | 🔴 alta |
+| **IsThereAnyDeal (ITAD)** | API oficial c/ chave | grátis (key) | enriquecimento opcional de deals agregados + histórico de menor preço | 🔴 alta |
 | **Steam** | store endpoints (`featuredcategories`, `appdetails`) + Web API | grátis (key p/ Web API) | promoções, score, wishlist | 🟠 média |
 | **GOG** | catálogo `catalog.gog.com` (não oficial) | grátis | promoções/grátis | 🟡 baixa |
 | **Prime Gaming** | sem API pública; exige sessão autenticada | — | best-effort | ⚪ pós-MVP / candidato a descarte |
 
 Decisões:
-- **ITAD é o backbone** para "menor preço histórico" (Módulo A / Histórico Alinhado) e para o
-  comando `deal`. Sem ITAD, histórico de preços vira scraping frágil — evitar.
+- A Steam e a GOG são fontes diretas e sem credencial do comando `deal`; continuam também no comando
+  `free`, onde só retornam promoções que tenham chegado a custo zero.
+- O ITAD é um enriquecimento opcional do `deal`: quando `ITAD_API_KEY` está disponível, acrescenta
+  ofertas agregadas e "menor preço histórico" (Módulo A / Histórico Alinhado). Sem ITAD, o comando
+  permanece funcional, mas não tenta reconstruir histórico por scraping frágil.
 - **Prime Gaming REBAIXADO:** sem API pública, o scraping autenticado é frágil e de manutenção
   cara. Fica como best-effort explícito ou é **descartado do MVP**.
 
@@ -224,7 +227,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 **2.1 CLI (Termwind)**   *(concluída)*
 - ✅ Comando `free` + temas + fontes públicas da Epic Games, Steam e GOG; falhas isoladas
   são informadas sem interromper as demais consultas.
-- ✅ Comando `deal --top=N` com tabela dos maiores descontos fornecidos pelo ITAD.
+- ✅ Comando `deal --top=N` com descontos diretos da Steam e da GOG; quando configurado, o ITAD
+  acrescenta ofertas agregadas e informação de menor preço histórico.
 - ✅ `ThemeManager` carregando `config/themes/*.json`; temas default/cyberpunk/dracula disponíveis.
 - ✅ Flags globais `--currency`, `--country`, `--locale`, `--min-score` e `--no-cache`;
   a região comercial e o locale permanecem configurações independentes.
@@ -260,7 +264,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 85 testes / 359 asserções.
+- ✅ Pest configurado, 86 testes / 417 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.

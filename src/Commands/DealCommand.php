@@ -20,7 +20,7 @@ use function Termwind\renderUsing;
 
 #[AsCommand(
     name: 'deal',
-    description: 'Lista os maiores descontos do ITAD; requer ITAD_API_KEY.'
+    description: 'Lista os maiores descontos da Steam e da GOG, com ITAD opcional.'
 )]
 final class DealCommand extends Command
 {
@@ -47,8 +47,8 @@ final class DealCommand extends Command
             "Define o tema visual ({$themes}).",
             'default',
         )->setHelp(<<<'HELP'
-            Consulta as maiores promoções no IsThereAnyDeal e informa o menor preço histórico quando disponível.
-            Este comando requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
+            Consulta as maiores promoções diretamente na Steam e na GOG.
+            Quando ITAD_API_KEY está definida, inclui também ofertas agregadas e dados sobre o menor preço histórico.
 
             Exemplos:
               ./bin/lootradar deal --top=5 --country=BR
