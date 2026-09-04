@@ -44,7 +44,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ consultas humanas e snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.3.0; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 84 casos / 348 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 85 casos / 359 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -53,11 +53,11 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 operador pipe `|>`, `#[\NoDiscard]`, `array_first()`/`array_last()`/`array_find()`, e a **extensão
 de URI** (`Uri\Rfc3986\Uri`, `Uri\WhatWg\Url`) — base para a higienização de links.
 
-### Ajustes de nomenclatura já aplicados pelo dono do projeto
-- Namespace passou de `LootRadar\Core\` → **`LootRadar\`**; pacote `lootradar/lootradar`.
-- ⚠️ **Discrepância a reconciliar antes do Packagist:** `LootRadar.md` promete
-  `composer require lootradar/core`, enquanto o metadado atual é `lootradar/lootradar`.
-  O release Git local `v0.1.0` não publica o pacote; decidir o nome final antes da publicação.
+### Nomenclatura definitiva do pacote
+- Namespace passou de `LootRadar\Core\` → **`LootRadar\`**.
+- **DECIDIDA em 2026-09-04:** o pacote será publicado como `lootradar/lootradar`. O nome
+  `lootradar/core`, presente nos documentos iniciais, foi descartado porque as tags existentes
+  já identificam `lootradar/lootradar` e o artefato reúne biblioteca, CLI e gerador de snapshot.
 
 ---
 
@@ -157,8 +157,8 @@ regras reduzem esse risco:
 
 1. O snapshot mantém um `schemaVersion` explícito. Mudanças incompatíveis criam uma nova versão
    do schema, sem alterar silenciosamente o formato existente.
-2. O repositório Web conserva fixtures das versões aceitas e executa testes de contrato antes do
-   deploy.
+2. O Core publica o Schema JSON e uma fixture dourada de cada versão; o repositório Web conserva
+   as versões aceitas e executa testes de contrato antes do deploy.
 3. O workflow da PWA instala uma versão explícita do Core, executa `lootradar snapshot` e publica
    o resultado com a interface.
 4. O Desktop declara o Core no `composer.json` com uma faixa compatível e atualiza essa dependência
@@ -239,6 +239,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 **2.2 Web / PWA (`lootradar-web`)**
 - ✅ Camada de exposição JSON do Core: comando `snapshot` emite schema versionado com
   contexto, integridade das fontes, jogos gratuitos e maiores promoções; URLs já saem higienizadas.
+- ✅ Contrato do snapshot v1 formalizado em JSON Schema, coberto por fixture dourada e identificado
+  por `schemaVersion` e `producerVersion`; erros do comando não contaminam `stdout`.
 - 🔧 Criar o repositório consumidor `lootradar-web` com CI e versionamento independentes.
 - 🔧 Instalar uma versão explícita do Core e persistir o snapshot por CI agendado para
   consumo estático (ver §7.2).
@@ -246,7 +248,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🔧 `manifest.json` + Service Worker (instalação + cache offline do layout).
 - 🔧 Temas via `data-theme` (cyberpunk, dracula, …) com CSS custom properties.
 - 🔧 Notificações **locais**; push em background só na trilha com backend (§7.2).
-- 🔧 Fixtures e testes de contrato para cada `schemaVersion` aceito pela PWA.
+- 🔧 Replicar no consumidor as fixtures de cada `schemaVersion` aceito pela PWA.
 - 🎯 PWA instalável, Lighthouse PWA ok, alterna tema instantaneamente.
 
 ### Fase 3 — Desktop instalável (`lootradar-desktop`)
@@ -258,7 +260,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 84 testes / 348 asserções.
+- ✅ Pest configurado, 85 testes / 359 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
@@ -284,7 +286,11 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   publicada com a base do Core, adapters, histórico e conversão monetária.
 - ✅ Release [v0.3.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.3.0)
   publicada com a Fase 2.1 completa, carregamento do `.env` e ajuda integrada da CLI.
-- 🔧 **Packagist**: decidir nome (ver §1) e configurar webhook.
+- ✅ Pacote Composer preparado como `lootradar/lootradar`: metadados completos, requisitos de
+  plataforma explícitos, exportação sem arquivos locais/de desenvolvimento, validação estrita,
+  auditoria de dependências e roteiro de publicação documentado.
+- 🔧 Publicar a próxima tag no GitHub, cadastrar o repositório no Packagist e configurar a
+  atualização automática; a preparação local não equivale à publicação.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
@@ -329,9 +335,10 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Criar o repositório `lootradar-web` e implementar o frontend PWA mobile-first consumindo o
+1. Preparar e validar a release `v0.4.0`, publicar a tag no GitHub e cadastrar
+   `lootradar/lootradar` no Packagist conforme `docs/PACKAGIST.md`.
+2. Confirmar uma instalação limpa com `composer require lootradar/lootradar:^0.4` após a
+   sincronização do Packagist.
+3. Criar o repositório `lootradar-web` e implementar o frontend PWA mobile-first consumindo o
    contrato JSON do comando `snapshot`.
-2. Decidir o nome do pacote no Packagist (§1) antes de configurar a dependência do futuro
-   repositório `lootradar-desktop`.
-3. Acompanhar o CI a cada alteração e corrigir diferenças de ambiente; subir o PHPStan
-   gradualmente de 5 para 6.
+4. Acompanhar o CI a cada alteração e subir o PHPStan gradualmente de 5 para 6.

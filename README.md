@@ -32,8 +32,9 @@ extraído quando houver duplicação concreta entre as interfaces Web e Desktop.
 
 A PWA instalará uma versão explícita do Core no workflow agendado, executará o comando
 `snapshot` e publicará o JSON junto da interface estática. O campo `schemaVersion` identifica
-o contrato consumido; mudanças incompatíveis criam uma nova versão, e a PWA mantém fixtures
-das versões aceitas para os testes anteriores ao deploy.
+o contrato consumido e `producerVersion` registra a versão do Core que gerou o documento;
+mudanças incompatíveis criam uma nova versão do schema, e a PWA mantém fixtures das versões
+aceitas para os testes anteriores ao deploy.
 
 A aplicação Desktop declarará o Core no `composer.json` com uma faixa de versão compatível.
 As atualizações dessa dependência ocorrerão por Pull Request e só poderão ser integradas após
@@ -44,11 +45,20 @@ biblioteca, integra as releases existentes e gera o snapshot usado pela PWA.
 
 - PHP 8.5 ou superior
 - Composer 2
-- Extensões `pdo`, `pdo_sqlite` e `zlib`
+- Extensões `json`, `pdo`, `pdo_sqlite`, `uri` e `zlib`
 
 ## Instalação e uso
 
-Clone o repositório e instale as dependências:
+O nome definitivo do pacote é `lootradar/lootradar`. Depois da publicação da release no
+Packagist, instale uma versão compatível no projeto consumidor:
+
+```bash
+composer require lootradar/lootradar:^0.4
+vendor/bin/lootradar --version
+```
+
+Enquanto a primeira versão no Packagist não for publicada, ou para contribuir com o Core,
+clone o repositório e instale as dependências:
 
 ```bash
 git clone https://github.com/c0destep/lootradar-core.git
@@ -81,15 +91,20 @@ Liste os maiores descontos do ITAD depois de preencher `ITAD_API_KEY` no arquivo
 ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
 ```
 
-Gere o snapshot JSON versionado que servirá de contrato para a PWA:
+Gere o snapshot JSON versionado que servirá de contrato para a PWA. Grave primeiro em um
+arquivo temporário, valide-o e só então substitua atomicamente o documento publicado:
 
 ```bash
-./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > lootradar.json
+./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > lootradar.tmp.json
 ```
 
 O snapshot contém o contexto da consulta, a integridade das fontes, os jogos gratuitos e
 as maiores promoções. As URLs já são higienizadas pelo Core antes da serialização. Esse
-comando também requer `ITAD_API_KEY` no arquivo `.env` ou no ambiente do processo.
+comando também requer `ITAD_API_KEY` no arquivo `.env` ou no ambiente do processo. Erros são
+enviados para `stderr`; um documento com `complete: false` continua sendo JSON válido, mas
+indica que ao menos uma fonte falhou e não deve substituir silenciosamente o último snapshot
+completo. O contrato formal está em
+[`resources/schema/lootradar-snapshot-v1.schema.json`](resources/schema/lootradar-snapshot-v1.schema.json).
 
 Os três comandos aceitam as opções globais `--currency`, `--country`, `--locale`,
 `--min-score` e `--no-cache`. O país define a região comercial dos preços, enquanto
@@ -136,6 +151,7 @@ As duas implementações de cache seguem o mesmo contrato:
 - CLI `free` com os temas padrão, Cyberpunk e Dracula.
 - CLI `deal --top=N` com dados do ITAD e os mesmos temas do comando `free`.
 - Opções globais de moeda, país, locale, score mínimo e uso do cache.
+- Comando `snapshot`, Schema JSON v1 e versão do produtor para consumidores automatizados.
 - Ajuda integrada com fontes, temas disponíveis, requisitos, opções e exemplos.
 - Workflow de CI com lint, testes e análise estática.
 
@@ -149,6 +165,17 @@ composer lint
 composer test
 composer analyse
 ```
+
+### Compatibilidade pública
+
+O Core segue Semantic Versioning para contratos PHP sob o namespace `LootRadar\`, comandos,
+opções e códigos de saída da CLI, além dos schemas de snapshot publicados. A partir da versão
+`1.0.0`, mudanças incompatíveis nesses contratos exigem uma nova versão principal; durante a
+série `0.x`, elas podem exigir uma nova versão menor, sempre com registro no changelog.
+
+Classes auxiliares não documentadas como ponto de integração e detalhes internos dos adapters
+não constituem API estável. Consumidores devem depender dos contratos, DTOs, serviços e formatos
+explicitamente documentados.
 
 ### Credencial local do ITAD
 
@@ -207,6 +234,7 @@ promoções, com TTL padrão de 12 horas, continua reduzindo as consultas repeti
 ## Documentação
 
 - [Roadmap de desenvolvimento](ROADMAP.md)
+- [Publicação e validação no Packagist](docs/PACKAGIST.md)
 - [Histórico de alterações](CHANGELOG.md)
 - [Licença MIT](LICENSE)
 
