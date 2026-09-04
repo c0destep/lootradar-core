@@ -11,11 +11,15 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 - Comando `snapshot` para expor jogos gratuitos, promoções, contexto e integridade em
   um documento JSON versionado, pronto para geração estática pelo futuro cron do PWA.
+- Schema JSON público e fixture de contrato para o snapshot v1, que agora informa
+  também a versão do Core que produziu o documento.
 
 ### Fixed
 
 - A CLI instalada como dependência agora carrega o `.env` da aplicação consumidora,
   em vez de procurar a configuração dentro do diretório do pacote em `vendor/`.
+- Erros do comando `snapshot` agora são enviados para `stderr`, preservando o arquivo
+  redirecionado de `stdout` para conter somente JSON válido.
 
 ## [0.3.0] - 2026-09-03
 

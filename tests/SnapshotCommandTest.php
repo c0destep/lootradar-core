@@ -9,8 +9,7 @@ use LootRadar\Commands\SnapshotCommand;
 use LootRadar\Contracts\StoreAdapterInterface;
 use LootRadar\DTO\GameDeal;
 use LootRadar\Services\RadarService;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 it('expõe jogos gratuitos e maiores promoções em JSON', function () {
     $freeAdapter = new class implements StoreAdapterInterface {
@@ -74,12 +73,13 @@ it('expõe jogos gratuitos e maiores promoções em JSON', function () {
         }
     };
 
-    $output = new BufferedOutput();
-    $exitCode = new SnapshotCommand($factory)->run(new ArrayInput(['--top' => '1']), $output);
-    $snapshot = json_decode($output->fetch(), true, flags: JSON_THROW_ON_ERROR);
+    $tester = new CommandTester(new SnapshotCommand($factory));
+    $exitCode = $tester->execute(['--top' => '1'], ['capture_stderr_separately' => true]);
+    $snapshot = json_decode($tester->getDisplay(), true, flags: JSON_THROW_ON_ERROR);
 
     expect($exitCode)->toBe(0)
         ->and($factory->requestedLimit)->toBe(1)
+        ->and($snapshot['producerVersion'])->toBe('0.3.0')
         ->and($snapshot['context']['currency'])->toBe('native')
         ->and($snapshot['data']['freeGames'][0]['checkoutUrl'])->toBe('https://store.epicgames.com/p/control')
         ->and($snapshot['data']['deals'])->toHaveCount(1)
@@ -103,10 +103,10 @@ it('rejeita limite inválido sem consultar as fontes', function () {
             throw new LogicException('não deveria criar radar');
         }
     };
-    $output = new BufferedOutput();
-
-    $exitCode = new SnapshotCommand($factory)->run(new ArrayInput(['--top' => '0']), $output);
+    $tester = new CommandTester(new SnapshotCommand($factory));
+    $exitCode = $tester->execute(['--top' => '0'], ['capture_stderr_separately' => true]);
 
     expect($exitCode)->toBe(2)
-        ->and($output->fetch())->toContain('--top deve estar entre 1 e 200');
+        ->and($tester->getDisplay())->toBe('')
+        ->and($tester->getErrorOutput())->toContain('--top deve estar entre 1 e 200');
 });

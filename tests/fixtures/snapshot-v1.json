@@ -1,0 +1,54 @@
+{
+    "schemaVersion": 1,
+    "producerVersion": "0.4.0",
+    "generatedAt": "2026-09-04T12:30:00Z",
+    "context": {
+        "country": "BR",
+        "locale": "pt-BR",
+        "currency": "BRL",
+        "minimumScore": 60
+    },
+    "data": {
+        "freeGames": [
+            {
+                "title": "Grátis & ótimo",
+                "storeName": "Epic Games Store",
+                "originalPrice": 99.0,
+                "currentPrice": 0.0,
+                "checkoutUrl": "https://store.example.com/free",
+                "approvalRating": 90,
+                "isFree": true,
+                "currency": "BRL",
+                "expiresAt": "2026-09-10T15:00:00Z",
+                "historicalLow": 0.0,
+                "discountPercentage": 100,
+                "isAtHistoricalLow": true
+            }
+        ],
+        "deals": [
+            {
+                "title": "Hades",
+                "storeName": "ITAD",
+                "originalPrice": 50.0,
+                "currentPrice": 12.5,
+                "checkoutUrl": "https://store.example.com/hades",
+                "approvalRating": null,
+                "isFree": false,
+                "currency": "BRL",
+                "expiresAt": null,
+                "historicalLow": 10.0,
+                "discountPercentage": 75,
+                "isAtHistoricalLow": false
+            }
+        ]
+    },
+    "complete": false,
+    "sources": {
+        "freeGames": {
+            "complete": true
+        },
+        "deals": {
+            "complete": false
+        }
+    }
+}

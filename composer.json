@@ -81,6 +81,7 @@
     "symfony/dotenv": "^7"
   },
   "require-dev": {
+    "opis/json-schema": "^2.6",
     "pestphp/pest": "^3",
     "phpstan/phpstan": "^2"
   },

@@ -28,6 +28,7 @@ final readonly class JsonSnapshotExporter
         array $deals,
         array $complete,
         array $context,
+        string $producerVersion,
         ?DateTimeImmutable $generatedAt = null,
     ): string {
         $generatedAt ??= new DateTimeImmutable('now', new DateTimeZone('UTC'));
@@ -35,6 +36,7 @@ final readonly class JsonSnapshotExporter
         return json_encode(
             [
                 'schemaVersion' => self::SCHEMA_VERSION,
+                'producerVersion' => $producerVersion,
                 'generatedAt' => $generatedAt
                     ->setTimezone(new DateTimeZone('UTC'))
                     ->format('Y-m-d\TH:i:s\Z'),

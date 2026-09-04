@@ -6,6 +6,7 @@ namespace LootRadar\Commands;
 
 use InvalidArgumentException;
 use JsonException;
+use LootRadar\Cli\ApplicationFactory;
 use LogicException;
 use LootRadar\Cli\CliOptions;
 use LootRadar\Cli\CliRadarFactoryInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 
 #[AsCommand(
     name: 'snapshot',
@@ -43,7 +45,10 @@ final class SnapshotCommand extends Command
             Este comando requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
 
             Exemplo:
-              ./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > data/lootradar.json
+              ./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > data/lootradar.tmp.json
+
+            Valide o arquivo temporário contra resources/schema/lootradar-snapshot-v1.schema.json
+            antes de substituir atomicamente o snapshot publicado.
             HELP);
     }
 
@@ -70,13 +75,14 @@ final class SnapshotCommand extends Command
                     'currency' => $options->currency ?? 'native',
                     'minimumScore' => $options->minimumScore,
                 ],
+                producerVersion: ApplicationFactory::VERSION,
             );
         } catch (InvalidArgumentException $exception) {
-            $output->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
+            self::errorOutput($output)->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
 
             return Command::INVALID;
         } catch (LogicException|JsonException $exception) {
-            $output->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
+            self::errorOutput($output)->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
 
             return Command::FAILURE;
         }
@@ -103,5 +109,10 @@ final class SnapshotCommand extends Command
     private static function escape(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private static function errorOutput(OutputInterface $output): OutputInterface
+    {
+        return $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
     }
 }
