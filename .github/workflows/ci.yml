@@ -22,14 +22,17 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: pdo_sqlite, zlib
+          extensions: pdo_sqlite, uri, zlib
           coverage: none
 
       - name: Validate Composer metadata
-        run: composer validate --no-check-publish
+        run: composer validate --strict
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Check platform requirements
+        run: composer check-platform-reqs
 
       - name: Lint
         run: composer lint
@@ -39,3 +42,6 @@ jobs:
 
       - name: Static analysis
         run: composer analyse
+
+      - name: Audit dependencies
+        run: composer audit --locked --abandoned=fail

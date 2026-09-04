@@ -3,13 +3,61 @@
   "description": "Motor agnóstico de busca e monitoramento de jogos gratuitos e promoções.",
   "type": "library",
   "license": "MIT",
+  "homepage": "https://github.com/c0destep/lootradar-core",
+  "authors": [
+    {
+      "name": "c0destep",
+      "homepage": "https://github.com/c0destep",
+      "role": "Developer"
+    }
+  ],
   "keywords": [
-    "games",
+    "cli",
     "deals",
     "epic-games",
     "free-games",
-    "cli"
+    "games",
+    "gog",
+    "isthereanydeal",
+    "price-history",
+    "steam"
   ],
+  "support": {
+    "issues": "https://github.com/c0destep/lootradar-core/issues",
+    "source": "https://github.com/c0destep/lootradar-core"
+  },
+  "archive": {
+    "exclude": [
+      "/.agents/",
+      "/.claude/",
+      "/.codex/",
+      "/.env*",
+      "!/.env.example",
+      "/.git/",
+      "/.github/",
+      "/.idea/",
+      "/.phpstan.cache/",
+      "/.phpunit.cache/",
+      "/.vscode/",
+      "/dist/",
+      "/storage/",
+      "/tests/",
+      "/var/",
+      "/vendor/",
+      "/AGENTS.md",
+      "/LootRadar.md",
+      "/Plano de Desenvolvimento.md",
+      "/ROADMAP.md",
+      "/lootradar-specs.md",
+      "/phpstan.neon",
+      "/phpunit.xml",
+      "/skills-lock.json",
+      "*.lrcache.json",
+      "*.lrcache.json.gz",
+      "*.sqlite",
+      "*.sqlite3"
+    ]
+  },
   "autoload": {
     "psr-4": {
       "LootRadar\\": "src/"
@@ -21,9 +69,11 @@
     }
   },
   "require": {
-    "php": ">=8.5",
+    "php": "^8.5",
+    "ext-json": "*",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
+    "ext-uri": "*",
     "ext-zlib": "*",
     "guzzlehttp/guzzle": "^7",
     "nunomaduro/termwind": "^2",
@@ -46,7 +96,15 @@
       "php -l bin/lootradar"
     ],
     "test": "vendor/bin/pest",
-    "analyse": "vendor/bin/phpstan analyse src --level=5 --debug --memory-limit=512M"
+    "analyse": "vendor/bin/phpstan analyse src --level=5 --debug --memory-limit=512M",
+    "check:package": [
+      "composer validate --strict",
+      "composer check-platform-reqs",
+      "@lint",
+      "@test",
+      "@analyse",
+      "composer audit --locked --abandoned=fail"
+    ]
   },
   "bin": [
     "bin/lootradar"
