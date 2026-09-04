@@ -7,7 +7,9 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
-### Changed
+## [0.4.1] - 2026-09-04
+
+### Fixed
 
 - O comando `deal` agora consulta promoções diretamente na Steam e na GOG sem exigir credenciais;
   quando `ITAD_API_KEY` está definida, o ITAD permanece como fonte adicional de ofertas

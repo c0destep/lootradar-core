@@ -79,7 +79,7 @@ it('expõe jogos gratuitos e maiores promoções em JSON', function () {
 
     expect($exitCode)->toBe(0)
         ->and($factory->requestedLimit)->toBe(1)
-        ->and($snapshot['producerVersion'])->toBe('0.4.0')
+        ->and($snapshot['producerVersion'])->toBe('0.4.1')
         ->and($snapshot['context']['currency'])->toBe('native')
         ->and($snapshot['data']['freeGames'][0]['checkoutUrl'])->toBe('https://store.epicgames.com/p/control')
         ->and($snapshot['data']['deals'])->toHaveCount(1)
