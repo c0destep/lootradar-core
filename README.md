@@ -49,16 +49,14 @@ biblioteca, integra as releases existentes e gera o snapshot usado pela PWA.
 
 ## Instalação e uso
 
-O nome definitivo do pacote é `lootradar/lootradar`. Depois da publicação da release no
-Packagist, instale uma versão compatível no projeto consumidor:
+O pacote oficial é `lootradar/lootradar`. Instale uma versão compatível no projeto consumidor:
 
 ```bash
 composer require lootradar/lootradar:^0.4
 vendor/bin/lootradar --version
 ```
 
-Enquanto a primeira versão no Packagist não for publicada, ou para contribuir com o Core,
-clone o repositório e instale as dependências:
+Para contribuir com o Core, clone o repositório e instale as dependências de desenvolvimento:
 
 ```bash
 git clone https://github.com/c0destep/lootradar-core.git

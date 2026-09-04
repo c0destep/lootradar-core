@@ -8,8 +8,9 @@
 - O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.4.0` e o remoto público https://github.com/c0destep/lootradar-core.
 - A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`; os dois consumidores ainda serão criados em repositórios independentes.
 - O nome definitivo do pacote Composer é `lootradar/lootradar`; não retomar o nome legado `lootradar/core` sem uma decisão explícita de quebra de compatibilidade.
-- A tag `v0.4.0` está publicada. A página da release no GitHub e a versão no Packagist ainda
-  dependem de autenticação das contas mantenedoras.
+- A release `v0.4.0` está publicada no GitHub e no Packagist como `lootradar/lootradar`. A
+  instalação pública foi validada em um projeto limpo com CLI, autoload, Schema JSON e `.env`
+  da aplicação consumidora.
 
 ## Arquitetura do ecossistema
 
@@ -65,12 +66,10 @@
 
 ## Ordem de execução recomendada
 
-1. Criar a página da release `v0.4.0` no GitHub e cadastrar `lootradar/lootradar` no Packagist conforme `docs/PACKAGIST.md`; a tag já está publicada.
-2. Confirmar a instalação pública do pacote em um projeto limpo antes de criar os consumidores.
-3. Criar o repositório `lootradar-web` e implementar a PWA mobile-first sobre o contrato JSON do comando `snapshot`.
-4. Configurar no repositório Web o cron que instala uma versão explícita do Core, gera, valida e publica o snapshot da PWA estática.
-5. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
-6. Criar `lootradar-desktop` somente após estabilizar o contrato consumido pelas interfaces.
+1. Criar o repositório `lootradar-web` e implementar a PWA mobile-first sobre o contrato JSON do comando `snapshot`.
+2. Configurar no repositório Web o cron que instala uma versão explícita do Core, gera, valida e publica o snapshot da PWA estática.
+3. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
+4. Criar `lootradar-desktop` somente após estabilizar o contrato consumido pelas interfaces.
 
 ## Comandos de qualidade
 
