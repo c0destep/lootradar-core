@@ -11,6 +11,19 @@ use Symfony\Component\Dotenv\Dotenv;
  */
 final class EnvironmentLoader
 {
+    /**
+     * Carrega o `.env` da aplicação consumidora quando a CLI é executada pelo
+     * proxy de binários do Composer; no checkout do Core, usa a raiz do pacote.
+     */
+    public static function loadForBinary(string $packageDirectory, ?string $composerAutoloadPath): void
+    {
+        $projectDirectory = $composerAutoloadPath === null || trim($composerAutoloadPath) === ''
+            ? $packageDirectory
+            : dirname($composerAutoloadPath, 2);
+
+        self::load($projectDirectory);
+    }
+
     public static function load(string $projectDirectory): void
     {
         $path = rtrim($projectDirectory, '/\\') . DIRECTORY_SEPARATOR . '.env';

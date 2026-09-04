@@ -46,6 +46,43 @@ it('ignora a ausência do arquivo env', function () {
     expect(true)->toBeTrue();
 });
 
+it('carrega o arquivo env da aplicação consumidora pelo proxy do Composer', function () {
+    $directory = sys_get_temp_dir() . '/lootradar-composer-env-test-' . bin2hex(random_bytes(6));
+    $packageDirectory = $directory . '/vendor/lootradar/lootradar';
+    expect(mkdir($packageDirectory, 0777, true))->toBeTrue();
+
+    $consumerEnv = $directory . '/.env';
+    $packageEnv = $packageDirectory . '/.env';
+    $autoloadPath = $directory . '/vendor/autoload.php';
+    expect(file_put_contents($consumerEnv, "LOOTRADAR_COMPOSER_ENV=consumer\n"))->not->toBeFalse()
+        ->and(file_put_contents($packageEnv, "LOOTRADAR_COMPOSER_ENV=package\n"))->not->toBeFalse()
+        ->and(file_put_contents($autoloadPath, "<?php\n"))->not->toBeFalse();
+
+    $originalEnv = $_ENV['LOOTRADAR_COMPOSER_ENV'] ?? null;
+    $originalServer = $_SERVER['LOOTRADAR_COMPOSER_ENV'] ?? null;
+    $originalDotenvVarsEnv = $_ENV['SYMFONY_DOTENV_VARS'] ?? null;
+    $originalDotenvVarsServer = $_SERVER['SYMFONY_DOTENV_VARS'] ?? null;
+
+    try {
+        unset($_ENV['LOOTRADAR_COMPOSER_ENV'], $_SERVER['LOOTRADAR_COMPOSER_ENV']);
+
+        EnvironmentLoader::loadForBinary($packageDirectory, $autoloadPath);
+
+        expect($_ENV['LOOTRADAR_COMPOSER_ENV'] ?? null)->toBe('consumer')
+            ->and($_SERVER['LOOTRADAR_COMPOSER_ENV'] ?? null)->toBe('consumer');
+    } finally {
+        restoreEnvironmentValue('LOOTRADAR_COMPOSER_ENV', $originalEnv, $originalServer);
+        restoreEnvironmentValue('SYMFONY_DOTENV_VARS', $originalDotenvVarsEnv, $originalDotenvVarsServer);
+        unlink($autoloadPath);
+        unlink($packageEnv);
+        unlink($consumerEnv);
+        rmdir($packageDirectory);
+        rmdir(dirname($packageDirectory));
+        rmdir($directory . '/vendor');
+        rmdir($directory);
+    }
+});
+
 function restoreEnvironmentValue(string $name, mixed $envValue, mixed $serverValue): void
 {
     if ($envValue === null) {
