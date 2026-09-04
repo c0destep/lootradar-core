@@ -5,10 +5,11 @@
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
 - O estado validado em 2026-09-04 é: lint verde; Pest com 85 testes e 359 asserções; PHPStan level 5 verde; CLI `0.4.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
-- O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.3.0` e o remoto público https://github.com/c0destep/lootradar-core.
+- O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.4.0` e o remoto público https://github.com/c0destep/lootradar-core.
 - A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`; os dois consumidores ainda serão criados em repositórios independentes.
 - O nome definitivo do pacote Composer é `lootradar/lootradar`; não retomar o nome legado `lootradar/core` sem uma decisão explícita de quebra de compatibilidade.
-- O candidato local `v0.4.0` está preparado, mas a tag e a versão no Packagist ainda não foram publicadas.
+- A tag `v0.4.0` está publicada. A página da release no GitHub e a versão no Packagist ainda
+  dependem de autenticação das contas mantenedoras.
 
 ## Arquitetura do ecossistema
 
@@ -64,7 +65,7 @@
 
 ## Ordem de execução recomendada
 
-1. Preparar a release `v0.4.0`, publicá-la no GitHub e cadastrar `lootradar/lootradar` no Packagist conforme `docs/PACKAGIST.md`.
+1. Criar a página da release `v0.4.0` no GitHub e cadastrar `lootradar/lootradar` no Packagist conforme `docs/PACKAGIST.md`; a tag já está publicada.
 2. Confirmar a instalação pública do pacote em um projeto limpo antes de criar os consumidores.
 3. Criar o repositório `lootradar-web` e implementar a PWA mobile-first sobre o contrato JSON do comando `snapshot`.
 4. Configurar no repositório Web o cron que instala uma versão explícita do Core, gera, valida e publica o snapshot da PWA estática.

@@ -289,10 +289,10 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Pacote Composer preparado como `lootradar/lootradar`: metadados completos, requisitos de
   plataforma explícitos, exportação sem arquivos locais/de desenvolvimento, validação estrita,
   auditoria de dependências e roteiro de publicação documentado.
-- ✅ Candidato local `v0.4.0` preparado com versão da CLI e changelog sincronizados; a tag ainda
-  precisa ser criada e publicada depois da validação final.
-- 🔧 Publicar a próxima tag no GitHub, cadastrar o repositório no Packagist e configurar a
-  atualização automática; a preparação local não equivale à publicação.
+- ✅ Tag anotada `v0.4.0` publicada no GitHub em 2026-09-04, depois da validação integral do
+  pacote; a versão da CLI e o changelog correspondem à tag.
+- 🔧 Criar a página da release `v0.4.0` no GitHub, cadastrar o repositório no Packagist e
+  configurar a atualização automática. Essas etapas exigem autenticação das contas mantenedoras.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
@@ -337,8 +337,8 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Preparar e validar a release `v0.4.0`, publicar a tag no GitHub e cadastrar
-   `lootradar/lootradar` no Packagist conforme `docs/PACKAGIST.md`.
+1. Criar a release `v0.4.0` no GitHub e cadastrar `lootradar/lootradar` no Packagist conforme
+   `docs/PACKAGIST.md`; a tag correspondente já está publicada.
 2. Confirmar uma instalação limpa com `composer require lootradar/lootradar:^0.4` após a
    sincronização do Packagist.
 3. Criar o repositório `lootradar-web` e implementar o frontend PWA mobile-first consumindo o
