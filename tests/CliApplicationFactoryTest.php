@@ -27,7 +27,7 @@ it('expõe a versão pública e os comandos disponíveis', function () {
         new SqliteCache(':memory:'),
     );
 
-    expect($application->getVersion())->toBe('0.3.0')
+    expect($application->getVersion())->toBe('0.4.0')
         ->and($application->has('free'))->toBeTrue()
         ->and($application->has('deal'))->toBeTrue()
         ->and($application->has('snapshot'))->toBeTrue()

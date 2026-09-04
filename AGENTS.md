@@ -4,10 +4,11 @@
 
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
-- O estado validado em 2026-09-04 é: lint verde; Pest com 85 testes e 359 asserções; PHPStan level 5 verde; CLI `0.3.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
+- O estado validado em 2026-09-04 é: lint verde; Pest com 85 testes e 359 asserções; PHPStan level 5 verde; CLI `0.4.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
 - O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.3.0` e o remoto público https://github.com/c0destep/lootradar-core.
 - A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`; os dois consumidores ainda serão criados em repositórios independentes.
 - O nome definitivo do pacote Composer é `lootradar/lootradar`; não retomar o nome legado `lootradar/core` sem uma decisão explícita de quebra de compatibilidade.
+- O candidato local `v0.4.0` está preparado, mas a tag e a versão no Packagist ainda não foram publicadas.
 
 ## Arquitetura do ecossistema
 

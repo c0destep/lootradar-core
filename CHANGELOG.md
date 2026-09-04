@@ -7,12 +7,19 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-04
+
 ### Added
 
 - Comando `snapshot` para expor jogos gratuitos, promoções, contexto e integridade em
   um documento JSON versionado, pronto para geração estática pelo futuro cron do PWA.
 - Schema JSON público e fixture de contrato para o snapshot v1, que agora informa
   também a versão do Core que produziu o documento.
+
+### Changed
+
+- Metadados, requisitos de plataforma, filtros de arquivo e gates do Composer foram
+  endurecidos para a distribuição do pacote `lootradar/lootradar` pelo Packagist.
 
 ### Fixed
 

@@ -43,7 +43,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ consultas humanas e snapshot JSON versionado |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.3.0; composição por comando, ajuda completa e opções globais validadas |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.0; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 85 casos / 359 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
@@ -289,6 +289,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Pacote Composer preparado como `lootradar/lootradar`: metadados completos, requisitos de
   plataforma explícitos, exportação sem arquivos locais/de desenvolvimento, validação estrita,
   auditoria de dependências e roteiro de publicação documentado.
+- ✅ Candidato local `v0.4.0` preparado com versão da CLI e changelog sincronizados; a tag ainda
+  precisa ser criada e publicada depois da validação final.
 - 🔧 Publicar a próxima tag no GitHub, cadastrar o repositório no Packagist e configurar a
   atualização automática; a preparação local não equivale à publicação.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
