@@ -30,6 +30,7 @@ it('expõe a versão pública e os comandos disponíveis', function () {
     expect($application->getVersion())->toBe('0.3.0')
         ->and($application->has('free'))->toBeTrue()
         ->and($application->has('deal'))->toBeTrue()
+        ->and($application->has('snapshot'))->toBeTrue()
         ->and($application->getDefinition()->hasOption('currency'))->toBeTrue()
         ->and($application->getDefinition()->hasOption('country'))->toBeTrue()
         ->and($application->getDefinition()->hasOption('locale'))->toBeTrue()
@@ -49,6 +50,7 @@ it('apresenta recursos, temas e exemplos na ajuda geral', function (array $input
         ->and($tester->getDisplay())->toContain('Recursos principais:')
         ->and($tester->getDisplay())->toContain('Epic Games, Steam e GOG')
         ->and($tester->getDisplay())->toContain('IsThereAnyDeal')
+        ->and($tester->getDisplay())->toContain('snapshot')
         ->and($tester->getDisplay())->toContain('Temas disponíveis: cyberpunk, default, dracula.')
         ->and($tester->getDisplay())->toContain('--theme=<nome>')
         ->and($tester->getDisplay())->toContain('--currency')
@@ -92,6 +94,14 @@ it('detalha fontes, requisitos e exemplos na ajuda de cada comando', function (a
     'deal --help' => [
         ['command' => 'deal', '--help' => true],
         ['IsThereAnyDeal', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+    ],
+    'help snapshot' => [
+        ['command' => 'help', 'command_name' => 'snapshot'],
+        ['JSON versionado', 'ITAD_API_KEY', '--top', '--currency', '--no-cache'],
+    ],
+    'snapshot --help' => [
+        ['command' => 'snapshot', '--help' => true],
+        ['JSON versionado', 'ITAD_API_KEY', '--top', '--currency', '--no-cache'],
     ],
 ]);
 

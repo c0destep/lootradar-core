@@ -9,6 +9,7 @@ use GuzzleHttp\ClientInterface;
 use LootRadar\Cache\JsonCache;
 use LootRadar\Commands\DealCommand;
 use LootRadar\Commands\FreeGamesCommand;
+use LootRadar\Commands\SnapshotCommand;
 use LootRadar\Contracts\CacheInterface;
 use LootRadar\Contracts\ExchangeRateProviderInterface;
 use LootRadar\Services\RadarService;
@@ -46,6 +47,7 @@ final class ApplicationFactory
         $radarFactory = new CliRadarFactory($client, $cache, $itadApiKey, $exchangeRateProvider);
         $application->addCommand(new FreeGamesCommand($radarFactory));
         $application->addCommand(new DealCommand($radarFactory));
+        $application->addCommand(new SnapshotCommand($radarFactory));
         $application->get('help')
             ->setDescription('Exibe a ajuda geral ou detalha um comando.')
             ->setHelp(LootRadarApplication::capabilitiesHelp());

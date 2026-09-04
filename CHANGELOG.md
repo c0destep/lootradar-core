@@ -7,6 +7,11 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- Comando `snapshot` para expor jogos gratuitos, promoções, contexto e integridade em
+  um documento JSON versionado, pronto para geração estática pelo futuro cron do PWA.
+
 ## [0.3.0] - 2026-09-03
 
 ### Added

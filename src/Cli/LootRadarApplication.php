@@ -33,6 +33,7 @@ final class LootRadarApplication extends Application
             Recursos principais:
               free  Consulta jogos gratuitos na Epic Games, Steam e GOG.
               deal  Consulta os maiores descontos no IsThereAnyDeal e informa o menor preço histórico.
+              snapshot  Exporta os dois conjuntos em JSON versionado para clientes Web.
 
             Temas disponíveis: {$themes}.
               Use --theme=<nome> depois de free ou deal.
@@ -43,6 +44,7 @@ final class LootRadarApplication extends Application
             Exemplos:
               ./bin/lootradar free --country=BR --locale=pt-BR --theme=dracula
               ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
+              ./bin/lootradar snapshot --top=50 --country=BR --currency=BRL > data/lootradar.json
 
             O comando deal requer ITAD_API_KEY no arquivo .env ou no ambiente do processo.
             Use ./bin/lootradar help <comando> para consultar todas as opções de um comando.
