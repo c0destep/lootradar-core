@@ -298,8 +298,10 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ `lootradar/lootradar` publicado no Packagist com atualização automática configurada; a
   instalação pública de `v0.4.0` foi validada em um projeto limpo, incluindo CLI, autoload,
   Schema JSON e carregamento do `.env` da aplicação consumidora.
-- ✅ Candidato local `v0.4.1` validado integralmente com a correção das fontes do comando `deal`,
-  a versão da CLI e o changelog sincronizados; a tag ainda não foi criada.
+- ✅ Release [v0.4.1](https://github.com/c0destep/lootradar-core/releases/tag/v0.4.1)
+  publicada com a correção das fontes do comando `deal`, depois da validação integral do pacote.
+- ✅ Packagist sincronizado com `v0.4.1`; a instalação pública foi validada em um projeto limpo,
+  incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` do consumidor.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
