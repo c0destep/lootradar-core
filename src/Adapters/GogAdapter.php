@@ -23,11 +23,15 @@ final class GogAdapter implements StoreAdapterInterface
 
     private const string PRODUCT_BASE_URL = 'https://www.gog.com/en/game/';
 
+    /** @var list<string> */
+    private const array SUPPORTED_LOCALES = ['de-DE', 'en-US', 'fr-FR', 'pl-PL', 'ru-RU'];
+
     public function __construct(
         private readonly ClientInterface $httpClient,
         private readonly string $country = 'US',
         private readonly string $locale = 'en-US',
         private readonly int $limit = 20,
+        private readonly ?string $currency = null,
     ) {
         if (preg_match('/^[A-Z]{2}$/', $this->country) !== 1) {
             throw new InvalidArgumentException('O país da GOG deve usar ISO 3166-1 alpha-2 em maiúsculas.');
@@ -39,6 +43,10 @@ final class GogAdapter implements StoreAdapterInterface
 
         if ($this->limit < 1 || $this->limit > 100) {
             throw new InvalidArgumentException('O limite da GOG deve estar entre 1 e 100.');
+        }
+
+        if ($this->currency !== null && preg_match('/^[A-Z]{3}$/', $this->currency) !== 1) {
+            throw new InvalidArgumentException('A moeda da GOG deve usar ISO 4217 em maiúsculas.');
         }
     }
 
@@ -71,14 +79,20 @@ final class GogAdapter implements StoreAdapterInterface
      */
     private function fetchProducts(): array
     {
+        $query = [
+            'countryCode' => $this->country,
+            'locale' => $this->catalogLocale(),
+            'limit' => $this->limit,
+            'order' => 'desc:trending',
+            'productType' => 'in:game',
+            'discounted' => 'eq:true',
+        ];
+        if ($this->currency !== null) {
+            $query['currencyCode'] = $this->currency;
+        }
+
         $response = $this->httpClient->request('GET', self::ENDPOINT, [
-            'query' => [
-                'country' => $this->country,
-                'locale' => $this->locale,
-                'limit' => $this->limit,
-                'order' => 'desc:trending',
-                'productType' => 'in:game',
-            ],
+            'query' => $query,
         ]);
 
         return $response->getBody()->getContents()
@@ -115,19 +129,32 @@ final class GogAdapter implements StoreAdapterInterface
     {
         $deals = [];
         foreach ($products as $product) {
+            $productType = $product['productType'] ?? null;
             $title = $product['title'] ?? null;
             $slug = $product['slug'] ?? null;
             $price = $product['price'] ?? null;
-            if (!is_string($title) || trim($title) === '' || !is_string($slug) || trim($slug) === '' || !is_array($price)) {
+            if (!is_string($productType) || strtolower(trim($productType)) !== 'game'
+                || !is_string($title) || trim($title) === ''
+                || !is_string($slug) || trim($slug) === ''
+                || !is_array($price)) {
                 continue;
             }
 
-            $originalPrice = $this->amount($price['baseAmount'] ?? null);
-            $currentPrice = $this->amount($price['finalAmount'] ?? null);
-            $currency = $price['currency'] ?? null;
+            $baseMoney = $price['baseMoney'] ?? null;
+            $finalMoney = $price['finalMoney'] ?? null;
+            if (!is_array($baseMoney) || !is_array($finalMoney)) {
+                continue;
+            }
+
+            $originalPrice = $this->amount($baseMoney['amount'] ?? null);
+            $currentPrice = $this->amount($finalMoney['amount'] ?? null);
+            $baseCurrency = $baseMoney['currency'] ?? null;
+            $currency = $finalMoney['currency'] ?? null;
             if ($originalPrice === null || $currentPrice === null
                 || $currentPrice > $originalPrice
-                || !is_string($currency) || preg_match('/^[A-Za-z]{3}$/', $currency) !== 1) {
+                || !is_string($baseCurrency) || !is_string($currency)
+                || strtoupper($baseCurrency) !== strtoupper($currency)
+                || preg_match('/^[A-Za-z]{3}$/', $currency) !== 1) {
                 continue;
             }
 
@@ -150,6 +177,11 @@ final class GogAdapter implements StoreAdapterInterface
         }
 
         return $deals;
+    }
+
+    private function catalogLocale(): string
+    {
+        return in_array($this->locale, self::SUPPORTED_LOCALES, true) ? $this->locale : 'en-US';
     }
 
     private function amount(mixed $value): ?float

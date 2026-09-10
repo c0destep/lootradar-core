@@ -96,6 +96,7 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
             'sort' => '-cut',
             'nondeals' => 'false',
             'mature' => 'false',
+            'filter' => '{"type":[1]}',
         ]);
 
         return $this->decode($response->getBody()->getContents())
@@ -254,8 +255,9 @@ final class ItadAdapter implements StoreAdapterInterface, PriceHistoryProviderIn
     {
         $deals = [];
         foreach ($items as $item) {
+            $type = $item['type'] ?? null;
             $deal = $item['deal'] ?? null;
-            if (!is_array($deal)) {
+            if (!is_string($type) || strtolower(trim($type)) !== 'game' || !is_array($deal)) {
                 continue;
             }
 

@@ -18,6 +18,8 @@ use Throwable;
  */
 class RadarService
 {
+    private const int CACHE_SCHEMA_VERSION = 2;
+
     public const string CACHE_KEY_FREE_GAMES = 'free-games';
 
     public const string CACHE_KEY_DEALS = 'deals';
@@ -78,14 +80,19 @@ class RadarService
      */
     public function getTopDeals(int $limit = 10, bool $bypassCache = false): array
     {
-        $deals = $this->getDeals($bypassCache);
+        $deals = $this->collect(
+            self::CACHE_KEY_DEALS . ':top:' . $limit,
+            static fn(StoreAdapterInterface $adapter): array => $adapter->fetchDeals(),
+            $bypassCache,
+            $limit > 0 ? $limit : null,
+        );
 
         usort(
             $deals,
             static fn(array $a, array $b): int => ((int)($b['discountPercentage'] ?? 0)) <=> ((int)($a['discountPercentage'] ?? 0))
         );
 
-        return $limit > 0 ? array_slice($deals, 0, $limit) : $deals;
+        return $deals;
     }
 
     /**
@@ -104,7 +111,12 @@ class RadarService
      *
      * @return array<int, array<string, mixed>>
      */
-    private function collect(string $cacheKey, callable $fetcher, bool $bypassCache): array
+    private function collect(
+        string $cacheKey,
+        callable $fetcher,
+        bool $bypassCache,
+        ?int $sourceCoverageLimit = null,
+    ): array
     {
         $this->failures = [];
         $scopedCacheKey = $this->scopedCacheKey($cacheKey);
@@ -117,16 +129,24 @@ class RadarService
         }
 
         $collection = $this->gather($fetcher);
-        $this->failures = $collection['failures'];
+        $preparedSources = [];
+        $sanitizationFailures = [];
+        foreach ($collection['sources'] as $sourceDeals) {
+            // Pipeline componível com o operador pipe do PHP 8.5:
+            // coletar |> filtrar shovelware |> converter moeda |> higienizar URLs.
+            $preparedDeals = $sourceDeals
+                    |> $this->shovelwareFilter->filter(...)
+                    |> $this->convertCurrency(...);
+            $sanitization = $this->sanitizeUrls($preparedDeals);
+            $preparedSources[] = $sanitization['deals'];
+            $sanitizationFailures = [...$sanitizationFailures, ...$sanitization['failures']];
+        }
 
-        // Pipeline componível com o operador pipe do PHP 8.5:
-        // coletar |> filtrar shovelware |> converter moeda |> higienizar URLs |> serializar.
-        $preparedDeals = $collection['deals']
-                |> $this->shovelwareFilter->filter(...)
-                |> $this->convertCurrency(...);
-        $sanitization = $this->sanitizeUrls($preparedDeals);
-        $this->failures = [...$collection['failures'], ...$sanitization['failures']];
-        $payload = $sanitization['deals'] |> $this->serialize(...);
+        $this->failures = [...$collection['failures'], ...$sanitizationFailures];
+        $selectedDeals = $sourceCoverageLimit === null
+            ? self::flatten($preparedSources)
+            : self::selectWithSourceCoverage($preparedSources, $sourceCoverageLimit);
+        $payload = $selectedDeals |> $this->serialize(...);
 
         if (!$bypassCache && $this->failures === []) {
             $this->cache->put($scopedCacheKey, $payload);
@@ -149,7 +169,7 @@ class RadarService
         );
         $scope = json_encode(
             [
-                'schema' => 1,
+                'schema' => self::CACHE_SCHEMA_VERSION,
                 'context' => $this->cacheContext,
                 'adapters' => $adapterClasses,
             ],
@@ -162,22 +182,81 @@ class RadarService
     /**
      * @param callable(StoreAdapterInterface): array<int, GameDeal> $fetcher
      *
-     * @return array{deals: list<GameDeal>, failures: list<string>}
+     * @return array{sources: list<list<GameDeal>>, failures: list<string>}
      */
     private function gather(callable $fetcher): array
     {
-        $collected = [];
+        $sources = [];
         $failures = [];
         foreach ($this->adapters as $adapter) {
             try {
-                $collected = [...$collected, ...$fetcher($adapter)];
+                $sources[] = array_values($fetcher($adapter));
             } catch (Throwable $exception) {
                 // Resiliência: registra e segue para o próximo adapter.
                 $failures[] = $adapter::class . ': ' . $exception->getMessage();
             }
         }
 
-        return ['deals' => $collected, 'failures' => $failures];
+        return ['sources' => $sources, 'failures' => $failures];
+    }
+
+    /**
+     * @param list<list<GameDeal>> $sources
+     *
+     * @return list<GameDeal>
+     */
+    private static function flatten(array $sources): array
+    {
+        $deals = [];
+        foreach ($sources as $sourceDeals) {
+            $deals = [...$deals, ...$sourceDeals];
+        }
+
+        return $deals;
+    }
+
+    /**
+     * Reserva a melhor oferta de cada fonte disponível e completa o limite com
+     * os maiores descontos restantes. A ordenação pública final ocorre depois.
+     *
+     * @param list<list<GameDeal>> $sources
+     *
+     * @return list<GameDeal>
+     */
+    private static function selectWithSourceCoverage(array $sources, int $limit): array
+    {
+        $sources = array_values(array_filter($sources, static fn(array $deals): bool => $deals !== []));
+        foreach ($sources as &$deals) {
+            usort(
+                $deals,
+                static fn(GameDeal $a, GameDeal $b): int => $b->getDiscountPercentage() <=> $a->getDiscountPercentage(),
+            );
+        }
+        unset($deals);
+
+        if ($limit < count($sources)) {
+            $allDeals = self::flatten($sources);
+            usort(
+                $allDeals,
+                static fn(GameDeal $a, GameDeal $b): int => $b->getDiscountPercentage() <=> $a->getDiscountPercentage(),
+            );
+
+            return array_slice($allDeals, 0, $limit);
+        }
+
+        $selected = [];
+        $remaining = [];
+        foreach ($sources as $sourceDeals) {
+            $selected[] = $sourceDeals[0];
+            $remaining = [...$remaining, ...array_slice($sourceDeals, 1)];
+        }
+
+        usort(
+            $remaining,
+            static fn(GameDeal $a, GameDeal $b): int => $b->getDiscountPercentage() <=> $a->getDiscountPercentage(),
+        );
+
+        return [...$selected, ...array_slice($remaining, 0, $limit - count($selected))];
     }
 
     /**

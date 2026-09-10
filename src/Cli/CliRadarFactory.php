@@ -60,6 +60,7 @@ final readonly class CliRadarFactory implements CliRadarFactoryInterface
             country: $options->country,
             locale: $options->locale,
             limit: min($limit, 100),
+            currency: $options->currency,
         ));
 
         $apiKey = trim($this->itadApiKey ?? '');

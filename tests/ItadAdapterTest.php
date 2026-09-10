@@ -31,12 +31,14 @@ it('converte ofertas do ITAD e envia chave e filtros esperados', function () {
     $deals = new ItadAdapter($client, 'test-api-key', 'BR', 5)->fetchDeals();
 
     expect($deals)->toHaveCount(2)
+        ->and(array_column($deals, 'title'))->toBe(['Hades', 'Celeste'])
         ->and($deals[0]->title)->toBe('Hades')
         ->and($deals[0]->currency)->toBe('BRL')
         ->and($deals[0]->historicalLow)->toBe(14.99)
         ->and($deals[0]->isAtHistoricalLow())->toBeTrue()
         ->and($requests[0]['request']->getHeaderLine('ITAD-API-Key'))->toBe('test-api-key')
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('country=BR');
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('country=BR')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('filter=%7B%22type%22%3A%5B1%5D%7D');
 });
 
 it('converte histórico de preços do ITAD e descarta entradas inválidas', function () {

@@ -6,7 +6,7 @@
 > Sempre que uma ideia dos documentos originais for inconsistente, ela é marcada como
 > **DESCARTADA** ou **REFINADA** com a devida justificativa.
 
-Última sincronização: 2026-09-04
+Última sincronização: 2026-09-10
 
 ---
 
@@ -44,7 +44,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.1; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 86 casos / 417 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 88 casos / 428 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -239,6 +239,12 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ A execução sem argumentos, `help` e `--help` apresentam comandos, fontes, temas,
   requisitos, opções e exemplos; `help free` e `help deal` detalham cada comando.
 - ✅ `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
+- ✅ Adapter da GOG sincronizado com o catálogo atual (`countryCode`, filtro de descontos e preços
+  em `baseMoney`/`finalMoney`); `deal --top=N` volta a preencher limites acima dos dez destaques da
+  Steam. O ITAD solicita apenas o tipo `game` e repete essa validação no parser, preservando o
+  escopo exclusivo de jogos; a revisão do escopo do cache impede o reaproveitamento das coletas
+  vazias anteriores. O corte reserva a melhor oferta de cada fonte disponível antes de completar
+  as vagas por desconto, impedindo que o agregador suprima os resultados diretos da Steam e da GOG.
 
 **2.2 Web / PWA (`lootradar-web`)**
 - ✅ Camada de exposição JSON do Core: comando `snapshot` emite schema versionado com
@@ -264,7 +270,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 86 testes / 417 asserções.
+- ✅ Pest configurado, 88 testes / 428 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.

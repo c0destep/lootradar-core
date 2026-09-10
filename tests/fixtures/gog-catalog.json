@@ -2,36 +2,42 @@
   "products": [
     {
       "id": 1207658924,
+      "productType": "game",
       "title": "The Witcher 3: Wild Hunt",
       "slug": "the_witcher_3_wild_hunt",
       "price": {
-        "baseAmount": "129.99",
-        "finalAmount": "32.49",
-        "currency": "BRL",
-        "discountPercentage": 75,
-        "isDiscounted": true
+        "baseMoney": {"amount": "129.99", "currency": "BRL"},
+        "finalMoney": {"amount": "32.49", "currency": "BRL", "discount": "97.50"}
       }
     },
     {
       "id": 1207660848,
+      "productType": "game",
       "title": "GOG Giveaway",
       "slug": "gog_giveaway",
       "price": {
-        "baseAmount": 29.99,
-        "finalAmount": 0,
-        "currency": "BRL",
-        "discountPercentage": 100,
-        "isDiscounted": true
+        "baseMoney": {"amount": "29.99", "currency": "BRL"},
+        "finalMoney": {"amount": "0.00", "currency": "BRL", "discount": "29.99"}
       }
     },
     {
       "id": 99,
+      "productType": "game",
       "title": "Invalid price",
       "slug": "invalid_price",
       "price": {
-        "baseAmount": "not-a-price",
-        "finalAmount": 0,
-        "currency": "BRL"
+        "baseMoney": {"amount": "not-a-price", "currency": "BRL"},
+        "finalMoney": {"amount": "0.00", "currency": "BRL"}
+      }
+    },
+    {
+      "id": 100,
+      "productType": "pack",
+      "title": "Extras pack",
+      "slug": "extras_pack",
+      "price": {
+        "baseMoney": {"amount": "49.99", "currency": "BRL"},
+        "finalMoney": {"amount": "4.99", "currency": "BRL"}
       }
     }
   ]

@@ -24,15 +24,18 @@ it('converte descontos do catálogo GOG e envia os filtros estáveis', function 
     ]));
     $handler->push(Middleware::history($requests));
 
-    $deals = new GogAdapter(new Client(['handler' => $handler]), 'BR', 'pt-BR', 10)->fetchDeals();
+    $deals = new GogAdapter(new Client(['handler' => $handler]), 'BR', 'pt-BR', 10, 'BRL')->fetchDeals();
 
     expect($deals)->toHaveCount(2)
         ->and($deals[0]->title)->toBe('The Witcher 3: Wild Hunt')
         ->and($deals[0]->currentPrice)->toBe(32.49)
         ->and($deals[0]->checkoutUrl)->toBe('https://www.gog.com/en/game/the_witcher_3_wild_hunt')
         ->and($deals[1]->isFree)->toBeTrue()
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('country=BR')
-        ->and($requests[0]['request']->getUri()->getQuery())->toContain('locale=pt-BR');
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('countryCode=BR')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('currencyCode=BRL')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('locale=en-US')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('discounted=eq%3Atrue')
+        ->and($requests[0]['request']->getUri()->getQuery())->toContain('productType=in%3Agame');
 });
 
 it('retorna apenas promoções gratuitas da GOG', function () {

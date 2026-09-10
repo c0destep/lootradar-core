@@ -35,6 +35,22 @@
     }
   },
   {
+    "id": "018d937f-012f-73f8-ab2c-898516969e6c",
+    "slug": "lossless-scaling",
+    "title": "Lossless Scaling",
+    "type": "software",
+    "mature": false,
+    "deal": {
+      "shop": {"id": 61, "name": "Steam"},
+      "price": {"amount": 7.99, "amountInt": 799, "currency": "BRL"},
+      "regular": {"amount": 39.99, "amountInt": 3999, "currency": "BRL"},
+      "cut": 80,
+      "historyLow": {"amount": 7.99, "amountInt": 799, "currency": "BRL"},
+      "expiry": null,
+      "url": "https://itad.link/lossless-scaling/"
+    }
+  },
+  {
     "title": "Malformed",
     "deal": {
       "shop": {"id": 61, "name": "Steam"},
