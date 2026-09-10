@@ -43,7 +43,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.1; composição por comando, ajuda completa e opções globais validadas |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.2; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 88 casos / 434 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
@@ -311,6 +311,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   publicada com a correção das fontes do comando `deal`, depois da validação integral do pacote.
 - ✅ Packagist sincronizado com `v0.4.1`; a instalação pública foi validada em um projeto limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` do consumidor.
+- ✅ Candidato local `v0.4.2` preparado e validado integralmente com as correções de agregação,
+  limite, escopo exclusivo de jogos e moeda regional da GOG; versão da CLI e changelog
+  sincronizados para publicação.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.

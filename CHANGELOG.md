@@ -7,6 +7,24 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-09-10
+
+### Changed
+
+- A extensão `intl` passou a ser requisito explícito do pacote para resolver a moeda padrão da
+  região informada à CLI.
+
+### Fixed
+
+- A opção `--top` agora respeita limites maiores que dez e, quando há vagas suficientes,
+  preserva ao menos uma promoção de cada fonte disponível antes de completar a lista pelos
+  maiores descontos.
+- O comando `deal` agrega sempre Steam e GOG e adiciona o ITAD quando a chave está configurada.
+- O ITAD agora solicita e aceita exclusivamente produtos do tipo jogo, descartando promoções
+  de software mesmo quando a API as devolve.
+- A integração com o catálogo atual da GOG voltou a reconhecer promoções e envia a moeda
+  correspondente a `--country` quando `--currency` não é informada (`BR` → `BRL`).
+
 ## [0.4.1] - 2026-09-04
 
 ### Fixed
