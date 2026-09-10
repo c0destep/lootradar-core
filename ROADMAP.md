@@ -311,9 +311,11 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   publicada com a correção das fontes do comando `deal`, depois da validação integral do pacote.
 - ✅ Packagist sincronizado com `v0.4.1`; a instalação pública foi validada em um projeto limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` do consumidor.
-- ✅ Candidato local `v0.4.2` preparado e validado integralmente com as correções de agregação,
-  limite, escopo exclusivo de jogos e moeda regional da GOG; versão da CLI e changelog
-  sincronizados para publicação.
+- ✅ Release [v0.4.2](https://github.com/c0destep/lootradar-core/releases/tag/v0.4.2)
+  publicada com as correções de agregação, limite, escopo exclusivo de jogos e moeda regional
+  da GOG, depois do gate local e do GitHub Actions verdes.
+- ✅ Packagist sincronizado com `v0.4.2`; a instalação pública foi validada em um consumidor
+  limpo, incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
