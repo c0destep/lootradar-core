@@ -45,7 +45,7 @@ biblioteca, integra as releases existentes e gera o snapshot usado pela PWA.
 
 - PHP 8.5 ou superior
 - Composer 2
-- Extensões `json`, `pdo`, `pdo_sqlite`, `uri` e `zlib`
+- Extensões `intl`, `json`, `pdo`, `pdo_sqlite`, `uri` e `zlib`
 
 ## Instalação e uso
 

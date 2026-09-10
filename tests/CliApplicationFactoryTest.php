@@ -156,7 +156,8 @@ it('aplica região e locale globais ao comando free em todos os temas', function
         ->and($requests[1]['request']->getUri()->getQuery())->toContain('cc=BR')
         ->and($requests[1]['request']->getUri()->getQuery())->toContain('l=brazilian')
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('countryCode=BR')
-        ->and($requests[2]['request']->getUri()->getQuery())->toContain('locale=en-US');
+        ->and($requests[2]['request']->getUri()->getQuery())->toContain('locale=en-US')
+        ->and($requests[2]['request']->getUri()->getQuery())->toContain('currencyCode=BRL');
 })->with(['default', 'cyberpunk', 'dracula']);
 
 it('renderiza descontos da Steam, da GOG e do ITAD em todos os temas', function (string $theme) {
@@ -195,6 +196,7 @@ it('renderiza descontos da Steam, da GOG e do ITAD em todos os temas', function 
         ->and($requests[0]['request']->getUri()->getQuery())->toContain('l=brazilian')
         ->and($requests[1]['request']->getUri()->getQuery())->toContain('countryCode=BR')
         ->and($requests[1]['request']->getUri()->getQuery())->toContain('locale=en-US')
+        ->and($requests[1]['request']->getUri()->getQuery())->toContain('currencyCode=BRL')
         ->and($requests[1]['request']->getUri()->getQuery())->toContain('limit=5')
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('country=BR')
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('limit=5');

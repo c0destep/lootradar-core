@@ -15,6 +15,7 @@ use LootRadar\Services\CurrencyConverter;
 use LootRadar\Services\FrankfurterExchangeRateProvider;
 use LootRadar\Services\RadarService;
 use LootRadar\Services\ShovelwareFilter;
+use NumberFormatter;
 
 /**
  * Composition root dos serviços usados por cada comando da CLI.
@@ -42,6 +43,7 @@ final readonly class CliRadarFactory implements CliRadarFactoryInterface
             $this->httpClient,
             country: $options->country,
             locale: $options->locale,
+            currency: self::gogCurrency($options),
         ));
 
         return $radar;
@@ -60,7 +62,7 @@ final readonly class CliRadarFactory implements CliRadarFactoryInterface
             country: $options->country,
             locale: $options->locale,
             limit: min($limit, 100),
-            currency: $options->currency,
+            currency: self::gogCurrency($options),
         ));
 
         $apiKey = trim($this->itadApiKey ?? '');
@@ -109,5 +111,19 @@ final readonly class CliRadarFactory implements CliRadarFactoryInterface
             'ru-RU' => 'russian',
             default => 'english',
         };
+    }
+
+    private static function gogCurrency(CliOptions $options): ?string
+    {
+        if ($options->currency !== null) {
+            return $options->currency;
+        }
+
+        $formatter = new NumberFormatter('en_' . $options->country, NumberFormatter::CURRENCY);
+        $currency = $formatter->getTextAttribute(NumberFormatter::CURRENCY_CODE);
+
+        return is_string($currency) && $currency !== 'XXX' && preg_match('/^[A-Z]{3}$/', $currency) === 1
+            ? $currency
+            : null;
     }
 }

@@ -18,7 +18,7 @@ use Throwable;
  */
 class RadarService
 {
-    private const int CACHE_SCHEMA_VERSION = 2;
+    private const int CACHE_SCHEMA_VERSION = 3;
 
     public const string CACHE_KEY_FREE_GAMES = 'free-games';
 

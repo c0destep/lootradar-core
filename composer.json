@@ -70,6 +70,7 @@
   },
   "require": {
     "php": "^8.5",
+    "ext-intl": "*",
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
