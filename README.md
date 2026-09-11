@@ -80,6 +80,7 @@ Liste os jogos gratuitos disponíveis nas fontes públicas:
 ./bin/lootradar free
 ./bin/lootradar free --theme=cyberpunk
 ./bin/lootradar free --theme=dracula
+./bin/lootradar free --theme-file=meu-tema.json
 ```
 
 Liste os maiores descontos da Steam e da GOG, sem exigir credenciais:
@@ -87,6 +88,36 @@ Liste os maiores descontos da Steam e da GOG, sem exigir credenciais:
 ```bash
 ./bin/lootradar deal --top=5 --country=BR --locale=pt-BR
 ./bin/lootradar deal --top=5 --country=BR --currency=BRL --theme=cyberpunk
+```
+
+As listagens humanas usam uma hierarquia linear que continua legível em terminais estreitos e
+sem cores. O cabeçalho resume quantidade, lojas, região, score mínimo e moeda; cada item mantém
+título e URL em linhas próprias. Promoções exibem preço atual, preço anterior, desconto,
+avaliação, validade e histórico somente quando esses dados estão disponíveis. `--no-ansi` e a
+variável de ambiente `NO_COLOR` removem a decoração sem remover informação.
+
+Os temas `default`, `cyberpunk` e `dracula` continuam disponíveis por nome. Para usar um arquivo
+fora do pacote, passe `--theme-file`; ele tem prioridade sobre `--theme`. As três chaves originais
+continuam compatíveis e os tokens semânticos novos são opcionais, com fallback para o tema padrão:
+
+```json
+{
+  "name": "amber",
+  "description": "Tema local em tons quentes.",
+  "styles": {
+    "bg": "bg-black text-yellow-400",
+    "badge": "bg-yellow-400 text-black font-bold px-1",
+    "border": "border-solid border-yellow-400",
+    "heading": "text-yellow-400 font-bold",
+    "discountBadge": "bg-yellow-400 text-black font-bold px-1",
+    "price": "text-green-400 font-bold",
+    "muted": "text-gray-400",
+    "historicalLow": "text-green-400 font-bold",
+    "link": "text-cyan-400 underline",
+    "warning": "text-yellow-400",
+    "separator": "text-gray-700"
+  }
+}
 ```
 
 Gere o snapshot JSON versionado que servirá de contrato para a PWA. Grave primeiro em um
@@ -149,9 +180,9 @@ As duas implementações de cache seguem o mesmo contrato:
 - `RadarService` resiliente: falhas de uma loja não derrubam as outras.
 - Pipeline de coleta, filtro, conversão de moeda e sanitização de URLs.
 - Cache com TTL, compressão gzip opcional e SQLite.
-- CLI `free` com os temas padrão, Cyberpunk e Dracula.
+- CLI `free` com os temas padrão, Cyberpunk e Dracula, além de temas JSON externos.
 - CLI `deal --top=N` com dados diretos da Steam e da GOG, enriquecidos pelo ITAD quando configurado,
-  e os mesmos temas do comando `free`.
+  e os mesmos temas do comando `free`, em uma lista adequada a terminais estreitos.
 - Opções globais de moeda, país, locale, score mínimo e uso do cache.
 - Comando `snapshot`, Schema JSON v1 e versão do produtor para consumidores automatizados.
 - Ajuda integrada com fontes, temas disponíveis, requisitos, opções e exemplos.

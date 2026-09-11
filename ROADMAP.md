@@ -6,7 +6,7 @@
 > Sempre que uma ideia dos documentos originais for inconsistente, ela é marcada como
 > **DESCARTADA** ou **REFINADA** com a devida justificativa.
 
-Última sincronização: 2026-09-10
+Última sincronização: 2026-09-11
 
 ---
 
@@ -41,10 +41,10 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Adapters de lojas | `src/Adapters/{EpicGames,Itad,Steam,Gog}Adapter.php` | ✅ promoções; ITAD também expõe histórico |
 | Orquestrador + cache | `src/Services/RadarService.php`, `src/Contracts/CacheInterface.php`, `src/Cache/*` | ✅ abstração JSON/SQLite; CLI compõe `JsonCache` |
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
-| Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ loader JSON + temas default/cyberpunk/dracula |
-| Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
+| Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ presets default/cyberpunk/dracula + tema JSON externo com tokens semânticos e fallback |
+| Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.2; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 88 casos / 434 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 96 casos / 488 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -231,6 +231,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Comando `deal --top=N` com descontos diretos da Steam e da GOG; quando configurado, o ITAD
   acrescenta ofertas agregadas e informação de menor preço histórico.
 - ✅ `ThemeManager` carregando `config/themes/*.json`; temas default/cyberpunk/dracula disponíveis.
+- ✅ Temas externos via `--theme-file`, com tokens semânticos opcionais e fallback compatível com
+  os JSONs anteriores (`bg`, `badge` e `border`).
 - ✅ Flags globais `--currency`, `--country`, `--locale`, `--min-score` e `--no-cache`;
   a região comercial e o locale permanecem configurações independentes.
 - ✅ Conversão monetária da CLI usa a API pública Frankfurter v2, com cache das taxas e
@@ -240,6 +242,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ A execução sem argumentos, `help` e `--help` apresentam comandos, fontes, temas,
   requisitos, opções e exemplos; `help free` e `help deal` detalham cada comando.
 - ✅ `lootradar free` e `lootradar deal --top=5` renderizam nos temas default/cyberpunk/dracula.
+- ✅ Listagens lineares substituem a tabela larga: título e URL ficam em linhas próprias; resumo,
+  preço anterior, score, validade e histórico aparecem sem depender de cor. Saídas `--no-ansi` e
+  `NO_COLOR` preservam todo o conteúdo, e falhas parciais são avisadas antes dos resultados.
 - ✅ Adapter da GOG sincronizado com o catálogo atual (`countryCode`, filtro de descontos e preços
   em `baseMoney`/`finalMoney`); `deal --top=N` volta a preencher limites acima dos dez destaques da
   Steam. O ITAD solicita apenas o tipo `game` e repete essa validação no parser, preservando o
@@ -273,7 +278,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 88 testes / 434 asserções.
+- ✅ Pest configurado, 96 testes / 488 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.

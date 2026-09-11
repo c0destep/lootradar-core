@@ -37,6 +37,7 @@ final class LootRadarApplication extends Application
 
             Temas disponíveis: {$themes}.
               Use --theme=<nome> depois de free ou deal.
+              Use --theme-file=<arquivo.json> para carregar um tema local customizado.
 
             Opções globais permitem escolher região comercial, locale, moeda e score mínimo.
               Use --no-cache para consultar as fontes sem ler nem gravar o cache de ofertas.

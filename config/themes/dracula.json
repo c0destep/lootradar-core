@@ -3,7 +3,15 @@
     "description": "Tema escuro inspirado na paleta Dracula.",
     "styles": {
         "bg": "bg-purple-900 text-purple-100",
+        "heading": "text-pink-400 font-bold",
         "badge": "bg-pink-400 text-black font-bold px-2",
+        "discountBadge": "bg-purple-400 text-black font-bold px-1",
+        "price": "text-green-400 font-bold",
+        "muted": "text-gray-400",
+        "historicalLow": "text-green-400 font-bold",
+        "link": "text-cyan-400 underline",
+        "warning": "text-yellow-400",
+        "separator": "text-purple-400",
         "border": "border-solid border-purple-400"
     }
 }

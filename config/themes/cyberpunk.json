@@ -2,8 +2,16 @@
     "name": "cyberpunk",
     "description": "Tema neon de alto contraste inspirado em estética cyberpunk.",
     "styles": {
-        "bg": "bg-slate-900 text-yellow-400",
+        "bg": "bg-slate-900 text-white",
+        "heading": "text-yellow-400 font-bold",
         "badge": "bg-cyan-400 text-black font-bold px-2",
+        "discountBadge": "bg-purple-500 text-white font-bold px-1",
+        "price": "text-cyan-400 font-bold",
+        "muted": "text-gray-400",
+        "historicalLow": "text-yellow-400 font-bold",
+        "link": "text-cyan-400 underline",
+        "warning": "text-yellow-400",
+        "separator": "text-purple-500",
         "border": "border-double border-purple-500"
     }
 }

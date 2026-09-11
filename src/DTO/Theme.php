@@ -12,7 +12,19 @@ use InvalidArgumentException;
 readonly class Theme
 {
     /**
-     * @param array{bg: string, badge: string, border: string} $styles
+     * @param array{
+     *     bg: string,
+     *     badge: string,
+     *     border: string,
+     *     heading?: string,
+     *     discountBadge?: string,
+     *     price?: string,
+     *     muted?: string,
+     *     historicalLow?: string,
+     *     link?: string,
+     *     warning?: string,
+     *     separator?: string
+     * } $styles
      */
     public function __construct(
         public string $name,

@@ -53,6 +53,7 @@ it('apresenta recursos, temas e exemplos na ajuda geral', function (array $input
         ->and($tester->getDisplay())->toContain('snapshot')
         ->and($tester->getDisplay())->toContain('Temas disponíveis: cyberpunk, default, dracula.')
         ->and($tester->getDisplay())->toContain('--theme=<nome>')
+        ->and($tester->getDisplay())->toContain('--theme-file=<arquivo.json>')
         ->and($tester->getDisplay())->toContain('--currency')
         ->and($tester->getDisplay())->toContain('não altera a região comercial')
         ->and($tester->getDisplay())->toContain('ofertas sem avaliação são mantidas')
@@ -81,19 +82,19 @@ it('detalha fontes, requisitos e exemplos na ajuda de cada comando', function (a
 })->with([
     'help free' => [
         ['command' => 'help', 'command_name' => 'free'],
-        ['Epic Games, na Steam e na GOG', '--theme', '--country', '--locale', '--no-cache'],
+        ['Epic Games, na Steam e na GOG', '--theme', '--theme-file', '--country', '--locale', '--no-cache'],
     ],
     'free --help' => [
         ['command' => 'free', '--help' => true],
-        ['Epic Games, na Steam e na GOG', '--theme', '--country', '--locale', '--no-cache'],
+        ['Epic Games, na Steam e na GOG', '--theme', '--theme-file', '--country', '--locale', '--no-cache'],
     ],
     'help deal' => [
         ['command' => 'help', 'command_name' => 'deal'],
-        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--theme-file', '--currency'],
     ],
     'deal --help' => [
         ['command' => 'deal', '--help' => true],
-        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--currency'],
+        ['Steam', 'GOG', 'ITAD_API_KEY', '--top', '--theme', '--theme-file', '--currency'],
     ],
     'help snapshot' => [
         ['command' => 'help', 'command_name' => 'snapshot'],
@@ -159,6 +160,37 @@ it('aplica região e locale globais ao comando free em todos os temas', function
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('locale=en-US')
         ->and($requests[2]['request']->getUri()->getQuery())->toContain('currencyCode=BRL');
 })->with(['default', 'cyberpunk', 'dracula']);
+
+it('renderiza o comando free com um arquivo de tema externo', function () {
+    $path = tempnam(sys_get_temp_dir(), 'lootradar-theme-');
+    expect($path)->not->toBeFalse();
+
+    try {
+        file_put_contents($path, json_encode([
+            'name' => 'amber',
+            'styles' => [
+                'bg' => 'bg-black text-yellow-400',
+                'badge' => 'bg-yellow-400 text-black px-1',
+                'border' => 'border-solid border-yellow-400',
+            ],
+        ], JSON_THROW_ON_ERROR));
+        $application = ApplicationFactory::create(
+            new Client(['handler' => HandlerStack::create(new MockHandler([
+                new Response(200, ['Content-Type' => 'application/json'], cliFixture('epic-free-games.json')),
+                new Response(200, ['Content-Type' => 'application/json'], cliFixture('steam-featured-categories.json')),
+                new Response(200, ['Content-Type' => 'application/json'], cliFixture('gog-catalog.json')),
+            ]))]),
+            new SqliteCache(':memory:'),
+        );
+        $tester = new CommandTester($application->find('free'));
+
+        expect($tester->execute(['--theme-file' => $path, '--no-cache' => true]))->toBe(0)
+            ->and($tester->getDisplay())->toContain('LOOTRADAR — JOGOS GRATUITOS')
+            ->and($tester->getDisplay())->toContain('Control');
+    } finally {
+        unlink($path);
+    }
+});
 
 it('renderiza descontos da Steam, da GOG e do ITAD em todos os temas', function (string $theme) {
     $requests = [];
@@ -330,4 +362,6 @@ it('rejeita limites e opções globais inválidos', function (array $input, stri
     'top zero' => [['--top' => '0'], '--top deve estar entre 1 e 200'],
     'score maior que cem' => [['--min-score' => '101'], '--min-score deve estar entre 0 e 100'],
     'locale inválido' => [['--locale' => 'portugues'], '--locale deve usar o formato'],
+    'tema desconhecido' => [['--theme' => 'unknown'], 'Tema desconhecido: unknown'],
+    'arquivo de tema ausente' => [['--theme-file' => '/tmp/lootradar-theme-missing.json'], 'Arquivo de tema não encontrado'],
 ]);

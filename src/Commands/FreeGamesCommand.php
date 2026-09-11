@@ -7,15 +7,13 @@ namespace LootRadar\Commands;
 use InvalidArgumentException;
 use LootRadar\Cli\CliOptions;
 use LootRadar\Cli\CliRadarFactoryInterface;
+use LootRadar\Cli\Presentation\OfferListRenderer;
 use LootRadar\Services\ThemeManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use function Termwind\render;
-use function Termwind\renderUsing;
 
 #[AsCommand(
     name: 'free',
@@ -38,12 +36,18 @@ class FreeGamesCommand extends Command
             InputOption::VALUE_OPTIONAL,
             "Define o tema visual ({$themes}).",
             'default'
+        )->addOption(
+            'theme-file',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Carrega um tema customizado de um arquivo JSON; tem prioridade sobre --theme.',
         )->setHelp(<<<'HELP'
             Consulta jogos gratuitos na Epic Games, na Steam e na GOG. Uma fonte indisponível não interrompe as demais.
 
             Exemplos:
               ./bin/lootradar free --country=BR --locale=pt-BR
               ./bin/lootradar free --theme=dracula --no-cache
+              ./bin/lootradar free --theme-file=meu-tema.json
             HELP);
     }
 
@@ -51,70 +55,25 @@ class FreeGamesCommand extends Command
     {
         try {
             $options = CliOptions::fromInput($input);
+            $themeOption = $input->getOption('theme');
+            $themeName = is_string($themeOption) ? $themeOption : 'default';
+            $themeFileOption = $input->getOption('theme-file');
+            $themeFile = is_string($themeFileOption) ? $themeFileOption : null;
+            $theme = ThemeManager::resolveTheme($themeName, $themeFile);
         } catch (InvalidArgumentException $exception) {
             $output->writeln('<error>' . self::escape($exception->getMessage()) . '</error>');
 
             return Command::INVALID;
         }
 
-        $themeOption = $input->getOption('theme');
-        $theme = is_string($themeOption) ? $themeOption : 'default';
-        $styles = ThemeManager::getStylesByTheme($theme);
-
         $radarService = $this->radarFactory->createFreeRadar($options);
         $games = $radarService->getFreeGames($options->bypassCache);
 
-        $items = array_reduce($games, function (string $carry, array $game) use ($styles): string {
-            $badgeStyles = self::escape((string)$styles['badge']);
-            $title = self::escape((string)($game['title'] ?? 'Desconhecido'));
-            $store = self::escape((string)($game['storeName'] ?? ''));
-            $url = self::escape((string)($game['checkoutUrl'] ?? ''));
-
-            return $carry . "
-                <li class='mb-1'>
-                    <span class='{$badgeStyles}'>GRÁTIS</span>
-                    <b>{$title}</b> ({$store})
-                    <br/><span class='text-gray-500'>Resgate em: {$url}</span>
-                </li>";
-        }, '');
-
-        if ($items === '') {
-            $items = "<li class='text-gray-500'>Nenhum jogo gratuito encontrado no momento.</li>";
-        }
-
-        $failureItems = array_reduce(
+        (new OfferListRenderer($output, $theme))->renderFreeGames(
+            $games,
             $radarService->getFailures(),
-            static fn(string $carry, string $failure): string => $carry
-                . '<li>' . self::escape($failure) . '</li>',
-            '',
+            $options,
         );
-        $failures = $failureItems === '' ? '' : "
-            <div class='mt-1 text-yellow-400'>
-                <span class='font-bold'>Fontes indisponíveis nesta consulta:</span>
-                <ul>{$failureItems}</ul>
-            </div>";
-
-        // Obs.: o Termwind não renderiza bordas de caixa (border-solid/double/cor)
-        // em <div>; o token {$styles['border']} fica disponível no ThemeManager
-        // para outras camadas de UI. Aqui a separação visual usa <hr/>.
-        $backgroundStyles = self::escape((string)$styles['bg']);
-        renderUsing($output);
-        try {
-            render(
-                "
-                <div class='p-2 {$backgroundStyles}'>
-                    <span class='font-bold'>LOOTRADAR — JOGOS GRATUITOS</span>
-                    <hr class='my-1'/>
-                    <ul>
-                        {$items}
-                    </ul>
-                    {$failures}
-                </div>
-            "
-            );
-        } finally {
-            renderUsing(null);
-        }
 
         return Command::SUCCESS;
     }

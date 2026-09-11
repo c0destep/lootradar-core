@@ -7,6 +7,19 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- Os comandos `free` e `deal` aceitam `--theme-file` para carregar temas JSON externos ao pacote;
+  tokens semânticos ausentes herdam os estilos padrão.
+
+### Changed
+
+- A apresentação humana da CLI passou a usar listas lineares legíveis em terminais estreitos e
+  saídas sem ANSI, com resumo da consulta e preço anterior, avaliação, validade e histórico quando
+  disponíveis.
+- Falhas de fonte agora aparecem antes dos itens como resultado parcial, distinguindo indisponibilidade
+  de uma consulta completa sem ofertas.
+
 ## [0.4.2] - 2026-09-10
 
 ### Changed
