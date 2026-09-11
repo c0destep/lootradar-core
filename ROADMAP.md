@@ -43,7 +43,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ presets default/cyberpunk/dracula + tema JSON externo com tokens semânticos e fallback |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.4.2; composição por comando, ajuda completa e opções globais validadas |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.5.0; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 96 casos / 488 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
@@ -321,6 +321,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   da GOG, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.4.2`; a instalação pública foi validada em um consumidor
   limpo, incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
+- ✅ Candidato local `v0.5.0` preparado com a nova apresentação linear da CLI, avisos antecipados
+  de coleta parcial e suporte a temas JSON externos; versão da CLI e changelog sincronizados para
+  validação e publicação.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.

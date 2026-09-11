@@ -7,6 +7,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-11
+
 ### Added
 
 - Os comandos `free` e `deal` aceitam `--theme-file` para carregar temas JSON externos ao pacote;
