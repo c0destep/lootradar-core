@@ -6,11 +6,32 @@
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
 - O estado validado em 2026-09-11 é: lint verde; Pest com 96 testes e 488 asserções; PHPStan level 5 verde; CLI `0.5.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
 - O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.5.0` e o remoto público https://github.com/c0destep/lootradar-core.
-- A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`; os dois consumidores ainda serão criados em repositórios independentes.
+- A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`;
+  cada consumidor mantém seu estado e seu planejamento no próprio repositório.
 - O nome definitivo do pacote Composer é `lootradar/lootradar`; não retomar o nome legado `lootradar/core` sem uma decisão explícita de quebra de compatibilidade.
 - A release `v0.5.0` está publicada no GitHub e no Packagist como `lootradar/lootradar`. A
   instalação pública foi validada em um projeto limpo com CLI, autoload, Schema JSON e `.env`
   da aplicação consumidora.
+
+## Escopo operacional deste repositório
+
+1. Esta conversa, os agentes que atuarem nela e os workflows executados a partir deste diretório
+   tratam somente do `lootradar-core`.
+2. Não inspecionar, editar, testar, publicar nem executar comandos nos repositórios
+   `lootradar-web` e `lootradar-desktop`. Cada consumidor será conduzido por seus próprios agentes,
+   em conversas e janelas independentes.
+3. Referências ao Web e ao Desktop neste repositório servem apenas para documentar arquitetura,
+   contratos públicos e impactos de compatibilidade. Elas não formam uma fila de trabalho para o
+   Core.
+4. Quando uma alteração do Core afetar consumidores, atualizar os artefatos canônicos sob
+   responsabilidade do Core, como API pública, Schema JSON, fixtures, changelog e notas de release,
+   e informar o impacto. A adoção e os workflows correspondentes pertencem ao consumidor.
+5. Pedir intervenção humana somente para ações externas do Core, como Pull Requests, merges,
+   publicação de tags, GitHub Releases e Packagist. Uma ação necessária no Web ou no Desktop deve
+   ser descrita como dependência externa para o responsável daquele repositório.
+6. Skills e configurações de orientação deste projeto podem servir de referência ou ser copiadas
+   pelos responsáveis dos consumidores. Sua instalação, cópia e manutenção fora deste repositório
+   não fazem parte deste escopo.
 
 ## Arquitetura do ecossistema
 
@@ -20,9 +41,14 @@
 4. Cada repositório terá CI, versionamento e publicação próprios. Não existe uma tag global para o ecossistema: o Core publica o pacote e o `.phar`, a Web publica a PWA e o Desktop publica seus executáveis.
 5. Mudanças incompatíveis no snapshot criam uma nova versão do schema. O repositório Web deve conservar fixtures das versões aceitas e validar o contrato antes do deploy.
 6. Atualizações do Core nos consumidores devem ocorrer por Pull Request acompanhado do CI do repositório afetado. Automação de dependências não autoriza merge sem validação.
-7. A CLI permanece no Core porque valida o uso isolado da biblioteca, integra as releases existentes e produz o snapshot consumido pela PWA.
-8. Não criar antecipadamente um pacote de componentes visuais. Essa extração só se justifica quando houver duplicação concreta entre Web e Desktop.
-9. Dependências Node, artefatos do NativePHP e toolchains dos sistemas operacionais pertencem aos repositórios consumidores e não devem ser incorporados ao Core.
+7. Cada consumidor mantém roadmap e registro de compatibilidade próprios. Toda capacidade pública
+   nova do Core deve ser avaliada separadamente no Web e no Desktop como adotada, adiada ou não
+   aplicável; nenhuma release do Core obriga sua implementação nas interfaces.
+8. Uma capacidade só é considerada adotada depois da validação e da publicação no consumidor. O
+   Core registra a própria entrega sem presumir que Web ou Desktop já a apresentam.
+9. A CLI permanece no Core porque valida o uso isolado da biblioteca, integra as releases existentes e produz o snapshot consumido pela PWA.
+10. Não criar antecipadamente um pacote de componentes visuais. Essa extração só se justifica quando houver duplicação concreta entre Web e Desktop.
+11. Dependências Node, artefatos do NativePHP e toolchains dos sistemas operacionais pertencem aos repositórios consumidores e não devem ser incorporados ao Core.
 
 ## Regras de continuidade
 
@@ -66,10 +92,12 @@
 
 ## Ordem de execução recomendada
 
-1. Criar o repositório `lootradar-web` e implementar a PWA mobile-first sobre o contrato JSON do comando `snapshot`.
-2. Configurar no repositório Web o cron que instala uma versão explícita do Core, gera, valida e publica o snapshot da PWA estática.
-3. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
-4. Criar `lootradar-desktop` somente após estabilizar o contrato consumido pelas interfaces.
+1. Publicar as alterações documentais pendentes do Core por Pull Request com os gates obrigatórios
+   verdes.
+2. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
+3. Implementar e validar a geração do `.phar` do Core em tags de versão.
+4. Manter API, CLI, Schema JSON, fixtures, changelog e notas de release sincronizados para que os
+   consumidores possam avaliar cada nova versão de forma independente.
 
 ## Comandos de qualidade
 
