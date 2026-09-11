@@ -169,7 +169,13 @@ regras reduzem esse risco:
    por Pull Request acompanhado dos testes da aplicação.
 5. Atualizações de dependência podem ser automatizadas, mas o merge continua condicionado ao CI
    do consumidor.
-6. Componentes visuais compartilhados só formarão um pacote próprio quando surgir duplicação
+6. Cada consumidor mantém roadmap e registro de compatibilidade próprios. Toda capacidade pública
+   nova do Core é avaliada separadamente pelo Web e pelo Desktop como **adotar**, **adiar** ou
+   **não se aplica**. A release do Core não cria adoção automática em nenhuma interface.
+7. Uma capacidade só é considerada adotada depois que a alteração do consumidor passa por seu CI
+   e entra em uma release ou em um deploy identificado. O Core registra a entrega da regra sem
+   presumir que Web e Desktop a apresentarão.
+8. Componentes visuais compartilhados só formarão um pacote próprio quando surgir duplicação
    concreta entre Web e Desktop.
 
 ### 5.2 Versionamento e compatibilidade
@@ -178,6 +184,8 @@ regras reduzem esse risco:
 - O Desktop possui Semantic Versioning próprio e registra a versão compatível do Core.
 - A PWA possui seu próprio histórico de releases e deploys; a compatibilidade depende da versão
   declarada do schema JSON.
+- Os consumidores podem adotar capacidades diferentes da mesma release do Core e em momentos
+  distintos; cada decisão deve permanecer registrada no repositório correspondente.
 - Não haverá uma tag única para todo o ecossistema. Cada repositório publica apenas os artefatos
   sob sua responsabilidade.
 - A CLI permanece no Core nesta etapa, pois integra as releases existentes, valida o uso isolado
@@ -261,6 +269,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   por `schemaVersion` e `producerVersion`; erros do comando não contaminam `stdout`.
 - ✅ Repositório consumidor `lootradar-web` criado com versionamento próprio; o primeiro commit da
   PWA (`52f90b5`) está pronto localmente com CI independente e aguarda publicação no remoto.
+- ✅ Planejamento do Web separado em roadmap próprio e matriz de compatibilidade com o Core; cada
+  capacidade passa a ser classificada como adotada, adiada ou não aplicável no consumidor.
 - ✅ Workflow preparado para instalar o Core `0.5.0`, gerar e validar um snapshot em arquivo
   temporário e publicar somente coletas completas; a troca no diretório publicado é atômica.
 - ✅ Frontend text-first responsivo, mobile-first, com Vite, TypeScript e Tailwind CSS 4.
