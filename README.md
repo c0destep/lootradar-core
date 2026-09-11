@@ -52,7 +52,7 @@ biblioteca, integra as releases existentes e gera o snapshot usado pela PWA.
 O pacote oficial é `lootradar/lootradar`. Instale uma versão compatível no projeto consumidor:
 
 ```bash
-composer require lootradar/lootradar:^0.4
+composer require lootradar/lootradar:^0.5
 vendor/bin/lootradar --version
 ```
 
