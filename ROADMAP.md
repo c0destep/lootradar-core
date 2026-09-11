@@ -259,15 +259,19 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   contexto, integridade das fontes, jogos gratuitos e maiores promoções; URLs já saem higienizadas.
 - ✅ Contrato do snapshot v1 formalizado em JSON Schema, coberto por fixture dourada e identificado
   por `schemaVersion` e `producerVersion`; erros do comando não contaminam `stdout`.
-- 🔧 Criar o repositório consumidor `lootradar-web` com CI e versionamento independentes.
-- 🔧 Instalar uma versão explícita do Core e persistir o snapshot por CI agendado para
-  consumo estático (ver §7.2).
-- 🔧 Frontend responsivo Tailwind, mobile-first.
-- 🔧 `manifest.json` + Service Worker (instalação + cache offline do layout).
-- 🔧 Temas via `data-theme` (cyberpunk, dracula, …) com CSS custom properties.
-- 🔧 Notificações **locais**; push em background só na trilha com backend (§7.2).
-- 🔧 Replicar no consumidor as fixtures de cada `schemaVersion` aceito pela PWA.
-- 🎯 PWA instalável, Lighthouse PWA ok, alterna tema instantaneamente.
+- ✅ Repositório consumidor `lootradar-web` criado com versionamento próprio; o primeiro commit da
+  PWA (`52f90b5`) está pronto localmente com CI independente e aguarda publicação no remoto.
+- ✅ Workflow preparado para instalar o Core `0.5.0`, gerar e validar um snapshot em arquivo
+  temporário e publicar somente coletas completas; a troca no diretório publicado é atômica.
+- ✅ Frontend text-first responsivo, mobile-first, com Vite, TypeScript e Tailwind CSS 4.
+- ✅ Manifest e Service Worker gerados pelo Workbox, com precache do layout, fontes e ícones.
+- ✅ Temas `default`, `cyberpunk` e `dracula` via `data-theme` e CSS custom properties.
+- ✅ Notificações **locais** para novos jogos grátis encontrados em uma atualização em primeiro
+  plano; push em background continua restrito à trilha com backend (§7.2).
+- ✅ Schema v1 e fixture dourada do Core replicados no consumidor, com validação antes da
+  renderização e do deploy.
+- 🎯 PWA instalável e troca de tema concluídas; auditoria Lighthouse e validação do workflow no
+  GitHub permanecem pendentes.
 
 ### Fase 3 — Desktop instalável (`lootradar-desktop`)
 - 🔧 Criar o repositório consumidor `lootradar-desktop` com CI e versionamento independentes.
@@ -283,7 +287,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
-- 🔧 No repositório Web, testes de contrato, layout Playwright e auditoria Lighthouse.
+- ✅ No repositório Web, testes offline do contrato v1 e das regras de apresentação.
+- 🔧 No repositório Web, testes de layout com Playwright e auditoria Lighthouse.
 - 🔧 No repositório Desktop, testes de integração com as versões aceitas do Core.
 - 🎯 Cobertura dos parsers e do pipeline; CI verde nos três repositórios.
 
@@ -291,7 +296,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
 - 🔧 No Core, `box.json` → compilar `.phar` em tags de versão.
-- 🔧 No Web, **cron** instala o Core, gera os snapshots JSON e publica a PWA estática.
+- 🔧 No Web, o **cron** que instala o Core, valida coletas completas e publica a PWA estática está
+  implementado localmente; falta publicá-lo e validar a primeira execução no GitHub Actions.
 - 🔧 No Desktop, builders do NativePHP anexam os binários à release correspondente.
 - 🎯 Cada repositório gera e publica seus próprios artefatos sem depender de uma tag global.
 
@@ -326,7 +332,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
+- ✅ Repositório `lootradar-web` criado; a base da PWA está pronta no commit local `52f90b5`.
+- 🔧 Publicar a implementação inicial do `lootradar-web` e criar o repositório
+  `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
 - 🔧 Releases dos executáveis a partir do repositório Desktop.
@@ -371,8 +379,6 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Criar o repositório `lootradar-web` e implementar o frontend PWA mobile-first consumindo o
-   contrato JSON do comando `snapshot`.
-2. Configurar no repositório Web o workflow que instala uma versão explícita do Core, valida o
-   snapshot e publica a PWA estática.
-3. Acompanhar o CI a cada alteração e subir o PHPStan gradualmente de 5 para 6.
+1. Publicar o commit local `52f90b5` do `lootradar-web` e acompanhar os workflows de CI e Pages.
+2. Validar a PWA publicada com Lighthouse e acrescentar testes de layout com Playwright.
+3. Subir o PHPStan gradualmente do nível 5 para o 6 no Core.
