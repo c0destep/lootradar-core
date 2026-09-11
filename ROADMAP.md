@@ -321,12 +321,11 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   da GOG, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.4.2`; a instalação pública foi validada em um consumidor
   limpo, incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- ✅ Tag [v0.5.0](https://github.com/c0destep/lootradar-core/tree/v0.5.0) publicada com a nova
-  apresentação linear da CLI, avisos antecipados de coleta parcial e suporte a temas JSON externos,
-  depois do gate local e do GitHub Actions verdes.
+- ✅ Release [v0.5.0](https://github.com/c0destep/lootradar-core/releases/tag/v0.5.0) publicada com
+  a nova apresentação linear da CLI, avisos antecipados de coleta parcial e suporte a temas JSON
+  externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- 🔧 Criar a página formal da GitHub Release `v0.5.0` após renovar a autenticação local do `gh`.
 - 🔧 Criar e publicar os repositórios `lootradar-web` e `lootradar-desktop`.
 - 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
   Vercel, Netlify ou Pages.
