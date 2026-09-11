@@ -191,6 +191,22 @@ regras reduzem esse risco:
 - A CLI permanece no Core nesta etapa, pois integra as releases existentes, valida o uso isolado
   da biblioteca e produz o snapshot consumido pela PWA.
 
+### 5.3 Fronteira operacional dos repositórios
+
+O trabalho conduzido neste repositório abrange exclusivamente o `lootradar-core`. O Web e o
+Desktop aparecem neste documento para tornar explícitos os contratos e os limites do ecossistema;
+suas implementações, testes, roadmaps, workflows, deploys e releases pertencem aos respectivos
+repositórios e serão tratados por agentes e conversas independentes.
+
+A coordenação ocorre por artefatos publicados. O Core mantém a API PHP, a CLI, o contrato de
+snapshot, o Schema JSON, as fixtures, o changelog e as notas de release. Cada consumidor escolhe,
+testa e publica a versão do Core que aceita. Quando uma mudança exigir ação em outro repositório,
+este roadmap registrará apenas o impacto ou a dependência externa, sem incorporar essa ação à fila
+de trabalho do Core.
+
+Skills e configurações de orientação podem ser copiadas para os consumidores por seus responsáveis.
+O Core não administra essas cópias nem executa workflows dos demais repositórios.
+
 ---
 
 ## 6. Roadmap por fases
@@ -231,7 +247,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Chaves de coleta incluem região, locale, moeda, score mínimo, composição dos adapters
   e limite da fonte; `--no-cache` ignora leitura e escrita.
 
-### Fase 2 — Interfaces CLI e Web/PWA
+### Fase 2 — CLI e contratos para consumidores
 
 **2.1 CLI (Termwind)**   *(concluída)*
 - ✅ Comando `free` + temas + fontes públicas da Epic Games, Steam e GOG; falhas isoladas
@@ -262,34 +278,28 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ A moeda regional da GOG é derivada de `--country` pelos dados ICU (`BR` → `BRL`) quando
   `--currency` não é informada; uma moeda-alvo explícita continua tendo prioridade.
 
-**2.2 Web / PWA (`lootradar-web`)**
+**2.2 Contrato para Web / PWA (entregas do Core)**
 - ✅ Camada de exposição JSON do Core: comando `snapshot` emite schema versionado com
   contexto, integridade das fontes, jogos gratuitos e maiores promoções; URLs já saem higienizadas.
 - ✅ Contrato do snapshot v1 formalizado em JSON Schema, coberto por fixture dourada e identificado
   por `schemaVersion` e `producerVersion`; erros do comando não contaminam `stdout`.
-- ✅ Repositório consumidor `lootradar-web` criado com versionamento próprio; o primeiro commit da
-  PWA (`52f90b5`) está pronto localmente com CI independente e aguarda publicação no remoto.
-- ✅ Planejamento do Web separado em roadmap próprio e matriz de compatibilidade com o Core; cada
-  capacidade passa a ser classificada como adotada, adiada ou não aplicável no consumidor.
-- ✅ Workflow preparado para instalar o Core `0.5.0`, gerar e validar um snapshot em arquivo
-  temporário e publicar somente coletas completas; a troca no diretório publicado é atômica.
-- ✅ Frontend text-first responsivo, mobile-first, com Vite, TypeScript e Tailwind CSS 4.
-- ✅ Manifest e Service Worker gerados pelo Workbox, com precache do layout, fontes e ícones.
-- ✅ Temas `default`, `cyberpunk` e `dracula` via `data-theme` e CSS custom properties.
-- ✅ Notificações **locais** para novos jogos grátis encontrados em uma atualização em primeiro
-  plano; push em background continua restrito à trilha com backend (§7.2).
-- ✅ Schema v1 e fixture dourada do Core replicados no consumidor, com validação antes da
-  renderização e do deploy.
-- 🎯 PWA instalável e troca de tema concluídas; auditoria Lighthouse e validação do workflow no
-  GitHub permanecem pendentes.
+- ✅ Política de compatibilidade definida: mudanças incompatíveis criam uma nova `schemaVersion`,
+  enquanto `producerVersion` identifica a versão do Core que produziu o documento.
+- ✅ Política de publicação segura documentada para consumidores: gerar em arquivo temporário,
+  validar o JSON e aceitar somente snapshots completos.
+- ℹ️ Implementação da PWA, testes de interface, Lighthouse, workflow de publicação e deploy são
+  responsabilidades exclusivas do `lootradar-web` e não compõem a fila deste roadmap.
+- 🎯 O Core publica um contrato versionado, validado e documentado que possa ser consumido sem
+  acesso à sua implementação interna.
 
-### Fase 3 — Desktop instalável (`lootradar-desktop`)
-- 🔧 Criar o repositório consumidor `lootradar-desktop` com CI e versionamento independentes.
-- 🔧 Consumir uma versão compatível do Core como dependência Composer.
-- 🔧 Empacotar a interface com **NativePHP** (`.exe`/`.app`/Linux).
-- 🔧 System Tray: roda minimizado, acorda para alertar promoção-relâmpago.
-- 🔧 Ajuste de `memory_limit` para consumo mínimo.
-- 🎯 Executável autocontido abre e lista jogos sem PHP/Composer instalados.
+### Fase 3 — Contrato para Desktop
+- ✅ Pacote Composer público disponível para consumidores com faixa de versão explícita.
+- 🔧 Continuar documentando compatibilidade e mudanças da API pública conforme o Semantic
+  Versioning.
+- ℹ️ Criação do repositório, NativePHP, interface, System Tray, builders e releases pertencem
+  exclusivamente ao futuro `lootradar-desktop`.
+- 🎯 O Core pode ser instalado e usado pelo Desktop sem dependências de interface incorporadas ao
+  pacote.
 
 ### Fase 4 — QA
 - ✅ Pest configurado, 96 testes / 488 asserções.
@@ -297,19 +307,16 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
 - 🔧 Subir PHPStan 5 → 6 → 8/max.
-- ✅ No repositório Web, testes offline do contrato v1 e das regras de apresentação.
-- 🔧 No repositório Web, testes de layout com Playwright e auditoria Lighthouse.
-- 🔧 No repositório Desktop, testes de integração com as versões aceitas do Core.
-- 🎯 Cobertura dos parsers e do pipeline; CI verde nos três repositórios.
+- ✅ Contrato v1 do snapshot coberto no Core por Schema JSON e fixture dourada.
+- 🎯 Cobertura dos parsers, do pipeline e dos contratos públicos; CI do Core verde.
 
 ### Fase 5 — CI/CD (GitHub Actions)
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
 - 🔧 No Core, `box.json` → compilar `.phar` em tags de versão.
-- 🔧 No Web, o **cron** que instala o Core, valida coletas completas e publica a PWA estática está
-  implementado localmente; falta publicá-lo e validar a primeira execução no GitHub Actions.
-- 🔧 No Desktop, builders do NativePHP anexam os binários à release correspondente.
-- 🎯 Cada repositório gera e publica seus próprios artefatos sem depender de uma tag global.
+- ℹ️ Cron de snapshots, Pages, builders do NativePHP e workflows dos consumidores ficam fora deste
+  repositório.
+- 🎯 O Core valida e publica seus próprios artefatos sem depender dos workflows dos consumidores.
 
 ### Fase 6 — Publicação
 - ✅ Preparação do release local `v0.1.0`: `.gitignore`, `LICENSE` MIT,
@@ -342,15 +349,11 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- ✅ Repositório `lootradar-web` criado; a base da PWA está pronta no commit local `52f90b5`.
-- 🔧 Publicar a implementação inicial do `lootradar-web` e criar o repositório
-  `lootradar-desktop`.
-- 🔧 Deploy da PWA a partir do repositório Web, com HTTPS válido em
-  Vercel, Netlify ou Pages.
-- 🔧 Releases dos executáveis a partir do repositório Desktop.
-- 🔧 README de alto nível: badges, GIFs da CLI e do mobile, instalação via Composer, seção Download.
+- 🔧 README de alto nível: badges, demonstrações da CLI, instalação via Composer e seção Download.
 - ✅ `composer require lootradar/lootradar:^0.5` funciona a partir do Packagist.
-- 🎯 PWA pública; releases do Desktop oferecem binários.
+- ℹ️ Publicações do Web e do Desktop são acompanhadas exclusivamente nos roadmaps desses
+  consumidores.
+- 🎯 Pacote Composer, CLI, Schema JSON, `.phar` e GitHub Release do Core publicados e validados.
 
 ---
 
@@ -377,7 +380,7 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 
 ---
 
-## 8. Definição de Pronto (global)
+## 8. Definição de Pronto do Core
 1. `find src -name '*.php' | xargs -n1 php -l` sem erros.
 2. `vendor/bin/phpstan analyse src` verde no nível vigente (meta: subir gradualmente até max).
 3. `vendor/bin/pest` verde, com fixtures cobrindo cada parser.
@@ -389,6 +392,9 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Publicar o commit local `52f90b5` do `lootradar-web` e acompanhar os workflows de CI e Pages.
-2. Validar a PWA publicada com Lighthouse e acrescentar testes de layout com Playwright.
-3. Subir o PHPStan gradualmente do nível 5 para o 6 no Core.
+1. Publicar as alterações documentais pendentes do Core por Pull Request, depois de confirmar
+   `composer lint`, `composer test` e `composer analyse` verdes.
+2. Subir o PHPStan do nível 5 para o 6 em uma alteração isolada, preservando o CI verde.
+3. Preparar `box.json` e o workflow de release do `.phar` do Core.
+4. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
+   download dos artefatos próprios.
