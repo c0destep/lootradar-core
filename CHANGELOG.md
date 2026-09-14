@@ -11,6 +11,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 - Configuração do Box e workflow para compilar, validar e anexar o PHAR e seu checksum SHA-256
   depois da publicação manual de uma GitHub Release baseada em tag anotada de `main`.
+- Badges de distribuição e qualidade, demonstração da CLI e instruções para baixar e validar o
+  PHAR no README.
 
 ### Changed
 

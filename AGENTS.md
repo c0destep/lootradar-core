@@ -92,10 +92,9 @@
 
 ## Ordem de execução recomendada
 
-1. Atualizar o README com demonstrações e downloads dos artefatos próprios do Core.
-2. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
-3. Manter o PHPStan no nível max e os gates locais/CI verdes.
-4. Manter API, CLI, Schema JSON, fixtures, changelog e notas de release sincronizados para que os
+1. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
+2. Manter o PHPStan no nível max e os gates locais/CI verdes.
+3. Manter API, CLI, Schema JSON, fixtures, changelog e notas de release sincronizados para que os
    consumidores possam avaliar cada nova versão de forma independente.
 
 ## Comandos de qualidade

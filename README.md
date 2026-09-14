@@ -1,5 +1,10 @@
 # LootRadar Core
 
+[![CI](https://github.com/c0destep/lootradar-core/actions/workflows/ci.yml/badge.svg)](https://github.com/c0destep/lootradar-core/actions/workflows/ci.yml)
+[![Versão no Packagist](https://img.shields.io/packagist/v/lootradar/lootradar.svg)](https://packagist.org/packages/lootradar/lootradar)
+[![Downloads no Packagist](https://img.shields.io/packagist/dt/lootradar/lootradar.svg)](https://packagist.org/packages/lootradar/lootradar)
+[![Licença](https://img.shields.io/packagist/l/lootradar/lootradar.svg)](LICENSE)
+
 Núcleo PHP 8.5+ para coletar, normalizar, filtrar e exibir
 jogos gratuitos e promoções de lojas digitais.
 
@@ -64,9 +69,23 @@ cd lootradar-core
 composer install
 ```
 
+### Download do PHAR
+
+As releases que incluem o executável autônomo disponibilizam `lootradar.phar` e
+`lootradar.phar.sha256` na página de [releases do GitHub](https://github.com/c0destep/lootradar-core/releases).
+Depois de baixar os dois arquivos no mesmo diretório, confira o artefato antes de executá-lo:
+
+```bash
+sha256sum --check lootradar.phar.sha256
+php lootradar.phar --version
+php lootradar.phar help
+```
+
+Em sistemas Unix, o PHAR também pode ser executado diretamente após `chmod +x lootradar.phar`.
+
 ### Build do PHAR
 
-O executável standalone é compilado com [Box 4.7](https://box-project.github.io/box/). Com o
+O executável autônomo é compilado com [Box 4.7](https://box-project.github.io/box/). Com o
 comando `box` disponível no ambiente, gere e valide o artefato localmente:
 
 ```bash
@@ -88,6 +107,23 @@ os temas, as opções globais e exemplos de uso:
 ./bin/lootradar help
 ./bin/lootradar help free
 ./bin/lootradar help deal
+```
+
+### Demonstração da CLI
+
+A saída sem cores conserva os dados necessários para leitura em terminais simples e arquivos de
+log. A consulta ao vivo varia conforme o catálogo; este exemplo reproduz o formato com a mesma
+oferta determinística coberta pela suíte de testes:
+
+```text
+$ ./bin/lootradar free --country=BR --locale=pt-BR --no-ansi
+LOOTRADAR — JOGOS GRATUITOS
+  1 JOGO  · 1 loja · região BR · score mínimo 60 · moeda BRL
+────────────────────────────────────────────────────────────────────────────────
+
+1. Control
+Epic Games · Preço normal: 79,99 BRL · Avaliação: 85/100
+Resgatar: https://store.epicgames.com/p/control
 ```
 
 Liste os jogos gratuitos disponíveis nas fontes públicas:

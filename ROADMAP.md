@@ -350,7 +350,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- 🔧 README de alto nível: badges, demonstrações da CLI, instalação via Composer e seção Download.
+- ✅ README de alto nível com badges, demonstração da CLI, instalação via Composer e instruções
+  para baixar e validar o PHAR.
 - ✅ `composer require lootradar/lootradar:^0.5` funciona a partir do Packagist.
 - ℹ️ Publicações do Web e do Desktop são acompanhadas exclusivamente nos roadmaps desses
   consumidores.
@@ -393,5 +394,5 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
-   download dos artefatos próprios.
+1. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
+2. Manter o PHPStan no nível max e os gates locais e do CI verdes.
