@@ -314,7 +314,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
 - ✅ `box.json` e workflow compilam o `.phar` após a publicação manual de uma GitHub Release baseada
   em tag anotada de `main`, executam smoke checks da versão, dos comandos, do `.env` e dos recursos
-  internos, e anexam também o checksum SHA-256.
+  internos, anexam também o checksum SHA-256 e permitem reexecução segura após upload parcial.
 - ℹ️ Cron de snapshots, Pages, builders do NativePHP e workflows dos consumidores ficam fora deste
   repositório.
 - 🎯 O Core valida e publica seus próprios artefatos sem depender dos workflows dos consumidores.

@@ -23,6 +23,11 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
   desconhecidos antes do uso; o PHPStan passa a executar no nível máximo.
 - A CLI empacotada como PHAR carrega o `.env` do diretório em que foi executada.
 
+### Fixed
+
+- Reexecuções do workflow de release substituem assets parciais do PHAR em vez de falhar quando
+  um upload anterior foi interrompido.
+
 ## [0.5.0] - 2026-09-11
 
 ### Added
