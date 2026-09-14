@@ -83,6 +83,45 @@ it('carrega o arquivo env da aplicação consumidora pelo proxy do Composer', fu
     }
 });
 
+it('carrega o arquivo env do diretório de execução do PHAR', function () {
+    $directory = sys_get_temp_dir() . '/lootradar-phar-env-test-' . bin2hex(random_bytes(6));
+    $packageDirectory = $directory . '/package';
+    $executionDirectory = $directory . '/consumer';
+    expect(mkdir($packageDirectory, 0777, true))->toBeTrue()
+        ->and(mkdir($executionDirectory, 0777, true))->toBeTrue();
+
+    $consumerEnv = $executionDirectory . '/.env';
+    $packageEnv = $packageDirectory . '/.env';
+    expect(file_put_contents($consumerEnv, "LOOTRADAR_PHAR_ENV=consumer\n"))->not->toBeFalse()
+        ->and(file_put_contents($packageEnv, "LOOTRADAR_PHAR_ENV=package\n"))->not->toBeFalse();
+
+    $originalEnv = $_ENV['LOOTRADAR_PHAR_ENV'] ?? null;
+    $originalServer = $_SERVER['LOOTRADAR_PHAR_ENV'] ?? null;
+    $originalDotenvVarsEnv = $_ENV['SYMFONY_DOTENV_VARS'] ?? null;
+    $originalDotenvVarsServer = $_SERVER['SYMFONY_DOTENV_VARS'] ?? null;
+
+    try {
+        unset($_ENV['LOOTRADAR_PHAR_ENV'], $_SERVER['LOOTRADAR_PHAR_ENV']);
+
+        EnvironmentLoader::loadForBinary(
+            $packageDirectory,
+            'phar:///opt/lootradar.phar/vendor/autoload.php',
+            $executionDirectory,
+        );
+
+        expect($_ENV['LOOTRADAR_PHAR_ENV'] ?? null)->toBe('consumer')
+            ->and($_SERVER['LOOTRADAR_PHAR_ENV'] ?? null)->toBe('consumer');
+    } finally {
+        restoreEnvironmentValue('LOOTRADAR_PHAR_ENV', $originalEnv, $originalServer);
+        restoreEnvironmentValue('SYMFONY_DOTENV_VARS', $originalDotenvVarsEnv, $originalDotenvVarsServer);
+        unlink($packageEnv);
+        unlink($consumerEnv);
+        rmdir($packageDirectory);
+        rmdir($executionDirectory);
+        rmdir($directory);
+    }
+});
+
 function restoreEnvironmentValue(string $name, mixed $envValue, mixed $serverValue): void
 {
     if ($envValue === null) {

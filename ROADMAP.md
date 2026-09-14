@@ -44,7 +44,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ presets default/cyberpunk/dracula + tema JSON externo com tokens semânticos e fallback |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.5.0; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 96 casos / 488 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
+| Testes | `tests/` (Pest, 97 casos / 494 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot, PHAR e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level max) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
@@ -302,7 +302,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   pacote.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 96 testes / 488 asserções.
+- ✅ Pest configurado, 97 testes / 494 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
 - ✅ PHPStan level max executado em modo serial com limite de memória explícito de 512 MB.
@@ -312,7 +312,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 ### Fase 5 — CI/CD (GitHub Actions)
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
-- 🔧 No Core, `box.json` → compilar `.phar` em tags de versão.
+- ✅ `box.json` e workflow compilam o `.phar` após a publicação manual de uma GitHub Release baseada
+  em tag anotada de `main`, executam smoke checks da versão, dos comandos, do `.env` e dos recursos
+  internos, e anexam também o checksum SHA-256.
 - ℹ️ Cron de snapshots, Pages, builders do NativePHP e workflows dos consumidores ficam fora deste
   repositório.
 - 🎯 O Core valida e publica seus próprios artefatos sem depender dos workflows dos consumidores.
@@ -391,6 +393,5 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Preparar `box.json` e o workflow de release do `.phar` do Core.
-2. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
+1. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
    download dos artefatos próprios.

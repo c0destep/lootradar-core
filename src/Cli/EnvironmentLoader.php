@@ -13,13 +13,19 @@ final class EnvironmentLoader
 {
     /**
      * Carrega o `.env` da aplicação consumidora quando a CLI é executada pelo
-     * proxy de binários do Composer; no checkout do Core, usa a raiz do pacote.
+     * proxy de binários do Composer. O PHAR informa seu diretório de execução;
+     * no checkout do Core, usa a raiz do pacote.
      */
-    public static function loadForBinary(string $packageDirectory, ?string $composerAutoloadPath): void
-    {
-        $projectDirectory = $composerAutoloadPath === null || trim($composerAutoloadPath) === ''
-            ? $packageDirectory
-            : dirname($composerAutoloadPath, 2);
+    public static function loadForBinary(
+        string $packageDirectory,
+        ?string $composerAutoloadPath,
+        ?string $standaloneDirectory = null,
+    ): void {
+        $projectDirectory = match (true) {
+            $standaloneDirectory !== null && trim($standaloneDirectory) !== '' => $standaloneDirectory,
+            $composerAutoloadPath !== null && trim($composerAutoloadPath) !== '' => dirname($composerAutoloadPath, 2),
+            default => $packageDirectory,
+        };
 
         self::load($projectDirectory);
     }

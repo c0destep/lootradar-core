@@ -64,6 +64,22 @@ cd lootradar-core
 composer install
 ```
 
+### Build do PHAR
+
+O executável standalone é compilado com [Box 4.7](https://box-project.github.io/box/). Com o
+comando `box` disponível no ambiente, gere e valide o artefato localmente:
+
+```bash
+composer build:phar
+php dist/lootradar.phar --version
+php dist/lootradar.phar list --raw
+```
+
+O PHAR inclui os temas e o Schema JSON do snapshot. Ao ser executado, ele procura o `.env` no
+diretório de trabalho atual. Depois que uma GitHub Release é publicada manualmente, o workflow
+repete todos os gates, confirma que sua tag é anotada e pertence à `main`, valida a versão e anexa
+`lootradar.phar` e seu checksum SHA-256 à release.
+
 Execute a CLI sem argumentos ou use `help` para consultar os comandos, as fontes,
 os temas, as opções globais e exemplos de uso:
 

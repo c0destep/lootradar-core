@@ -7,6 +7,11 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- Configuração do Box e workflow para compilar, validar e anexar o PHAR e seu checksum SHA-256
+  depois da publicação manual de uma GitHub Release baseada em tag anotada de `main`.
+
 ### Changed
 
 - O gate de análise estática passou do PHPStan nível 5 para o nível 6.
@@ -14,6 +19,7 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
   gate de análise estática avançou do PHPStan nível 6 para o nível 8.
 - Os parsers externos, a leitura do SQLite e a reconstrução de ofertas agora estreitam valores
   desconhecidos antes do uso; o PHPStan passa a executar no nível máximo.
+- A CLI empacotada como PHAR carrega o `.env` do diretório em que foi executada.
 
 ## [0.5.0] - 2026-09-11
 
