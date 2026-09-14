@@ -7,6 +7,11 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Changed
+
+- Os workflows usam `actions/checkout@v7`, compatível com o runtime Node.js 24 dos runners atuais.
+- O roadmap e o contexto de continuidade registram a publicação e a validação pública da `v0.6.0`.
+
 ## [0.6.0] - 2026-09-14
 
 ### Added
