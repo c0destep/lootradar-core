@@ -12,6 +12,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - O gate de análise estática passou do PHPStan nível 5 para o nível 6.
 - O `RadarService` passou a declarar explicitamente suas coleções serializadas como listas, e o
   gate de análise estática avançou do PHPStan nível 6 para o nível 8.
+- Os parsers externos, a leitura do SQLite e a reconstrução de ofertas agora estreitam valores
+  desconhecidos antes do uso; o PHPStan passa a executar no nível máximo.
 
 ## [0.5.0] - 2026-09-11
 

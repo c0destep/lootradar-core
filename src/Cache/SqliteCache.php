@@ -71,13 +71,25 @@ final class SqliteCache implements CacheInterface
             return null;
         }
 
-        if ((int)($row['expires_at'] ?? 0) <= time()) {
+        $expiresAt = $row['expires_at'] ?? null;
+        if (!is_int($expiresAt) && !(is_string($expiresAt) && ctype_digit($expiresAt))) {
+            $this->forget($key);
+            return null;
+        }
+
+        if ((int) $expiresAt <= time()) {
+            $this->forget($key);
+            return null;
+        }
+
+        $payload = $row['payload'] ?? null;
+        if (!is_string($payload)) {
             $this->forget($key);
             return null;
         }
 
         try {
-            $decoded = json_decode((string)($row['payload'] ?? ''), true, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
             $this->forget($key);
             return null;

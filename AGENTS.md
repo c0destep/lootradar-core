@@ -4,7 +4,7 @@
 
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
-- O estado validado em 2026-09-11 é: lint verde; Pest com 96 testes e 488 asserções; PHPStan level 5 verde; CLI `0.5.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
+- O estado validado em 2026-09-14 é: lint verde; Pest com 96 testes e 488 asserções; PHPStan level max verde; CLI `0.5.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
 - O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.5.0` e o remoto público https://github.com/c0destep/lootradar-core.
 - A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`;
   cada consumidor mantém seu estado e seu planejamento no próprio repositório.
@@ -92,10 +92,9 @@
 
 ## Ordem de execução recomendada
 
-1. Publicar as alterações documentais pendentes do Core por Pull Request com os gates obrigatórios
-   verdes.
-2. Subir o PHPStan gradualmente do nível 5 para o 6 e, depois, para o 8/max, sempre com o CI verde.
-3. Implementar e validar a geração do `.phar` do Core em tags de versão.
+1. Implementar e validar a geração do `.phar` do Core em tags de versão.
+2. Atualizar o README com demonstrações e downloads dos artefatos próprios do Core.
+3. Manter o PHPStan no nível max e os gates locais/CI verdes.
 4. Manter API, CLI, Schema JSON, fixtures, changelog e notas de release sincronizados para que os
    consumidores possam avaliar cada nova versão de forma independente.
 

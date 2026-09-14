@@ -84,8 +84,10 @@ final class EpicGamesAdapter implements StoreAdapterInterface
             return [];
         }
 
-        $elements = $data['data']['Catalog']['searchStore']['elements'] ?? [];
-
+        $dataNode = $data['data'] ?? null;
+        $catalog = is_array($dataNode) ? ($dataNode['Catalog'] ?? null) : null;
+        $searchStore = is_array($catalog) ? ($catalog['searchStore'] ?? null) : null;
+        $elements = is_array($searchStore) ? ($searchStore['elements'] ?? null) : null;
         if (!is_array($elements)) {
             return [];
         }
@@ -110,7 +112,8 @@ final class EpicGamesAdapter implements StoreAdapterInterface
     {
         $results = [];
         foreach ($elements as $element) {
-            $totalPrice = $element['price']['totalPrice'] ?? [];
+            $price = $element['price'] ?? null;
+            $totalPrice = is_array($price) ? ($price['totalPrice'] ?? null) : null;
             if (!is_array($totalPrice)) {
                 continue;
             }
@@ -129,8 +132,10 @@ final class EpicGamesAdapter implements StoreAdapterInterface
             }
 
             $title = $element['title'] ?? null;
-            $mappings = $element['catalogNs']['mappings'] ?? [];
-            $pageSlug = is_array($mappings) ? ($mappings[0]['pageSlug'] ?? null) : null;
+            $catalogNamespace = $element['catalogNs'] ?? null;
+            $mappings = is_array($catalogNamespace) ? ($catalogNamespace['mappings'] ?? null) : null;
+            $firstMapping = is_array($mappings) ? ($mappings[0] ?? null) : null;
+            $pageSlug = is_array($firstMapping) ? ($firstMapping['pageSlug'] ?? null) : null;
             if (!is_string($title) || trim($title) === '' || !is_string($pageSlug) || trim($pageSlug) === '') {
                 continue;
             }

@@ -89,7 +89,7 @@ class RadarService
 
         usort(
             $deals,
-            static fn(array $a, array $b): int => ((int)($b['discountPercentage'] ?? 0)) <=> ((int)($a['discountPercentage'] ?? 0))
+            static fn(array $a, array $b): int => self::discountPercentage($b) <=> self::discountPercentage($a)
         );
 
         return $deals;
@@ -107,7 +107,7 @@ class RadarService
     }
 
     /**
-     * @param callable(StoreAdapterInterface): array<int, GameDeal> $fetcher
+     * @param callable(StoreAdapterInterface): array<GameDeal> $fetcher
      *
      * @return list<array<string, mixed>>
      */
@@ -180,7 +180,7 @@ class RadarService
     }
 
     /**
-     * @param callable(StoreAdapterInterface): array<int, GameDeal> $fetcher
+     * @param callable(StoreAdapterInterface): array<GameDeal> $fetcher
      *
      * @return array{sources: list<list<GameDeal>>, failures: list<string>}
      */
@@ -331,5 +331,13 @@ class RadarService
         }
 
         return $rows;
+    }
+
+    /** @param array<string, mixed> $deal */
+    private static function discountPercentage(array $deal): int
+    {
+        $discount = $deal['discountPercentage'] ?? null;
+
+        return is_int($discount) ? $discount : 0;
     }
 }
