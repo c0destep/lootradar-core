@@ -136,7 +136,9 @@ final class UrlSanitizer
                 continue;
             }
 
-            $name = strtolower(urldecode(str_contains($pair, '=') ? strstr($pair, '=', true) : $pair));
+            $separatorPosition = strpos($pair, '=');
+            $encodedName = $separatorPosition === false ? $pair : substr($pair, 0, $separatorPosition);
+            $name = strtolower(urldecode($encodedName));
 
             if (!in_array($name, $this->strippedParams, true)) {
                 $kept[] = $pair;

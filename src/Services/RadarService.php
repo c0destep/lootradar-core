@@ -50,7 +50,7 @@ class RadarService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function getFreeGames(bool $bypassCache = false): array
     {
@@ -62,7 +62,7 @@ class RadarService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function getDeals(bool $bypassCache = false): array
     {
@@ -76,7 +76,7 @@ class RadarService
     /**
      * As N maiores promoções, já ordenadas por desconto decrescente.
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function getTopDeals(int $limit = 10, bool $bypassCache = false): array
     {
@@ -109,7 +109,7 @@ class RadarService
     /**
      * @param callable(StoreAdapterInterface): array<int, GameDeal> $fetcher
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function collect(
         string $cacheKey,
@@ -305,7 +305,7 @@ class RadarService
     /**
      * @param list<GameDeal> $deals
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function serialize(array $deals): array
     {
@@ -318,7 +318,7 @@ class RadarService
      *
      * @param array<mixed> $cached
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function narrowToRows(array $cached): array
     {

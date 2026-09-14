@@ -98,7 +98,7 @@
       "php -l bin/lootradar"
     ],
     "test": "vendor/bin/pest",
-    "analyse": "vendor/bin/phpstan analyse src --level=6 --debug --memory-limit=512M",
+    "analyse": "vendor/bin/phpstan analyse src --level=8 --debug --memory-limit=512M",
     "check:package": [
       "composer validate --strict",
       "composer check-platform-reqs",

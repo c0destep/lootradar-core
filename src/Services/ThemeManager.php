@@ -58,7 +58,21 @@ final class ThemeManager
      */
     public static function getStylesByTheme(string $themeName): array
     {
-        return self::getTheme($themeName)->styles;
+        $styles = self::getTheme($themeName)->styles;
+
+        return [
+            'bg' => self::style($styles, 'bg'),
+            'heading' => self::style($styles, 'heading'),
+            'badge' => self::style($styles, 'badge'),
+            'discountBadge' => self::style($styles, 'discountBadge'),
+            'price' => self::style($styles, 'price'),
+            'muted' => self::style($styles, 'muted'),
+            'historicalLow' => self::style($styles, 'historicalLow'),
+            'link' => self::style($styles, 'link'),
+            'warning' => self::style($styles, 'warning'),
+            'separator' => self::style($styles, 'separator'),
+            'border' => self::style($styles, 'border'),
+        ];
     }
 
     public static function getTheme(string $themeName): Theme
@@ -145,7 +159,8 @@ final class ThemeManager
     public static function availableThemes(): array
     {
         $themes = ['default'];
-        foreach ((array)glob(self::THEME_DIRECTORY . '/*.json') as $path) {
+        $paths = glob(self::THEME_DIRECTORY . '/*.json');
+        foreach ($paths === false ? [] : $paths as $path) {
             $name = pathinfo($path, PATHINFO_FILENAME);
             if ($name !== '' && !in_array($name, $themes, true)) {
                 $themes[] = $name;
