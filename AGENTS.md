@@ -4,14 +4,15 @@
 
 - O `ROADMAP.md` é o documento de referência e deve ser sincronizado a cada etapa concluída.
 - O trabalho posterior já implementou `CacheInterface`, `JsonCache`, `SqliteCache`, `UrlSanitizer`, `ShovelwareFilter` e os campos de histórico/moeda em `GameDeal`.
-- O estado validado em 2026-09-14 é: lint verde; Pest com 97 testes e 494 asserções; PHPStan level max verde; CLI `0.5.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
-- O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.5.0` e o remoto público https://github.com/c0destep/lootradar-core.
+- O estado validado em 2026-09-14 é: lint verde; Pest com 97 testes e 494 asserções; PHPStan level max verde; CLI `0.6.0` com os comandos `free`, `deal`, `snapshot` e ajuda integrada.
+- O repositório usa a branch `main`, possui as tags anotadas de `v0.1.0` a `v0.6.0` e o remoto público https://github.com/c0destep/lootradar-core.
 - A arquitetura-alvo foi dividida entre `lootradar-core`, `lootradar-web` e `lootradar-desktop`;
   cada consumidor mantém seu estado e seu planejamento no próprio repositório.
 - O nome definitivo do pacote Composer é `lootradar/lootradar`; não retomar o nome legado `lootradar/core` sem uma decisão explícita de quebra de compatibilidade.
-- A release `v0.5.0` está publicada no GitHub e no Packagist como `lootradar/lootradar`. A
-  instalação pública foi validada em um projeto limpo com CLI, autoload, Schema JSON e `.env`
-  da aplicação consumidora.
+- A release `v0.6.0` está publicada no GitHub e no Packagist como `lootradar/lootradar`. A
+  primeira execução do workflow de release publicou `lootradar.phar` e seu checksum SHA-256; os
+  dois artefatos e a instalação pública foram validados em ambientes limpos com CLI, autoload,
+  Schema JSON e `.env` da aplicação consumidora.
 
 ## Escopo operacional deste repositório
 
@@ -92,7 +93,7 @@
 
 ## Ordem de execução recomendada
 
-1. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
+1. Revalidar o `.phar` e seu checksum em cada release futura.
 2. Manter o PHPStan no nível max e os gates locais/CI verdes.
 3. Manter API, CLI, Schema JSON, fixtures, changelog e notas de release sincronizados para que os
    consumidores possam avaliar cada nova versão de forma independente.
