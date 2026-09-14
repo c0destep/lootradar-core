@@ -43,7 +43,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Serviços transversais | `UrlSanitizer`, `ShovelwareFilter`, `CurrencyConverter`, `FrankfurterExchangeRateProvider`, limitadores de requisições | ✅ URL segura, filtro de score, conversão com cache e quota do ITAD |
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ presets default/cyberpunk/dracula + tema JSON externo com tokens semânticos e fallback |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
-| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.5.0; composição por comando, ajuda completa e opções globais validadas |
+| Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | 🔧 candidato 0.6.0; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 97 casos / 494 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot, PHAR e todas as fontes cobertas offline |
 | Análise estática | `phpstan.neon` (level max) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
@@ -314,7 +314,7 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
 - ✅ `box.json` e workflow compilam o `.phar` após a publicação manual de uma GitHub Release baseada
   em tag anotada de `main`, executam smoke checks da versão, dos comandos, do `.env` e dos recursos
-  internos, e anexam também o checksum SHA-256.
+  internos, anexam também o checksum SHA-256 e permitem reexecução segura após upload parcial.
 - ℹ️ Cron de snapshots, Pages, builders do NativePHP e workflows dos consumidores ficam fora deste
   repositório.
 - 🎯 O Core valida e publica seus próprios artefatos sem depender dos workflows dos consumidores.
@@ -350,6 +350,9 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
+- 🔧 Candidato `v0.6.0` preparado com a distribuição PHAR, checksum, reexecução segura do upload
+  e PHPStan no nível máximo; a publicação e a primeira execução do workflow de release dependem
+  de PR, CI verde, merge na `main` e tag anotada.
 - ✅ README de alto nível com badges, demonstração da CLI, instalação via Composer e instruções
   para baixar e validar o PHAR.
 - ✅ `composer require lootradar/lootradar:^0.5` funciona a partir do Packagist.
@@ -394,5 +397,8 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
-2. Manter o PHPStan no nível max e os gates locais e do CI verdes.
+1. Integrar o candidato `v0.6.0` na `main` por Pull Request com CI verde.
+2. Criar a tag anotada `v0.6.0`, publicar a GitHub Release e validar a primeira execução do
+   workflow, incluindo `lootradar.phar` e `lootradar.phar.sha256`.
+3. Confirmar a sincronização do Packagist e repetir a instalação pública em um consumidor limpo.
+4. Manter o PHPStan no nível max e os gates locais e do CI verdes.

@@ -21,7 +21,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 final class ApplicationFactory
 {
-    public const string VERSION = '0.5.0';
+    public const string VERSION = '0.6.0';
 
     public static function create(
         ?ClientInterface $httpClient = null,
