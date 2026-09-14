@@ -28,10 +28,18 @@ if (!$autoloaded) {
 }
 
 try {
+    $pharPath = Phar::running(false);
+    $standaloneDirectory = null;
+    if ($pharPath !== '') {
+        $workingDirectory = getcwd();
+        $standaloneDirectory = is_string($workingDirectory) ? $workingDirectory : dirname($pharPath);
+    }
+
     $composerAutoloadPath = $GLOBALS['_composer_autoload_path'] ?? null;
     EnvironmentLoader::loadForBinary(
         dirname(__DIR__),
         is_string($composerAutoloadPath) ? $composerAutoloadPath : null,
+        $standaloneDirectory,
     );
 } catch (DotenvExceptionInterface) {
     fwrite(STDERR, "Não foi possível carregar o arquivo .env. Verifique sua sintaxe.\n");

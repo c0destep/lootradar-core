@@ -6,7 +6,7 @@
 > Sempre que uma ideia dos documentos originais for inconsistente, ela é marcada como
 > **DESCARTADA** ou **REFINADA** com a devida justificativa.
 
-Última sincronização: 2026-09-11
+Última sincronização: 2026-09-14
 
 ---
 
@@ -44,8 +44,8 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Temas CLI | `src/Services/ThemeManager.php`, `config/themes/*.json` | ✅ presets default/cyberpunk/dracula + tema JSON externo com tokens semânticos e fallback |
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.5.0; composição por comando, ajuda completa e opções globais validadas |
-| Testes | `tests/` (Pest, 96 casos / 488 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
-| Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
+| Testes | `tests/` (Pest, 97 casos / 494 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot, PHAR e todas as fontes cobertas offline |
+| Análise estática | `phpstan.neon` (level max) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
@@ -111,7 +111,7 @@ Decisões:
 | Wishlist por **scraping de HTML** do perfil Steam | **REFINADA** | Usar o endpoint **JSON** `wishlistdata` da Steam; respeitar rate limit e ToS; tratar como fonte **frágil** com fallback silencioso. |
 | **Smart Conversion** de moeda por fuso horário | **REFINADA** | Fuso ≠ moeda. Moeda vem de **config explícita do usuário** ou do **pricing regional** das APIs. Fuso serve só para exibir "termina em X". |
 | `country` do ITAD como idioma | **REFINADA** | `country` seleciona a região comercial dos preços. Idioma pertence a uma configuração independente de `locale`; os endpoints de promoções e histórico usados no ITAD não recebem locale. |
-| PHPStan **Level 8+** já (Plano Fase 4) vs. Level 5 entregue | **REFINADA** | Ratchet incremental: **5 (hoje) → 6 → 8/max**. Subir de nível exige endurecer o `mixed` dos parsers. Meta de longo prazo mantida. |
+| PHPStan **Level 8+** já (Plano Fase 4) | **CONCLUÍDA** | Ratchet executado em etapas isoladas: **5 → 6 → 8 → max**, com estreitamento dos dados externos e sem baseline de supressões. |
 | Desktop via **Electron + PHP** | **DESCARTADA** em favor de **NativePHP** | Electron+PHP é pesado e duplica runtime. NativePHP entrega `.exe`/`.app` com o próprio PHP embarcado. |
 | Prime Gaming como fonte de 1ª classe | **REBAIXADA** | Sem API pública (ver §3). |
 | `ThemeManager` hardcoded via `match` | **CONCLUÍDA** | Temas são carregados de arquivos JSON em `config/themes/*.json`; o tema `default` permanece como fallback seguro. |
@@ -302,18 +302,19 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   pacote.
 
 ### Fase 4 — QA
-- ✅ Pest configurado, 96 testes / 488 asserções.
+- ✅ Pest configurado, 97 testes / 494 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
-- ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
-- 🔧 Subir PHPStan 5 → 6 → 8/max.
+- ✅ PHPStan level max executado em modo serial com limite de memória explícito de 512 MB.
 - ✅ Contrato v1 do snapshot coberto no Core por Schema JSON e fixture dourada.
 - 🎯 Cobertura dos parsers, do pipeline e dos contratos públicos; CI do Core verde.
 
 ### Fase 5 — CI/CD (GitHub Actions)
 - ✅ Workflow em push/PR para PHP 8.5: validação Composer + lint + Pest + PHPStan.
 - ✅ Workflow publicado e executado com sucesso no GitHub Actions.
-- 🔧 No Core, `box.json` → compilar `.phar` em tags de versão.
+- ✅ `box.json` e workflow compilam o `.phar` após a publicação manual de uma GitHub Release baseada
+  em tag anotada de `main`, executam smoke checks da versão, dos comandos, do `.env` e dos recursos
+  internos, e anexam também o checksum SHA-256.
 - ℹ️ Cron de snapshots, Pages, builders do NativePHP e workflows dos consumidores ficam fora deste
   repositório.
 - 🎯 O Core valida e publica seus próprios artefatos sem depender dos workflows dos consumidores.
@@ -349,7 +350,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
   externos, depois do gate local e do GitHub Actions verdes.
 - ✅ Packagist sincronizado com `v0.5.0`; a instalação pública foi validada em um consumidor limpo,
   incluindo versão da CLI, autoload, Schema JSON e carregamento do `.env` da aplicação.
-- 🔧 README de alto nível: badges, demonstrações da CLI, instalação via Composer e seção Download.
+- ✅ README de alto nível com badges, demonstração da CLI, instalação via Composer e instruções
+  para baixar e validar o PHAR.
 - ✅ `composer require lootradar/lootradar:^0.5` funciona a partir do Packagist.
 - ℹ️ Publicações do Web e do Desktop são acompanhadas exclusivamente nos roadmaps desses
   consumidores.
@@ -392,9 +394,5 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Publicar as alterações documentais pendentes do Core por Pull Request, depois de confirmar
-   `composer lint`, `composer test` e `composer analyse` verdes.
-2. Subir o PHPStan do nível 5 para o 6 em uma alteração isolada, preservando o CI verde.
-3. Preparar `box.json` e o workflow de release do `.phar` do Core.
-4. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
-   download dos artefatos próprios.
+1. Validar a primeira execução do workflow de `.phar` em uma futura tag de versão.
+2. Manter o PHPStan no nível max e os gates locais e do CI verdes.

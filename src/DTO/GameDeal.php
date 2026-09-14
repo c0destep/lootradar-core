@@ -76,18 +76,57 @@ readonly class GameDeal
      */
     public static function fromArray(array $data): self
     {
+        $title = $data['title'] ?? null;
+        $storeName = $data['storeName'] ?? null;
+        $originalPrice = $data['originalPrice'] ?? null;
+        $currentPrice = $data['currentPrice'] ?? null;
+        $checkoutUrl = $data['checkoutUrl'] ?? null;
+        $approvalRating = $data['approvalRating'] ?? null;
+        $isFree = $data['isFree'] ?? null;
+        $currency = $data['currency'] ?? null;
+        $expiresAt = $data['expiresAt'] ?? null;
+        $historicalLow = $data['historicalLow'] ?? null;
+
         return new self(
-            title: (string)($data['title'] ?? 'Desconhecido'),
-            storeName: (string)($data['storeName'] ?? ''),
-            originalPrice: (float)($data['originalPrice'] ?? 0.0),
-            currentPrice: (float)($data['currentPrice'] ?? 0.0),
-            checkoutUrl: (string)($data['checkoutUrl'] ?? ''),
-            approvalRating: isset($data['approvalRating']) ? (int)$data['approvalRating'] : null,
-            isFree: (bool)($data['isFree'] ?? false),
-            currency: isset($data['currency']) ? (string)$data['currency'] : null,
-            expiresAt: isset($data['expiresAt']) ? (string)$data['expiresAt'] : null,
-            historicalLow: isset($data['historicalLow']) ? (float)$data['historicalLow'] : null,
+            title: self::stringValue($title, 'Desconhecido'),
+            storeName: self::stringValue($storeName, ''),
+            originalPrice: self::floatValue($originalPrice) ?? 0.0,
+            currentPrice: self::floatValue($currentPrice) ?? 0.0,
+            checkoutUrl: self::stringValue($checkoutUrl, ''),
+            approvalRating: self::intValue($approvalRating),
+            isFree: is_scalar($isFree) ? (bool) $isFree : false,
+            currency: self::nullableStringValue($currency),
+            expiresAt: self::nullableStringValue($expiresAt),
+            historicalLow: self::floatValue($historicalLow),
         );
+    }
+
+    private static function stringValue(mixed $value, string $default): string
+    {
+        return is_scalar($value) ? (string) $value : $default;
+    }
+
+    private static function nullableStringValue(mixed $value): ?string
+    {
+        return is_scalar($value) ? (string) $value : null;
+    }
+
+    private static function floatValue(mixed $value): ?float
+    {
+        if (is_int($value) || is_float($value) || is_bool($value)) {
+            return (float) $value;
+        }
+
+        return is_string($value) && is_numeric($value) ? (float) $value : null;
+    }
+
+    private static function intValue(mixed $value): ?int
+    {
+        if (is_int($value) || is_float($value) || is_bool($value)) {
+            return (int) $value;
+        }
+
+        return is_string($value) && is_numeric($value) ? (int) $value : null;
     }
 
     /**

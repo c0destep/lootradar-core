@@ -6,6 +6,7 @@
 /.phpstan.cache/
 /var/
 /storage/
+/dist/
 *.lrcache.json
 *.lrcache.json.gz
 *.sqlite

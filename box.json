@@ -1,0 +1,10 @@
+{
+  "alias": "lootradar.phar",
+  "compression": "GZ",
+  "directories": [
+    "config",
+    "resources"
+  ],
+  "force-autodiscovery": true,
+  "output": "dist/lootradar.phar"
+}

@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  phar:
+    name: Build and publish PHAR
+    if: github.repository == 'c0destep/lootradar-core'
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Verify release tag
+        run: |
+          test "$(git cat-file -t "$RELEASE_TAG")" = tag
+          git fetch origin main
+          tag_commit="$(git rev-list -n 1 "$RELEASE_TAG")"
+          git merge-base --is-ancestor "$tag_commit" origin/main
+
+      - name: Setup PHP and Box
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, pdo_sqlite, uri, zlib
+          ini-values: phar.readonly=0
+          coverage: none
+          tools: composer:v2, box:4.7.0
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run package gates
+        run: composer check:package
+
+      - name: Build PHAR
+        run: composer build:phar
+
+      - name: Verify PHAR
+        run: |
+          expected_version="${RELEASE_TAG#v}"
+          test "$(php dist/lootradar.phar --version)" = "LootRadar ${expected_version}"
+          php dist/lootradar.phar list --raw | grep -Eq '^free[[:space:]]'
+          php dist/lootradar.phar list --raw | grep -Eq '^deal[[:space:]]'
+          php dist/lootradar.phar list --raw | grep -Eq '^snapshot[[:space:]]'
+          php -r '$phar = new Phar("dist/lootradar.phar"); $required = ["config/themes/cyberpunk.json", "config/themes/dracula.json", "resources/schema/lootradar-snapshot-v1.schema.json"]; $forbidden = [".env", "AGENTS.md", "tests/Pest.php", ".git/config"]; foreach ($required as $path) { if (!isset($phar[$path])) { exit(1); } } foreach ($forbidden as $path) { if (isset($phar[$path])) { exit(1); } }'
+          phar_workdir="$(mktemp -d)"
+          printf '%s\n' 'INVALID KEY=value' > "$phar_workdir/.env"
+          if (cd "$phar_workdir" && php "$GITHUB_WORKSPACE/dist/lootradar.phar" --version > /dev/null 2> error.log); then exit 1; fi
+          grep -F 'Não foi possível carregar o arquivo .env.' "$phar_workdir/error.log"
+          cd dist
+          sha256sum lootradar.phar > lootradar.phar.sha256
+
+      - name: Attach assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload "$RELEASE_TAG"
+          dist/lootradar.phar
+          dist/lootradar.phar.sha256

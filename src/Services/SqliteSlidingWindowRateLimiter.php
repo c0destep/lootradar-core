@@ -204,7 +204,13 @@ final class SqliteSlidingWindowRateLimiter implements RateLimiterInterface
         $statement->execute(['key' => $key]);
 
         $row = $statement->fetch();
-        if (!is_array($row) || (int)($row['request_count'] ?? 0) < $this->maxRequests) {
+        if (!is_array($row)) {
+            return null;
+        }
+
+        $requestCount = $row['request_count'] ?? null;
+        if ((!is_int($requestCount) && !(is_string($requestCount) && ctype_digit($requestCount)))
+            || (int) $requestCount < $this->maxRequests) {
             return null;
         }
 

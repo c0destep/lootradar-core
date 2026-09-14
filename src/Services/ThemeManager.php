@@ -58,7 +58,21 @@ final class ThemeManager
      */
     public static function getStylesByTheme(string $themeName): array
     {
-        return self::getTheme($themeName)->styles;
+        $styles = self::getTheme($themeName)->styles;
+
+        return [
+            'bg' => self::style($styles, 'bg'),
+            'heading' => self::style($styles, 'heading'),
+            'badge' => self::style($styles, 'badge'),
+            'discountBadge' => self::style($styles, 'discountBadge'),
+            'price' => self::style($styles, 'price'),
+            'muted' => self::style($styles, 'muted'),
+            'historicalLow' => self::style($styles, 'historicalLow'),
+            'link' => self::style($styles, 'link'),
+            'warning' => self::style($styles, 'warning'),
+            'separator' => self::style($styles, 'separator'),
+            'border' => self::style($styles, 'border'),
+        ];
     }
 
     public static function getTheme(string $themeName): Theme
@@ -120,7 +134,7 @@ final class ThemeManager
             throw new RuntimeException("Tema inválido: {$path}");
         }
 
-        $styles = is_array($decoded['styles'] ?? null) ? $decoded['styles'] : [];
+        $styles = self::namedStyles($decoded['styles'] ?? null);
 
         return new Theme(
             name: is_string($decoded['name'] ?? null) ? $decoded['name'] : $fallbackName,
@@ -145,7 +159,8 @@ final class ThemeManager
     public static function availableThemes(): array
     {
         $themes = ['default'];
-        foreach ((array)glob(self::THEME_DIRECTORY . '/*.json') as $path) {
+        $paths = glob(self::THEME_DIRECTORY . '/*.json');
+        foreach ($paths === false ? [] : $paths as $path) {
             $name = pathinfo($path, PATHINFO_FILENAME);
             if ($name !== '' && !in_array($name, $themes, true)) {
                 $themes[] = $name;
@@ -160,6 +175,23 @@ final class ThemeManager
     {
         $value = $styles[$key] ?? self::DEFAULT_STYLES[$key];
         return is_string($value) && trim($value) !== '' ? $value : self::DEFAULT_STYLES[$key];
+    }
+
+    /** @return array<string, mixed> */
+    private static function namedStyles(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $styles = [];
+        foreach ($value as $key => $style) {
+            if (is_string($key)) {
+                $styles[$key] = $style;
+            }
+        }
+
+        return $styles;
     }
 
     private static function themePath(string $themeName): string

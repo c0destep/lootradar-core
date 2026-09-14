@@ -88,7 +88,8 @@ final class SteamAdapter implements StoreAdapterInterface
             return [];
         }
 
-        $items = $payload['specials']['items'] ?? null;
+        $specialsNode = $payload['specials'] ?? null;
+        $items = is_array($specialsNode) ? ($specialsNode['items'] ?? null) : null;
         if (!is_array($items)) {
             return [];
         }
