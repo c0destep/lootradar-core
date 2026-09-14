@@ -6,7 +6,7 @@
 > Sempre que uma ideia dos documentos originais for inconsistente, ela é marcada como
 > **DESCARTADA** ou **REFINADA** com a devida justificativa.
 
-Última sincronização: 2026-09-11
+Última sincronização: 2026-09-14
 
 ---
 
@@ -45,7 +45,7 @@ Base do Core operacional e validada ponta a ponta (**Fase 1 concluída**).
 | Comandos `free`, `deal` e `snapshot` | `src/Commands/*Command.php` (Symfony Console + Termwind) | ✅ listagens humanas responsivas; jogos gratuitos da Epic/Steam/GOG; promoções diretas da Steam/GOG com ITAD opcional; snapshot JSON versionado |
 | Entrypoint CLI | `bin/lootradar`, `src/Cli/ApplicationFactory.php` | ✅ base 0.5.0; composição por comando, ajuda completa e opções globais validadas |
 | Testes | `tests/` (Pest, 96 casos / 488 asserções) | ✅ cache, domínio, moeda, URL, temas, quota, CLI, snapshot e todas as fontes cobertas offline |
-| Análise estática | `phpstan.neon` (level 5) | ✅ modo serial com limite explícito de 512 MB |
+| Análise estática | `phpstan.neon` (level 6) | ✅ modo serial com limite explícito de 512 MB |
 | Credenciais locais | `.env` + `.env.example` | ✅ chave do ITAD isolada do Git; a CLI carrega `.env` sem sobrescrever o ambiente do processo |
 | Temas de arquivo | `config/themes/cyberpunk.json`, `config/themes/dracula.json` | ✅ carregados dinamicamente |
 
@@ -111,7 +111,7 @@ Decisões:
 | Wishlist por **scraping de HTML** do perfil Steam | **REFINADA** | Usar o endpoint **JSON** `wishlistdata` da Steam; respeitar rate limit e ToS; tratar como fonte **frágil** com fallback silencioso. |
 | **Smart Conversion** de moeda por fuso horário | **REFINADA** | Fuso ≠ moeda. Moeda vem de **config explícita do usuário** ou do **pricing regional** das APIs. Fuso serve só para exibir "termina em X". |
 | `country` do ITAD como idioma | **REFINADA** | `country` seleciona a região comercial dos preços. Idioma pertence a uma configuração independente de `locale`; os endpoints de promoções e histórico usados no ITAD não recebem locale. |
-| PHPStan **Level 8+** já (Plano Fase 4) vs. Level 5 entregue | **REFINADA** | Ratchet incremental: **5 (hoje) → 6 → 8/max**. Subir de nível exige endurecer o `mixed` dos parsers. Meta de longo prazo mantida. |
+| PHPStan **Level 8+** já (Plano Fase 4) vs. Level 6 entregue | **REFINADA** | Ratchet incremental: **6 (hoje) → 8/max**. Subir de nível exige endurecer o `mixed` dos parsers. Meta de longo prazo mantida. |
 | Desktop via **Electron + PHP** | **DESCARTADA** em favor de **NativePHP** | Electron+PHP é pesado e duplica runtime. NativePHP entrega `.exe`/`.app` com o próprio PHP embarcado. |
 | Prime Gaming como fonte de 1ª classe | **REBAIXADA** | Sem API pública (ver §3). |
 | `ThemeManager` hardcoded via `match` | **CONCLUÍDA** | Temas são carregados de arquivos JSON em `config/themes/*.json`; o tema `default` permanece como fallback seguro. |
@@ -305,8 +305,8 @@ Legenda: ✅ feito · 🔧 em aberto · 🎯 critério de pronto.
 - ✅ Pest configurado, 96 testes / 488 asserções.
 - ✅ **Fixtures** JSON estáticos e testes de parser offline para Epic, ITAD, Steam e GOG.
 - ✅ Testes de integração de cache JSON e SQLite.
-- ✅ PHPStan level 5 executado em modo serial com limite de memória explícito de 512 MB.
-- 🔧 Subir PHPStan 5 → 6 → 8/max.
+- ✅ PHPStan level 6 executado em modo serial com limite de memória explícito de 512 MB.
+- 🔧 Subir PHPStan 6 → 8/max.
 - ✅ Contrato v1 do snapshot coberto no Core por Schema JSON e fixture dourada.
 - 🎯 Cobertura dos parsers, do pipeline e dos contratos públicos; CI do Core verde.
 
@@ -392,9 +392,7 @@ pacote Composer. A estrutura, os motivos e as regras de compatibilidade estão r
 ---
 
 ## 9. Próximos passos imediatos (ordem sugerida)
-1. Publicar as alterações documentais pendentes do Core por Pull Request, depois de confirmar
-   `composer lint`, `composer test` e `composer analyse` verdes.
-2. Subir o PHPStan do nível 5 para o 6 em uma alteração isolada, preservando o CI verde.
-3. Preparar `box.json` e o workflow de release do `.phar` do Core.
-4. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
+1. Subir o PHPStan do nível 6 para o 8/max em alterações isoladas, preservando o CI verde.
+2. Preparar `box.json` e o workflow de release do `.phar` do Core.
+3. Atualizar o README do Core com badges, demonstrações da CLI, instalação via Composer e seção de
    download dos artefatos próprios.

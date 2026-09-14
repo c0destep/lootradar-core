@@ -7,6 +7,10 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Changed
+
+- O gate de análise estática passou do PHPStan nível 5 para o nível 6.
+
 ## [0.5.0] - 2026-09-11
 
 ### Added
