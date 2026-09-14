@@ -7,6 +7,8 @@ e o versionamento segue [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-14
+
 ### Added
 
 - Configuração do Box e workflow para compilar, validar e anexar o PHAR e seu checksum SHA-256

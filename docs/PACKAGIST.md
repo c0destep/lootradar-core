@@ -64,7 +64,7 @@ Em um diretório novo, execute:
 
 ```bash
 composer init --name=lootradar/package-smoke --no-interaction
-composer require lootradar/lootradar:^0.5 --prefer-dist
+composer require lootradar/lootradar:^0.6 --prefer-dist
 vendor/bin/lootradar --version
 vendor/bin/lootradar help snapshot
 ```
